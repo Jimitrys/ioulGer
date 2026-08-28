@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "i18n core",
+    "slug": "i18n-core",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "scope": "frontend",
+        "enabled": true
+    }
+}
