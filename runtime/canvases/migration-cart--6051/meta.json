@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6051,
+    "post_type": "igc_canvas",
+    "title": "Cart",
+    "slug": "migration-cart",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "target_page_id": 5896,
+        "route_active": false
+    }
+}

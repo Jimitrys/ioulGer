@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6049,
+    "post_type": "igc_canvas",
+    "title": "contact",
+    "slug": "migration-contact",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "target_page_id": 5984,
+        "route_active": false
+    }
+}

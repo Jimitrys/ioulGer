@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6043,
+    "post_type": "igc_canvas",
+    "title": "Workshop",
+    "slug": "untitled-visual-page-2",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "target_page_id": 5871,
+        "route_active": false
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6034,
+    "post_type": "igc_canvas",
+    "title": "Home — Site Studio Migration",
+    "slug": "home-site-studio-migration",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "target_page_id": 5516,
+        "route_active": false
+    }
+}

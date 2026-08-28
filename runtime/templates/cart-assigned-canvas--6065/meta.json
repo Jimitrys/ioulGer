@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 6065,
+    "post_type": "igc_theme_template",
+    "title": "Cart — Assigned Canvas",
+    "slug": "cart-assigned-canvas",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "cart",
+        "include": "",
+        "priority": 10
+    }
+}

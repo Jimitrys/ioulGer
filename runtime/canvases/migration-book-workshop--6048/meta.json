@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6048,
+    "post_type": "igc_canvas",
+    "title": "Book Workshop",
+    "slug": "migration-book-workshop",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "target_page_id": 5964,
+        "route_active": false
+    }
+}

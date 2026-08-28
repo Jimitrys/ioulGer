@@ -1,0 +1,21 @@
+{
+    "colors": {
+        "background": "#FFFEF7",
+        "text": "#2B2B2B",
+        "accent": "#7C3737",
+        "muted": "rgba(43,43,43,.60)",
+        "border": "rgba(43,43,43,.20)"
+    },
+    "typography": {
+        "body_font": "\"Montserrat z\", Arial, sans-serif",
+        "heading_font": "\"Montserrat z\", Arial, sans-serif",
+        "base_size": "16px",
+        "line_height": "1.5"
+    },
+    "layout": {
+        "content_width": "1180px",
+        "wide_width": "1600px",
+        "space": "8px",
+        "radius": "5px"
+    }
+}

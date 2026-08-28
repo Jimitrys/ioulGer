@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6041,
+    "post_type": "igc_canvas",
+    "title": "About",
+    "slug": "untitled-visual-page",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "target_page_id": 5804,
+        "route_active": false
+    }
+}
