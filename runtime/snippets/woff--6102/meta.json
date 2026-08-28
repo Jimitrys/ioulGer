@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6102,
+    "post_type": "igc_php_snippet",
+    "title": "woff",
+    "slug": "woff",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}

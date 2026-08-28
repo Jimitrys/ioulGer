@@ -72,9 +72,24 @@
 .igc-git-admin .igc-git-actions form { margin: 0; }
 .igc-git-admin .igc-git-push-form { display: flex; flex: 1 1 360px; gap: 8px; }
 .igc-git-admin .igc-git-push-form input { flex: 1; min-width: 180px; }
+.igc-git-admin .igc-git-push-form--simple { flex: 0 0 auto; }
+.igc-quick-sync { border-color: #b9c4ff; background: linear-gradient(135deg, #fff 0%, #f4f5ff 100%); }
+.igc-quick-sync__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 0 24px 24px; }
+.igc-quick-sync__actions > div { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center; padding: 20px; border: 1px solid #d9dcec; border-radius: 8px; background: rgba(255, 255, 255, .78); }
+.igc-quick-sync__actions > div > span { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: #3855e8; color: #fff; font-weight: 700; }
+.igc-quick-sync__actions strong { font-size: 16px; }
+.igc-quick-sync__actions form { grid-column: 1 / -1; margin: 4px 0 0; }
+.igc-quick-sync__actions .button { width: 100%; min-height: 42px; }
+.igc-quick-sync__actions small { grid-column: 1 / -1; color: #68645d; }
 .igc-git-admin .igc-git-output { max-height: 260px; margin: 14px 0 0; padding: 14px; overflow: auto; border: 1px solid #d8d5ce; border-radius: 6px; background: #181817; color: #f4f1e9; font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
 .igc-git-admin .notice .igc-git-output { margin: 8px 0; }
 .igc-git-admin code { word-break: break-all; }
+
+.column-igc_snippet_status { width: 150px; }
+.igc-snippet-state { display: inline-flex; margin-bottom: 7px; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 1.4; }
+.igc-snippet-state--active { background: #dff4e6; color: #176b38; }
+.igc-snippet-state--inactive { background: #eceae5; color: #625f58; }
+.igc-snippet-failed { color: #b32d2e; font-weight: 600; }
 
 @media (max-width: 960px) {
 	.igc-grid--three { grid-template-columns: 1fr; }
@@ -83,4 +98,5 @@
 	.igc-hero, .igc-page-heading { align-items: flex-start; flex-direction: column; }
 	.igc-setting-row { align-items: flex-start; flex-direction: column; gap: 16px; }
 	.igc-git-admin .igc-git-push-form { flex-direction: column; }
+	.igc-quick-sync__actions { grid-template-columns: 1fr; }
 }

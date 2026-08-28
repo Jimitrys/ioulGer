@@ -37,11 +37,9 @@ final class IGC_Snippet_Validator {
 			return new WP_Error( 'empty_snippet', __( 'The PHP snippet is empty.', 'igc-builder' ) );
 		}
 
-		if ( str_contains( $code, '<?php' ) || str_contains( $code, '?>' ) ) {
-			return new WP_Error( 'php_tags', __( 'Do not include PHP opening or closing tags.', 'igc-builder' ) );
-		}
-
 		try {
+			// A snippet starts in PHP mode, but may legitimately switch into
+			// inline HTML and back (common in shortcode renderers).
 			$tokens = token_get_all( "<?php\n" . $code, TOKEN_PARSE );
 		} catch ( ParseError $error ) {
 			return new WP_Error( 'parse_error', sprintf( __( 'PHP syntax error: %s', 'igc-builder' ), $error->getMessage() ) );

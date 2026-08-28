@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6110,
+    "post_type": "igc_php_snippet",
+    "title": "CHOUT",
+    "slug": "chout",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}

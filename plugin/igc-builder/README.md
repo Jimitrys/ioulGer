@@ -42,6 +42,11 @@ WordPress web root; define `IGC_GIT_WORKSPACE_DIR` if the hosting layout require
 writable path. Plugin source is exported for review and release packaging but is
 deliberately not self-deployed.
 
+Once connected, Git Workspace shows two primary sync controls: **Push Site to GitHub**
+and **Pull GitHub to Site**. Push creates a timestamped commit message automatically.
+The same actions are available globally under **Site Sync** in the WordPress admin bar;
+Pull requires confirmation before validation, backup and import begin.
+
 ## Global CSS tokens
 
 The visual settings are output as CSS custom properties:
@@ -55,6 +60,8 @@ The Global Styles screen also accepts a complete custom stylesheet and an option
 ## Safety
 
 - Site Mode is disabled by default.
+- Code Snippets JSON exports can be migrated in one pass from **Site Studio → Import PHP Snippets**. Imports are validated, exact duplicates are skipped, existing snippets are never overwritten, and every imported snippet is staged as disabled.
+- The PHP Snippets list provides one-click Activate/Deactivate controls plus bulk activation and deactivation. Activation always reruns validation before changing runtime status.
 - Page routes are disabled by default, require a published canvas, and only one active canvas may target a page.
 - The real-page preview is available only to an administrator and does not alter the public page.
 - PHP snippets are disabled when created. Saving runs PHP's parser plus a conservative scan that blocks shell execution, direct filesystem deletion, includes, eval/exit and destructive DROP/TRUNCATE SQL.

@@ -22,7 +22,41 @@ final class IGC_Git_Workspace {
 	public static function init(): void {
 		add_action( 'admin_menu', array( self::class, 'menu' ), 22 );
 		add_action( 'admin_post_igc_git_action', array( self::class, 'handle_action' ) );
+		add_action( 'admin_post_igc_git_quick_action', array( self::class, 'handle_quick_action' ) );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'assets' ) );
+		add_action( 'admin_bar_menu', array( self::class, 'admin_bar' ), 95 );
+	}
+
+	public static function admin_bar( WP_Admin_Bar $admin_bar ): void {
+		if ( ! current_user_can( 'manage_options' ) || ! self::is_connected() ) {
+			return;
+		}
+
+		$admin_bar->add_node(
+			array(
+				'id'    => 'igc-git-sync',
+				'title' => '<span class="ab-icon dashicons dashicons-update" style="top:2px"></span>' . esc_html__( 'Site Sync', 'igc-builder' ),
+				'href'  => admin_url( 'admin.php?page=' . self::PAGE ),
+				'meta'  => array( 'title' => __( 'Sync Site Studio with GitHub', 'igc-builder' ) ),
+			)
+		);
+		$admin_bar->add_node(
+			array(
+				'parent' => 'igc-git-sync',
+				'id'     => 'igc-git-quick-push',
+				'title'  => __( '↑ Push Site → GitHub', 'igc-builder' ),
+				'href'   => self::quick_action_url( 'export_push' ),
+			)
+		);
+		$admin_bar->add_node(
+			array(
+				'parent' => 'igc-git-sync',
+				'id'     => 'igc-git-quick-pull',
+				'title'  => __( '↓ Pull GitHub → Site', 'igc-builder' ),
+				'href'   => self::quick_action_url( 'pull_import' ),
+				'meta'   => array( 'onclick' => "return confirm('" . esc_js( __( 'Pull and import the latest GitHub runtime code into this site?', 'igc-builder' ) ) . "');" ),
+			)
+		);
 	}
 
 	public static function menu(): void {
@@ -75,6 +109,18 @@ final class IGC_Git_Workspace {
 				<div class="notice <?php echo ! empty( $notice['ok'] ) ? 'notice-success' : 'notice-error'; ?> inline"><p><strong><?php echo esc_html( (string) $notice['title'] ); ?></strong></p><?php if ( ! empty( $notice['message'] ) ) : ?><pre class="igc-git-output"><?php echo esc_html( (string) $notice['message'] ); ?></pre><?php endif; ?></div>
 			<?php endif; ?>
 
+			<?php if ( $is_connected ) : ?>
+				<section class="igc-panel igc-quick-sync">
+					<div class="igc-panel__heading">
+						<div><span class="igc-eyebrow">TWO-BUTTON SYNC</span><h2><?php esc_html_e( 'Choose the direction', 'igc-builder' ); ?></h2><p><?php esc_html_e( 'Push publishes the current Site Studio code to GitHub. Pull validates, backs up and imports the latest GitHub runtime into WordPress.', 'igc-builder' ); ?></p></div>
+					</div>
+					<div class="igc-quick-sync__actions">
+						<div><span>1</span><strong><?php esc_html_e( 'Site → GitHub', 'igc-builder' ); ?></strong><?php self::push_form(); ?><small><?php esc_html_e( 'Commit message is created automatically.', 'igc-builder' ); ?></small></div>
+						<div><span>2</span><strong><?php esc_html_e( 'GitHub → Site', 'igc-builder' ); ?></strong><?php self::action_form( 'pull_import', __( 'Pull & Import to Site', 'igc-builder' ), 'primary', false, __( 'Pull and import the latest GitHub runtime code into this site?', 'igc-builder' ) ); ?><small><?php esc_html_e( 'Validation and a runtime backup run first.', 'igc-builder' ); ?></small></div>
+					</div>
+				</section>
+			<?php endif; ?>
+
 			<div class="igc-grid igc-grid--three">
 				<section class="igc-card"><div class="igc-card__count"><?php echo $git || $github_ready ? '✓' : '—'; ?></div><h2><?php echo $git ? esc_html__( 'Git binary', 'igc-builder' ) : esc_html__( 'GitHub API', 'igc-builder' ); ?></h2><p><?php echo $git ? esc_html( $git ) : ( $github_ready ? esc_html__( 'Connected without a server Git binary.', 'igc-builder' ) : esc_html__( 'Git was not found. Add a GitHub token below to use API mode.', 'igc-builder' ) ); ?></p></section>
 				<section class="igc-card"><div class="igc-card__count"><?php echo $is_connected ? '✓' : '—'; ?></div><h2><?php esc_html_e( 'Repository', 'igc-builder' ); ?></h2><p><?php echo $is_connected ? esc_html__( 'Connected', 'igc-builder' ) : esc_html__( 'Not connected', 'igc-builder' ); ?></p></section>
@@ -112,7 +158,7 @@ final class IGC_Git_Workspace {
 				<section class="igc-panel">
 					<h2><?php esc_html_e( 'Git → files → WordPress', 'igc-builder' ); ?></h2>
 					<p><?php esc_html_e( 'Pulls with fast-forward only, validates the complete workspace, creates a local backup and then imports the runtime code.', 'igc-builder' ); ?></p>
-					<div class="igc-git-actions"><?php self::action_form( 'pull_import', __( 'Pull & Import', 'igc-builder' ), 'primary', ! $is_connected ); ?></div>
+					<div class="igc-git-actions"><?php self::action_form( 'pull_import', __( 'Pull & Import', 'igc-builder' ), 'primary', ! $is_connected, __( 'Pull and import the latest GitHub runtime code into this site?', 'igc-builder' ) ); ?></div>
 				</section>
 			</div>
 
@@ -132,21 +178,20 @@ final class IGC_Git_Workspace {
 		<?php
 	}
 
-	private static function action_form( string $operation, string $label, string $class = 'secondary', bool $disabled = false ): void {
+	private static function action_form( string $operation, string $label, string $class = 'secondary', bool $disabled = false, string $confirmation = '' ): void {
 		?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<input type="hidden" name="action" value="igc_git_action"><input type="hidden" name="igc_git_operation" value="<?php echo esc_attr( $operation ); ?>"><?php wp_nonce_field( 'igc_git_action', 'igc_git_nonce' ); ?>
-			<button class="button button-<?php echo esc_attr( $class ); ?>" type="submit" <?php disabled( $disabled ); ?>><?php echo esc_html( $label ); ?></button>
+			<button class="button button-<?php echo esc_attr( $class ); ?>" type="submit" <?php disabled( $disabled ); ?><?php echo $confirmation ? ' onclick="return confirm(' . esc_attr( wp_json_encode( $confirmation ) ) . ');"' : ''; ?>><?php echo esc_html( $label ); ?></button>
 		</form>
 		<?php
 	}
 
 	private static function push_form(): void {
 		?>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="igc-git-push-form">
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="igc-git-push-form igc-git-push-form--simple">
 			<input type="hidden" name="action" value="igc_git_action"><input type="hidden" name="igc_git_operation" value="export_push"><?php wp_nonce_field( 'igc_git_action', 'igc_git_nonce' ); ?>
-			<input type="text" name="commit_message" maxlength="120" placeholder="Update Site Studio code" required>
-			<button class="button button-primary" type="submit"><?php esc_html_e( 'Export, Commit & Push', 'igc-builder' ); ?></button>
+			<button class="button button-primary" type="submit"><?php esc_html_e( 'Push Site to GitHub', 'igc-builder' ); ?></button>
 		</form>
 		<?php
 	}
@@ -156,36 +201,64 @@ final class IGC_Git_Workspace {
 			wp_die( esc_html__( 'Git action was not authorised.', 'igc-builder' ) );
 		}
 
-		$operation = sanitize_key( wp_unslash( $_POST['igc_git_operation'] ?? '' ) );
 		try {
-			switch ( $operation ) {
-				case 'save_settings':
-					self::save_settings();
-					self::notice( true, __( 'Git settings saved.', 'igc-builder' ) );
-					break;
-				case 'export':
-					self::assert_clean_if_repository();
-					$count = self::export_workspace();
-					self::notice( true, sprintf( __( 'Exported %d code items.', 'igc-builder' ), $count ), self::workspace_dir() );
-					break;
-				case 'initialize':
-					self::initialize_repository();
-					break;
-				case 'export_push':
-					self::export_commit_push();
-					break;
-				case 'pull_import':
-					self::pull_import();
-					break;
-				default:
-					throw new RuntimeException( __( 'Unknown Git operation.', 'igc-builder' ) );
-			}
+			self::perform_operation( sanitize_key( wp_unslash( $_POST['igc_git_operation'] ?? '' ) ) );
 		} catch ( Throwable $error ) {
 			self::notice( false, __( 'The operation stopped safely.', 'igc-builder' ), $error->getMessage() );
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE ) );
 		exit;
+	}
+
+	public static function handle_quick_action(): void {
+		$operation = sanitize_key( wp_unslash( $_GET['igc_git_operation'] ?? '' ) );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Git action was not authorised.', 'igc-builder' ) );
+		}
+		check_admin_referer( 'igc_git_quick_' . $operation );
+		try {
+			self::perform_operation( $operation );
+		} catch ( Throwable $error ) {
+			self::notice( false, __( 'The operation stopped safely.', 'igc-builder' ), $error->getMessage() );
+		}
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE ) );
+		exit;
+	}
+
+	private static function perform_operation( string $operation ): void {
+		switch ( $operation ) {
+			case 'save_settings':
+				self::save_settings();
+				self::notice( true, __( 'Git settings saved.', 'igc-builder' ) );
+				break;
+			case 'export':
+				self::assert_clean_if_repository();
+				$count = self::export_workspace();
+				self::notice( true, sprintf( __( 'Exported %d code items.', 'igc-builder' ), $count ), self::workspace_dir() );
+				break;
+			case 'initialize':
+				self::initialize_repository();
+				break;
+			case 'export_push':
+				self::export_commit_push();
+				break;
+			case 'pull_import':
+				self::pull_import();
+				break;
+			default:
+				throw new RuntimeException( __( 'Unknown Git operation.', 'igc-builder' ) );
+		}
+	}
+
+	private static function quick_action_url( string $operation ): string {
+		return wp_nonce_url(
+			add_query_arg(
+				array( 'action' => 'igc_git_quick_action', 'igc_git_operation' => $operation ),
+				admin_url( 'admin-post.php' )
+			),
+			'igc_git_quick_' . $operation
+		);
 	}
 
 	private static function save_settings(): void {
@@ -251,6 +324,11 @@ final class IGC_Git_Workspace {
 
 	private static function github_ready(): bool {
 		return (bool) self::github_token() && (bool) self::github_repository();
+	}
+
+	private static function is_connected(): bool {
+		$git = self::git_binary();
+		return $git ? is_dir( self::workspace_dir() . '/.git' ) : self::github_ready();
 	}
 
 	private static function github_repository(): string {
@@ -334,8 +412,7 @@ final class IGC_Git_Workspace {
 				throw new RuntimeException( __( 'GitHub API mode is not configured.', 'igc-builder' ) );
 			}
 			self::export_workspace();
-			$message = trim( sanitize_text_field( wp_unslash( $_POST['commit_message'] ?? 'Update Site Studio code' ) ) );
-			$message = function_exists( 'mb_substr' ) ? mb_substr( $message ?: 'Update Site Studio code', 0, 120 ) : substr( $message ?: 'Update Site Studio code', 0, 120 );
+			$message = self::commit_message();
 			$commit = self::github_push( $message );
 			update_option( 'igc_git_last_sync', current_time( 'mysql' ), false );
 			self::notice( true, __( 'Site Studio code exported and pushed through the GitHub API.', 'igc-builder' ), $commit );
@@ -352,12 +429,19 @@ final class IGC_Git_Workspace {
 			self::notice( true, __( 'Everything is already in sync. Nothing was pushed.', 'igc-builder' ) );
 			return;
 		}
-		$message = trim( sanitize_text_field( wp_unslash( $_POST['commit_message'] ?? 'Update Site Studio code' ) ) );
-		$message = function_exists( 'mb_substr' ) ? mb_substr( $message ?: 'Update Site Studio code', 0, 120 ) : substr( $message ?: 'Update Site Studio code', 0, 120 );
+		$message = self::commit_message();
 		self::must_git( array( 'commit', '-m', $message ), 30 );
 		self::must_git( array( 'push', 'origin', self::settings()['branch'] ), 60 );
 		update_option( 'igc_git_last_sync', current_time( 'mysql' ), false );
 		self::notice( true, __( 'Site Studio code exported, committed and pushed.', 'igc-builder' ) );
+	}
+
+	private static function commit_message(): string {
+		$message = trim( sanitize_text_field( wp_unslash( $_POST['commit_message'] ?? '' ) ) );
+		if ( '' === $message ) {
+			$message = sprintf( 'Site Studio sync - %s', wp_date( 'Y-m-d H:i T' ) );
+		}
+		return function_exists( 'mb_substr' ) ? mb_substr( $message, 0, 120 ) : substr( $message, 0, 120 );
 	}
 
 	private static function pull_import(): void {

@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6107,
+    "post_type": "igc_php_snippet",
+    "title": "Products archive",
+    "slug": "products-archive",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}

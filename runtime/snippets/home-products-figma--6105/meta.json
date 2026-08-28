@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 6105,
+    "post_type": "igc_php_snippet",
+    "title": "Home products figma",
+    "slug": "home-products-figma",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}

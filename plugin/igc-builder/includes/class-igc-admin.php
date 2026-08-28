@@ -35,6 +35,126 @@ final class IGC_Admin {
 		add_filter( 'wp_post_revision_meta_keys', array( self::class, 'revision_meta_keys' ) );
 		add_action( 'admin_bar_menu', array( self::class, 'admin_bar_clear_cache' ), 100 );
 		add_action( 'admin_post_igc_clear_cache', array( self::class, 'clear_cache' ) );
+		add_action( 'admin_post_igc_toggle_snippet', array( self::class, 'toggle_snippet' ) );
+		add_filter( 'manage_igc_php_snippet_posts_columns', array( self::class, 'snippet_columns' ) );
+		add_action( 'manage_igc_php_snippet_posts_custom_column', array( self::class, 'snippet_column' ), 10, 2 );
+		add_filter( 'bulk_actions-edit-igc_php_snippet', array( self::class, 'snippet_bulk_actions' ) );
+		add_filter( 'handle_bulk_actions-edit-igc_php_snippet', array( self::class, 'handle_snippet_bulk_action' ), 10, 3 );
+	}
+
+	public static function snippet_columns( array $columns ): array {
+		$result = array();
+		foreach ( $columns as $key => $label ) {
+			$result[ $key ] = $label;
+			if ( 'title' === $key ) {
+				$result['igc_snippet_status'] = __( 'Status', 'igc-builder' );
+			}
+		}
+		return $result;
+	}
+
+	public static function snippet_column( string $column, int $post_id ): void {
+		if ( 'igc_snippet_status' !== $column ) {
+			return;
+		}
+		$enabled = (bool) get_post_meta( $post_id, '_igc_enabled', true );
+		$status  = (string) get_post_meta( $post_id, '_igc_validation_status', true );
+		$url     = wp_nonce_url(
+			add_query_arg(
+				array(
+					'action'  => 'igc_toggle_snippet',
+					'post_id' => $post_id,
+					'enable'  => $enabled ? 0 : 1,
+				),
+				admin_url( 'admin-post.php' )
+			),
+			'igc_toggle_snippet_' . $post_id
+		);
+
+		printf(
+			'<span class="igc-snippet-state igc-snippet-state--%1$s">%2$s</span><br><a class="button button-small" href="%3$s">%4$s</a>%5$s',
+			$enabled ? 'active' : 'inactive',
+			esc_html( $enabled ? __( 'Active', 'igc-builder' ) : __( 'Inactive', 'igc-builder' ) ),
+			esc_url( $url ),
+			esc_html( $enabled ? __( 'Deactivate', 'igc-builder' ) : __( 'Activate', 'igc-builder' ) ),
+			'failed' === $status ? '<br><small class="igc-snippet-failed">' . esc_html__( 'Validation failed', 'igc-builder' ) . '</small>' : ''
+		);
+	}
+
+	public static function snippet_bulk_actions( array $actions ): array {
+		$actions['igc_enable_snippets']  = __( 'Activate snippets', 'igc-builder' );
+		$actions['igc_disable_snippets'] = __( 'Deactivate snippets', 'igc-builder' );
+		return $actions;
+	}
+
+	public static function toggle_snippet(): void {
+		$post_id = absint( $_GET['post_id'] ?? 0 );
+		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) || ! current_user_can( 'unfiltered_html' ) ) {
+			wp_die( esc_html__( 'Snippet status change was not authorised.', 'igc-builder' ) );
+		}
+		check_admin_referer( 'igc_toggle_snippet_' . $post_id );
+		if ( 'igc_php_snippet' !== get_post_type( $post_id ) ) {
+			wp_die( esc_html__( 'Invalid PHP snippet.', 'igc-builder' ) );
+		}
+
+		$enable = ! empty( $_GET['enable'] );
+		$result = self::set_snippet_enabled( $post_id, $enable );
+		$args   = is_wp_error( $result )
+			? array( 'igc_snippet_toggle_failed' => 1 )
+			: array( $enable ? 'igc_snippet_enabled' : 'igc_snippet_disabled' => 1 );
+		wp_safe_redirect( add_query_arg( $args, admin_url( 'edit.php?post_type=igc_php_snippet' ) ) );
+		exit;
+	}
+
+	public static function handle_snippet_bulk_action( string $redirect, string $action, array $post_ids ): string {
+		if ( ! in_array( $action, array( 'igc_enable_snippets', 'igc_disable_snippets' ), true ) ) {
+			return $redirect;
+		}
+		if ( ! current_user_can( 'unfiltered_html' ) ) {
+			return add_query_arg( 'igc_snippet_toggle_failed', count( $post_ids ), $redirect );
+		}
+
+		$enable  = 'igc_enable_snippets' === $action;
+		$changed = 0;
+		$failed  = 0;
+		foreach ( array_map( 'absint', $post_ids ) as $post_id ) {
+			if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) || 'igc_php_snippet' !== get_post_type( $post_id ) ) {
+				$failed++;
+				continue;
+			}
+			$result = self::set_snippet_enabled( $post_id, $enable );
+			is_wp_error( $result ) ? $failed++ : $changed++;
+		}
+
+		return add_query_arg(
+			array(
+				$enable ? 'igc_snippet_enabled' : 'igc_snippet_disabled' => $changed,
+				'igc_snippet_toggle_failed' => $failed,
+			),
+			$redirect
+		);
+	}
+
+	private static function set_snippet_enabled( int $post_id, bool $enable ): bool|WP_Error {
+		if ( ! $enable ) {
+			update_post_meta( $post_id, '_igc_enabled', 0 );
+			return true;
+		}
+
+		$code       = trim( (string) get_post_meta( $post_id, '_igc_php', true ) );
+		$validation = IGC_Snippet_Validator::validate( $code );
+		if ( is_wp_error( $validation ) ) {
+			update_post_meta( $post_id, '_igc_enabled', 0 );
+			update_post_meta( $post_id, '_igc_validation_status', 'failed' );
+			update_post_meta( $post_id, '_igc_last_error', $validation->get_error_message() );
+			return $validation;
+		}
+
+		update_post_meta( $post_id, '_igc_enabled', 1 );
+		update_post_meta( $post_id, '_igc_validation_status', 'passed' );
+		update_post_meta( $post_id, '_igc_last_error', '' );
+		update_post_meta( $post_id, '_igc_last_validated', current_time( 'mysql', true ) );
+		return true;
 	}
 
 	public static function admin_bar_clear_cache( WP_Admin_Bar $admin_bar ): void {
@@ -406,7 +526,7 @@ final class IGC_Admin {
 		} elseif ( 'failed' === $status && $error ) {
 			echo '<div class="notice notice-error inline"><p><strong>' . esc_html__( 'Snippet disabled:', 'igc-builder' ) . '</strong> ' . esc_html( $error ) . '</p></div>';
 		}
-		self::textarea( 'igc_php', 'PHP (without <?php)', (string) get_post_meta( $post->ID, '_igc_php', true ), 28 );
+		self::textarea( 'igc_php', 'PHP (omit the first <?php; internal HTML transitions are allowed)', (string) get_post_meta( $post->ID, '_igc_php', true ), 28 );
 	}
 
 	public static function php_settings_box( WP_Post $post ): void {
@@ -481,6 +601,19 @@ final class IGC_Admin {
 	public static function admin_notices(): void {
 		if ( isset( $_GET['igc_cache_cleared'] ) ) {
 			printf( '<div class="notice notice-success is-dismissible"><p>%s</p></div>', esc_html__( 'Cache cleared.', 'igc-builder' ) );
+		}
+
+		$enabled  = absint( $_GET['igc_snippet_enabled'] ?? 0 );
+		$disabled = absint( $_GET['igc_snippet_disabled'] ?? 0 );
+		$failed   = absint( $_GET['igc_snippet_toggle_failed'] ?? 0 );
+		if ( $enabled ) {
+			printf( '<div class="notice notice-success is-dismissible"><p>%s</p></div>', esc_html( sprintf( _n( '%d PHP snippet activated.', '%d PHP snippets activated.', $enabled, 'igc-builder' ), $enabled ) ) );
+		}
+		if ( $disabled ) {
+			printf( '<div class="notice notice-success is-dismissible"><p>%s</p></div>', esc_html( sprintf( _n( '%d PHP snippet deactivated.', '%d PHP snippets deactivated.', $disabled, 'igc-builder' ), $disabled ) ) );
+		}
+		if ( $failed ) {
+			printf( '<div class="notice notice-error is-dismissible"><p>%s</p></div>', esc_html( sprintf( _n( '%d snippet could not be changed. Check its validation status.', '%d snippets could not be changed. Check their validation status.', $failed, 'igc-builder' ), $failed ) ) );
 		}
 
 		$key     = 'igc_snippet_notice_' . get_current_user_id();

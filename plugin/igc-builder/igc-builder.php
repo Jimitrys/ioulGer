@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Site Studio
  * Description: A lightweight, code-first WordPress site framework with global styles, reusable blocks, theme templates and guarded PHP snippets.
- * Version: 1.1.1
+ * Version: 1.1.5
  * Author: Dimitris Antoniou
  * Requires at least: 6.6
  * Requires PHP: 8.1
@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'IGC_BUILDER_VERSION', '1.1.1' );
+define( 'IGC_BUILDER_VERSION', '1.1.5' );
 define( 'IGC_BUILDER_FILE', __FILE__ );
 define( 'IGC_BUILDER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IGC_BUILDER_URL', plugin_dir_url( __FILE__ ) );
@@ -22,6 +22,7 @@ require_once IGC_BUILDER_DIR . 'includes/class-igc-renderer.php';
 require_once IGC_BUILDER_DIR . 'includes/class-igc-visual-builder.php';
 require_once IGC_BUILDER_DIR . 'includes/class-igc-snippet-validator.php';
 require_once IGC_BUILDER_DIR . 'includes/class-igc-snippets.php';
+require_once IGC_BUILDER_DIR . 'includes/class-igc-snippet-importer.php';
 require_once IGC_BUILDER_DIR . 'includes/class-igc-migration.php';
 require_once IGC_BUILDER_DIR . 'includes/class-igc-woocommerce.php';
 require_once IGC_BUILDER_DIR . 'includes/class-igc-git-workspace.php';
@@ -39,6 +40,7 @@ final class IGC_Builder {
 		IGC_Renderer::init();
 		IGC_Visual_Builder::init();
 		IGC_Snippets::init();
+		IGC_Snippet_Importer::init();
 		IGC_Migration::init();
 		IGC_WooCommerce::init();
 		IGC_Git_Workspace::init();
