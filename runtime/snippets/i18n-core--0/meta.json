@@ -5,9 +5,9 @@
     "title": "i18n core",
     "slug": "i18n-core",
     "status": "publish",
-    "menu_order": 0,
+    "menu_order": 1,
     "properties": {
-        "scope": "frontend",
+        "scope": "everywhere",
         "enabled": true
     }
 }

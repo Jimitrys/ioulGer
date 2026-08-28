@@ -2,10 +2,10 @@
     "schema": 1,
     "id": 0,
     "post_type": "igc_php_snippet",
-    "title": "i18n strings",
-    "slug": "i18n-strings",
+    "title": "i18n seed",
+    "slug": "i18n-seed",
     "status": "publish",
-    "menu_order": 2,
+    "menu_order": 4,
     "properties": {
         "scope": "everywhere",
         "enabled": true
