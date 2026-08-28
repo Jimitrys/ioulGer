@@ -275,7 +275,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				transition-delay: 70ms;
 			}
 
-			.mxl-iph.has-reveal.is-drag-demo .mxl-iph__heading-line {
+			.mxl-iph.has-reveal .mxl-iph__heading-line {
 				opacity: 1;
 				transform: translate3d(0, 0, 0) scale(1);
 				filter: blur(0);
