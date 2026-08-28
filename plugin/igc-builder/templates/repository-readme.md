@@ -1,7 +1,7 @@
 # Site Studio workspace
 
-This repository contains the code-driven presentation layer for **https://iouliageraskliceramics.com/**.
-It was exported by **Site Studio 1.1.6** from WordPress.
+This repository contains the code-driven presentation layer for **{{SITE_URL}}**.
+It was exported by **Site Studio {{PLUGIN_VERSION}}** from WordPress.
 
 This file is both project documentation and the operating contract for developers
 and AI coding agents. Read it before changing anything.
@@ -106,8 +106,8 @@ paths. The importer uses `meta.json` as its authoritative identity data.
 ```json
 {
   "schema": 1,
-  "plugin_version": "1.1.6",
-  "site_url": "https://iouliageraskliceramics.com/",
+  "plugin_version": "{{PLUGIN_VERSION}}",
+  "site_url": "{{SITE_URL}}",
   "exported_at_gmt": "ISO-8601 timestamp"
 }
 ```

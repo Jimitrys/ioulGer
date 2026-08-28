@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Site Studio
  * Description: A lightweight, code-first WordPress site framework with global styles, reusable blocks, theme templates and guarded PHP snippets.
- * Version: 1.1.5
+ * Version: 1.1.6
  * Author: Dimitris Antoniou
  * Requires at least: 6.6
  * Requires PHP: 8.1
@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'IGC_BUILDER_VERSION', '1.1.5' );
+define( 'IGC_BUILDER_VERSION', '1.1.6' );
 define( 'IGC_BUILDER_FILE', __FILE__ );
 define( 'IGC_BUILDER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IGC_BUILDER_URL', plugin_dir_url( __FILE__ ) );
