@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 6030,
+    "post_type": "igc_theme_template",
+    "title": "Header — Site Studio Migration",
+    "slug": "header-site-studio-migration",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "header",
+        "include": "",
+        "priority": 0
+    }
+}

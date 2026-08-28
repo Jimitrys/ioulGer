@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 6062,
+    "post_type": "igc_theme_template",
+    "title": "Shop — Assigned Canvas",
+    "slug": "shop-assigned-canvas",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "product_archive",
+        "include": "shop",
+        "priority": 20
+    }
+}

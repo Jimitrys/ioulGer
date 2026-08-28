@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 6032,
+    "post_type": "igc_theme_template",
+    "title": "Footer — Site Studio Migration",
+    "slug": "footer-site-studio-migration",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "footer",
+        "include": "",
+        "priority": 0
+    }
+}

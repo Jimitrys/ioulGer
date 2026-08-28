@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 6066,
+    "post_type": "igc_theme_template",
+    "title": "Checkout — Assigned Canvas",
+    "slug": "checkout-assigned-canvas",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "checkout",
+        "include": "",
+        "priority": 10
+    }
+}

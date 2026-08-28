@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 6064,
+    "post_type": "igc_theme_template",
+    "title": "Single Product",
+    "slug": "single-product",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "single_product",
+        "include": "",
+        "priority": 10
+    }
+}

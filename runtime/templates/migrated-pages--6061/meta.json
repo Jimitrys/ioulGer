@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 6061,
+    "post_type": "igc_theme_template",
+    "title": "Migrated Pages",
+    "slug": "migrated-pages",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "page",
+        "include": "about,workshops,book-workshop,contact,shop",
+        "priority": 10
+    }
+}

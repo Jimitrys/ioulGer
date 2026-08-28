@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 6063,
+    "post_type": "igc_theme_template",
+    "title": "Product Archives",
+    "slug": "product-archives",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "product_archive",
+        "include": "",
+        "priority": 10
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 6060,
+    "post_type": "igc_theme_template",
+    "title": "Home — Assigned Canvas",
+    "slug": "home-assigned-canvas",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "front_page",
+        "include": "",
+        "priority": 10
+    }
+}
