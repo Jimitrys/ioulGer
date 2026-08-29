@@ -296,8 +296,11 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		--iwf-ease: cubic-bezier(.16, 1, .3, 1);
 
 		/* Times read as their own colour, not as the site's accent. */
-		--iwf-slot-ink: #813527;
-		--iwf-slot-bg: rgba(129, 53, 39, .12);
+		/* Availability is a quiet tint of the ink, and choosing fills it. Colour
+		   in a booking flow reads as a warning, which is the opposite of what an
+		   open slot means. */
+		--iwf-slot-ink: var(--ioulia-ink, #2B2B2B);
+		--iwf-slot-bg: rgba(43, 43, 43, .07);
 
 		box-sizing: border-box;
 		width: 100%;
@@ -397,9 +400,12 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		--iwf-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
 		--iwf-muted: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
 		--iwf-ease: cubic-bezier(.16, 1, .3, 1);
-		--iwf-slot-ink: #813527;
-		--iwf-slot-bg: rgba(129, 53, 39, .12);
-		--iwf-card: 14px;
+		/* Availability is a quiet tint of the ink, and choosing fills it. Colour
+		   in a booking flow reads as a warning, which is the opposite of what an
+		   open slot means. */
+		--iwf-slot-ink: var(--ioulia-ink, #2B2B2B);
+		--iwf-slot-bg: rgba(43, 43, 43, .07);
+		--iwf-card: 16px;
 		--iwf-gutter: clamp(1.25rem, 5vw, 2rem);
 
 		position: fixed;
@@ -430,7 +436,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		width: min(600px, 100%);
 		/* svh, so mobile browser chrome cannot clip the footer. */
 		max-height: 92svh;
-		border-radius: 22px 22px 0 0;
+		border-radius: 24px 24px 0 0;
 		background: var(--iwf-paper);
 		box-shadow: 0 -8px 40px rgba(43, 43, 43, .14);
 	}
@@ -439,7 +445,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	@keyframes iwf-fade { from { opacity: 0; } to { opacity: 1; } }
 	@keyframes iwf-rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
 
-	.iwf-modal__grab { display: block; width: 36px; height: 4px; margin: 10px auto 0; border-radius: 999px; background: var(--iwf-line); }
+	.iwf-modal__grab { display: block; width: 40px; height: 4px; margin: 10px auto 0; border-radius: 999px; background: var(--iwf-line); }
+	.iwf-modal__grab, .iwf-modal__head { touch-action: none; }
+	@media (min-width: 700px) { .iwf-modal__head { touch-action: auto; } }
 
 	.iwf-modal__head { display: flex; align-items: center; gap: 1rem; padding: .9rem var(--iwf-gutter) 0; }
 	.iwf-modal__step { margin: 0; color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 500; letter-spacing: .14em; font-variant-numeric: tabular-nums; }
@@ -485,20 +493,32 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-step { margin-top: 1.75rem; }
 	.iwf-step[hidden] { display: none; }
 
+	/* No fill on the animation: the resting state is the visible one, so a step
+	   that never animates is still a step you can read. */
+	.iwf-screen { animation: iwf-screen-in .42s var(--iwf-ease); }
+	.iwf-modal.is-back .iwf-screen { animation-name: iwf-screen-back; }
+
+	@keyframes iwf-screen-in { from { opacity: 0; transform: translateX(16px); } }
+	@keyframes iwf-screen-back { from { opacity: 0; transform: translateX(-16px); } }
+
+	/* One column: the action first, the way back beneath it. Side by side they
+	   compete for the same glance, and on a phone the thumb reaches the bottom
+	   edge first, which is where the least reversible thing should not be. */
 	.iwf-modal__foot {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
+		flex-direction: column;
+		gap: .2rem;
 		padding: .9rem var(--iwf-gutter) calc(.9rem + env(safe-area-inset-bottom));
 		border-top: 1px solid var(--iwf-line);
 		background: var(--iwf-paper);
 	}
-	.iwf-modal__back { flex: 0 0 auto; padding: .5rem .2rem; border: 0; background: none; color: var(--iwf-ink); font: inherit; font-size: var(--ioulia-small); font-weight: 500; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+	.iwf-modal__back { order: 2; width: 100%; min-height: 44px; padding: .5rem; border: 0; background: none; color: var(--iwf-muted); font: inherit; font-size: var(--ioulia-small); font-weight: 500; cursor: pointer; transition: color .2s ease; }
+	.iwf-modal__back:hover { color: var(--iwf-ink); }
 	.iwf-modal__back[hidden] { display: none; }
 
 	.iwf-modal__next {
-		flex: 1 1 auto;
+		order: 1;
+		width: 100%;
 		min-height: clamp(50px, 1.4vw + 2.8rem, 58px);
 		padding: 0 1.5rem;
 		border: 0;
@@ -517,7 +537,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	@media (min-width: 700px) {
 		.iwf-modal { align-items: center; padding: 2rem; }
-		.iwf-modal__dialog { max-height: 86vh; border-radius: var(--iwf-card); box-shadow: 0 24px 70px rgba(43, 43, 43, .2); }
+		.iwf-modal__dialog { max-height: 86vh; border-radius: 24px; box-shadow: 0 24px 70px rgba(43, 43, 43, .2); }
 		.iwf-modal__grab { display: none; }
 		.iwf-modal__head { padding-top: 1rem; }
 	}
@@ -690,7 +710,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		[data-iwf-reveal], .iwf__visual img, .iwf__slot, .iwf-modal__dialog, .iwf-modal__backdrop {
+		[data-iwf-reveal], .iwf__visual img, .iwf__slot, .iwf-modal__dialog, .iwf-modal__backdrop,
+		.iwf-screen, .iwf__option-mark svg, .iwf-progress__bar {
 			transition: none;
 			animation: none;
 			opacity: 1;
@@ -749,8 +770,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		timesLabel: root.querySelector('[data-iwf-times-label]'),
 		timesList: root.querySelector('[data-iwf-times-list]'),
 		stepLabel: root.querySelector('[data-iwf-steplabel]'),
-		lead: root.querySelector('[data-iwf-lead]'),
 		title: root.querySelector('[data-iwf-modal-title]'),
+		lead: root.querySelector('[data-iwf-lead]'),
 		back: root.querySelector('[data-iwf-back]'),
 		next: root.querySelector('[data-iwf-next]'),
 		form: root.querySelector('[data-iwf-form]'),
@@ -1038,7 +1059,21 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- Steps ---- */
 
+	/* Replaying a CSS animation needs the old one removed and layout forced in
+	   between, otherwise the browser coalesces both into no change at all. */
+	function replay(nodes) {
+		nodes.forEach(function (node) {
+			if (!node) { return; }
+			node.classList.remove('iwf-screen');
+			void node.offsetWidth;
+			node.classList.add('iwf-screen');
+		});
+	}
+
 	function goTo(next) {
+		var back = STEPS[step] && STEPS[next] && Number(next) < Number(step);
+
+		modal.classList.toggle('is-back', !!back);
 		step = next;
 
 		modal.querySelectorAll('[data-iwf-step]').forEach(function (panel) {
@@ -1066,6 +1101,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 		/* Each step starts at the top of the dialog, never of the page. */
 		el.scroll.scrollTop = 0;
+
+		replay([ el.title, el.lead, modal.querySelector('[data-iwf-step="' + next + '"]') ]);
 	}
 
 	/* ---- Dialog ---- */
@@ -1115,6 +1152,61 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			if (lastFocused) { lastFocused.focus(); }
 		}, 320);
 	}
+
+	/* The handle promises a sheet you can push away, so it has to be one. Drag
+	   follows the finger, release past a quarter of the dialog dismisses, and
+	   anything shorter springs back. Only where a sheet is what it is: on a
+	   desktop it is a centred card and nothing about it invites a drag. */
+	(function () {
+		var dialog = modal.querySelector('.iwf-modal__dialog');
+		var startY = 0;
+		var offset = 0;
+		var dragging = false;
+
+		function isSheet() {
+			return window.matchMedia('(max-width: 699px)').matches;
+		}
+
+		function begin(event) {
+			if (!isSheet() || event.button) { return; }
+
+			var from = event.target.closest('.iwf-modal__grab, .iwf-modal__head');
+			if (!from || event.target.closest('button')) { return; }
+
+			dragging = true;
+			startY = event.clientY;
+			offset = 0;
+			dialog.style.transition = 'none';
+			dialog.setPointerCapture && dialog.setPointerCapture(event.pointerId);
+		}
+
+		function move(event) {
+			if (!dragging) { return; }
+
+			offset = Math.max(0, event.clientY - startY);
+			dialog.style.transform = 'translateY(' + offset + 'px)';
+			modal.querySelector('.iwf-modal__backdrop').style.opacity =
+				String(Math.max(0, 1 - (offset / dialog.offsetHeight) * 1.6));
+		}
+
+		function end() {
+			if (!dragging) { return; }
+
+			dragging = false;
+			dialog.style.transition = '';
+			dialog.style.transform = '';
+			modal.querySelector('.iwf-modal__backdrop').style.opacity = '';
+
+			if (offset > dialog.offsetHeight * 0.25) {
+				closeModal();
+			}
+		}
+
+		dialog.addEventListener('pointerdown', begin);
+		dialog.addEventListener('pointermove', move);
+		dialog.addEventListener('pointerup', end);
+		dialog.addEventListener('pointercancel', end);
+	}());
 
 	root.querySelector('[data-iwf-open]').addEventListener('click', function () { openModal(1); });
 
