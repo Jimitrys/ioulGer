@@ -920,10 +920,15 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		renderOptions();
 		goTo(at || (picked.time ? 3 : 1));
 
-		window.requestAnimationFrame(function () {
-			modal.classList.add('is-open');
-			modal.querySelector('.iwf-modal__close').focus();
-		});
+		/* Force layout with the dialog still at opacity 0, then reveal in the same
+		   task. requestAnimationFrame would read better, but a browser stops
+		   servicing it in a background tab, and a dialog that opens invisible is
+		   worse than one that opens without its transition. */
+		void modal.offsetHeight;
+		modal.classList.add('is-open');
+
+		var close = modal.querySelector('.iwf-modal__close');
+		if (close) { close.focus(); }
 	}
 
 	function closeModal() {
