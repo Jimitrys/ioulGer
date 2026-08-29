@@ -465,21 +465,33 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     .icph {
         cursor: auto;
         min-height: 560px;
-        padding-top: clamp(108px, 15svh, 148px);
+        padding: clamp(102px, 13svh, 132px) 16px max(26px, env(safe-area-inset-bottom));
+    }
+
+    .icph__stage {
+        transform: translateY(clamp(-76px, -7svh, -48px));
     }
 
     .icph__marks {
-        width: clamp(96px, 27vw, 132px);
-        height: clamp(36px, 10vw, 52px);
-        margin-bottom: 26px;
+        width: clamp(92px, 25vw, 122px);
+        height: clamp(34px, 9vw, 48px);
+        margin-bottom: clamp(14px, 2.4svh, 20px);
+    }
+
+    .icph__mark--new img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
     }
 
     .icph__title {
-        font-size: clamp(32px, 9.2vw, 48px);
+        font-size: clamp(30px, 8.1vw, 38px);
+        line-height: 1.04;
+        letter-spacing: -.05em;
     }
 
     .icph__copy {
-        min-height: clamp(82px, 22vw, 122px);
+        min-height: clamp(124px, 34vw, 164px);
     }
 
     .icph__product,
@@ -491,14 +503,20 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         position: absolute;
         z-index: 6;
         left: 50%;
-        bottom: clamp(58px, 9svh, 98px);
+        bottom: max(30px, calc(2svh + env(safe-area-inset-bottom)));
         display: block;
-        width: min(54vw, 220px);
+        width: min(46vw, 184px);
         color: var(--icph-grey);
         text-decoration: none;
         opacity: 1;
         transform: translateX(-50%);
+        transition: opacity 200ms ease, transform 320ms cubic-bezier(.16, 1, .3, 1);
         will-change: opacity, transform;
+    }
+
+    .icph__mobile-product.is-changing {
+        opacity: 0 !important;
+        transform: translateX(-50%) translateY(8px) scale(.97) !important;
     }
 
     .icph__mobile-product img {
@@ -519,6 +537,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
 
     .icph__actions {
         width: calc(100% - 32px);
+        bottom: max(30px, calc(3svh + env(safe-area-inset-bottom)));
         flex-wrap: wrap;
     }
 
@@ -536,6 +555,20 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
 
     .icph__meta span:nth-child(2) {
         justify-self: start;
+    }
+}
+
+@media (max-width: 420px) {
+    .icph__title {
+        font-size: clamp(30px, 7.9vw, 34px);
+    }
+
+    .icph__copy {
+        min-height: clamp(132px, 40vw, 168px);
+    }
+
+    .icph__actions {
+        gap: 8px;
     }
 }
 
@@ -744,8 +777,8 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         var titleOut = smoothstep(0.22, 0.48, p);
         var titleIn = smoothstep(0.36, 0.60, p);
         var markSwap = smoothstep(0.28, 0.58, p);
-        var buttonsIn = smoothstep(0.58, 0.76, p);
-        var productOut = smoothstep(0.82, 0.96, p);
+        var productOut = smoothstep(0.48, 0.58, p);
+        var buttonsIn = smoothstep(0.62, 0.76, p);
 
         oldMark.style.opacity = String(1 - markSwap);
         oldMark.style.transform =
@@ -931,6 +964,25 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         product.addEventListener("mouseleave", function () {
             cursor.classList.remove("is-open");
         });
+    }
+
+    if (!finePointer && !reducedMotion && products.length > 1) {
+        window.setInterval(function () {
+            var rect = root.getBoundingClientRect();
+            var heroIsVisible = rect.bottom > 0 && rect.top < window.innerHeight;
+
+            if (document.hidden || !heroIsVisible || progress() >= 0.48 || mobileProduct.classList.contains("is-changing")) {
+                return;
+            }
+
+            mobileProduct.classList.add("is-changing");
+
+            window.setTimeout(function () {
+                nextProduct();
+                mobileProduct.classList.remove("is-changing");
+                requestRender();
+            }, 200);
+        }, 3800);
     }
 
     window.addEventListener("scroll", function () {
