@@ -469,13 +469,13 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     }
 
     .icph__stage {
-        transform: translateY(clamp(-76px, -7svh, -48px));
+        transform: translateY(clamp(-96px, -9svh, -64px));
     }
 
     .icph__marks {
-        width: clamp(92px, 25vw, 122px);
-        height: clamp(34px, 9vw, 48px);
-        margin-bottom: clamp(14px, 2.4svh, 20px);
+        width: clamp(106px, 29vw, 136px);
+        height: clamp(40px, 11vw, 54px);
+        margin-bottom: clamp(12px, 2svh, 18px);
     }
 
     .icph__mark--new img {
@@ -485,7 +485,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     }
 
     .icph__title {
-        font-size: clamp(30px, 8.1vw, 38px);
+        font-size: clamp(27px, 7.2vw, 34px);
         line-height: 1.04;
         letter-spacing: -.05em;
     }
@@ -503,7 +503,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         position: absolute;
         z-index: 6;
         left: 50%;
-        bottom: max(30px, calc(2svh + env(safe-area-inset-bottom)));
+        bottom: max(78px, calc(7svh + env(safe-area-inset-bottom)));
         display: block;
         width: min(46vw, 184px);
         color: var(--icph-grey);
@@ -529,10 +529,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     }
 
     .icph__mobile-product span {
-        display: block;
-        margin-top: 6px;
-        font-size: var(--ioulia-micro);
-        line-height: 1.15;
+        display: none;
     }
 
     .icph__actions {
@@ -546,21 +543,13 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     }
 
     .icph__meta {
-        grid-template-columns: 1fr auto;
-    }
-
-    .icph__meta span:first-child {
         display: none;
-    }
-
-    .icph__meta span:nth-child(2) {
-        justify-self: start;
     }
 }
 
 @media (max-width: 420px) {
     .icph__title {
-        font-size: clamp(30px, 7.9vw, 34px);
+        font-size: clamp(27px, 7.1vw, 30px);
     }
 
     .icph__copy {
@@ -706,6 +695,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     var cursor = root.querySelector(".icph__cursor");
 
     var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    var mobileLayout = window.matchMedia("(max-width: 900px), (hover: none), (pointer: coarse)");
     var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     var productIndex = 0;
@@ -966,23 +956,43 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         });
     }
 
-    if (!finePointer && !reducedMotion && products.length > 1) {
-        window.setInterval(function () {
-            var rect = root.getBoundingClientRect();
-            var heroIsVisible = rect.bottom > 0 && rect.top < window.innerHeight;
-
-            if (document.hidden || !heroIsVisible || progress() >= 0.48 || mobileProduct.classList.contains("is-changing")) {
-                return;
-            }
-
-            mobileProduct.classList.add("is-changing");
-
+    if (!reducedMotion && products.length > 1) {
+        var scheduleMobileRotation = function () {
             window.setTimeout(function () {
-                nextProduct();
-                mobileProduct.classList.remove("is-changing");
-                requestRender();
-            }, 200);
-        }, 3800);
+                var rect = root.getBoundingClientRect();
+                var heroIsVisible = rect.bottom > 0 && rect.top < window.innerHeight;
+
+                if (
+                    !mobileLayout.matches ||
+                    document.hidden ||
+                    !heroIsVisible ||
+                    progress() >= 0.48 ||
+                    mobileProduct.classList.contains("is-changing")
+                ) {
+                    scheduleMobileRotation();
+                    return;
+                }
+
+                var nextIndex = (productIndex + 1) % products.length;
+                var nextImage = new Image();
+
+                nextImage.onload = function () {
+                    mobileProduct.classList.add("is-changing");
+
+                    window.setTimeout(function () {
+                        setProduct(nextIndex);
+                        mobileProduct.classList.remove("is-changing");
+                        requestRender();
+                        scheduleMobileRotation();
+                    }, 220);
+                };
+
+                nextImage.onerror = scheduleMobileRotation;
+                nextImage.src = products[nextIndex].image;
+            }, 4200);
+        };
+
+        scheduleMobileRotation();
     }
 
     window.addEventListener("scroll", function () {
