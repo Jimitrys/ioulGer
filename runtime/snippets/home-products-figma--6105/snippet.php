@@ -1169,13 +1169,18 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 
 			var rect = section.getBoundingClientRect();
 			var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-			var tolerance = 4;
+			var visibleTop = Math.max(rect.top, 0);
+			var visibleBottom = Math.min(rect.bottom, viewportHeight);
+			var visibleHeight = Math.max(0, visibleBottom - visibleTop);
+			var requiredVisibleHeight = Math.min(rect.height, viewportHeight) * 0.72;
+			var sectionHasSettled = rect.top <= viewportHeight * 0.12;
 
-			var viewportFullyCovered =
-				rect.top <= tolerance &&
-				rect.bottom >= viewportHeight - tolerance;
-
-			if (viewportFullyCovered) {
+			/*
+			 * Header subtraction can make the section slightly shorter than the
+			 * viewport. Requiring full viewport coverage would then prevent the
+			 * guided entrance from ever starting.
+			 */
+			if (sectionHasSettled && visibleHeight >= requiredVisibleHeight) {
 				playGuidedDrag();
 			}
 		}
