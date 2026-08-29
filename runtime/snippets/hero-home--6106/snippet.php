@@ -534,7 +534,8 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
 
     .icph__actions {
         width: calc(100% - 32px);
-        bottom: max(30px, calc(3svh + env(safe-area-inset-bottom)));
+        top: calc(50% + 82px);
+        bottom: auto;
         flex-wrap: wrap;
     }
 
@@ -813,6 +814,20 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         actions.style.opacity = String(buttonsIn);
         actions.style.visibility = buttonsIn > 0.01 ? "visible" : "hidden";
         actions.style.pointerEvents = buttonsIn > 0.72 ? "auto" : "none";
+
+        if (mobileLayout.matches) {
+            var rootRect = root.getBoundingClientRect();
+            var secondTitleBottom = secondLines.reduce(function (bottom, line) {
+                return Math.max(bottom, line.getBoundingClientRect().bottom);
+            }, rootRect.top);
+            var actionsTop = secondTitleBottom - rootRect.top + 16;
+            var actionsMax = root.clientHeight - actions.offsetHeight - 24;
+
+            actions.style.top = clamp(actionsTop, 0, actionsMax).toFixed(2) + "px";
+        } else {
+            actions.style.top = "";
+        }
+
         actions.style.transform =
             "translate3d(-50%," + (12 * (1 - buttonsIn)).toFixed(2) + "px,0) scale(" +
             (0.985 + 0.015 * buttonsIn).toFixed(4) + ")";
