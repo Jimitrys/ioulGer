@@ -55,7 +55,7 @@ if ( ! function_exists( 'ioulia_mini_cart_shell' ) ) {
                                         <?php endif; ?>
                                         <div class="ioulia-mini-cart-meta"><?php echo wp_kses_post( wc_get_formatted_cart_item_data( $cart_item ) ); ?></div>
                                     </div>
-                                    <button class="ioulia-mini-cart-remove" type="button" data-ioulia-remove aria-label="<?php echo esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ); ?>">remove</button>
+                                    <button class="ioulia-mini-cart-remove" type="button" data-ioulia-remove aria-label="<?php echo esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ); ?>">αφαίρεση</button>
                                 </div>
 
                                 <div class="ioulia-mini-cart-product-bottom">
@@ -76,13 +76,13 @@ if ( ! function_exists( 'ioulia_mini_cart_shell' ) ) {
                         <span><?php esc_html_e( 'Subtotal', 'woocommerce' ); ?></span>
                         <strong><?php echo wp_kses_post( WC()->cart->get_cart_subtotal() ); ?></strong>
                     </div>
-                    <p class="ioulia-mini-cart-note">Shipping and taxes are calculated at checkout.</p>
-                    <a class="ioulia-mini-cart-checkout" href="<?php echo esc_url( wc_get_cart_url() ); ?>">view cart</a>
+                    <p class="ioulia-mini-cart-note">Τα μεταφορικά και οι φόροι υπολογίζονται στο ταμείο.</p>
+                    <a class="ioulia-mini-cart-checkout" href="<?php echo esc_url( wc_get_cart_url() ); ?>">δες το καλάθι</a>
                 </div>
             <?php else : ?>
                 <div class="ioulia-mini-cart-empty">
-                    <p>your cart is empty.</p>
-                    <a href="<?php echo esc_url( home_url( '/shop/' ) ); ?>">explore the shop</a>
+                    <p>το καλάθι σου είναι άδειο.</p>
+                    <a href="<?php echo esc_url( home_url( '/shop/' ) ); ?>">δες το κατάστημα</a>
                 </div>
             <?php endif; ?>
         </div>
@@ -959,16 +959,16 @@ function ioulia_custom_navbar_shortcode() {
 
     <header id="ioulia-header">
         <div class="ioulia-nav-left">
-            <a href="/" aria-label="Home"><div class="ioulia-logo-circle"></div></a>
+            <a href="/" aria-label="Αρχική σελίδα"><div class="ioulia-logo-circle"></div></a>
         </div>
         <div class="ioulia-nav-right">
-            <button type="button" class="ioulia-cart-icon" data-ioulia-cart-open aria-label="Open cart" aria-controls="ioulia-mini-cart" aria-expanded="false">
+            <button type="button" class="ioulia-cart-icon" data-ioulia-cart-open aria-label="Άνοιγμα καλαθιού" aria-controls="ioulia-mini-cart" aria-expanded="false">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21.66 18.63">
                     <path d="M21.36,7.79h-5.75v-2.85c0-1.53-.74-2.96-1.95-3.9-1.81-1.42-4.4-1.38-6.18.09-1.15.94-1.84,2.34-1.84,3.84v2.82H.27C.06,7.79,0,7.96,0,8.13c.07,2.85,1.27,5.52,3.32,7.49,4.21,4.04,10.92,4.02,15.1-.09,1.36-1.33,2.35-2.99,2.85-4.82.23-.86.36-1.71.39-2.6,0-.18-.11-.32-.3-.32ZM14.58,7.79h-7.91v-2.87c0-1.12.53-2.15,1.35-2.88,1.25-1.11,3.05-1.31,4.5-.5,1.24.69,2.02,1.96,2.06,3.39v2.86Z"/>
                 </svg>
                 <?php echo ioulia_mini_cart_count_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
             </button>
-            <button id="ioulia-burger" class="ioulia-burger" aria-label="Toggle Menu" aria-expanded="false" aria-controls="ioulia-menu-overlay">
+            <button id="ioulia-burger" class="ioulia-burger" aria-label="Άνοιγμα μενού" aria-expanded="false" aria-controls="ioulia-menu-overlay">
                 <span class="line line1"></span>
                 <span class="line line2"></span>
             </button>
@@ -978,8 +978,8 @@ function ioulia_custom_navbar_shortcode() {
     <div class="ioulia-mini-cart-backdrop" data-ioulia-cart-close aria-hidden="true"></div>
     <aside id="ioulia-mini-cart" class="ioulia-mini-cart-panel" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="ioulia-mini-cart-title">
         <div class="ioulia-mini-cart-header">
-            <h2 id="ioulia-mini-cart-title" class="ioulia-mini-cart-title">your cart</h2>
-            <button type="button" class="ioulia-mini-cart-close" data-ioulia-cart-close aria-label="Close cart">close</button>
+            <h2 id="ioulia-mini-cart-title" class="ioulia-mini-cart-title">το καλάθι σου</h2>
+            <button type="button" class="ioulia-mini-cart-close" data-ioulia-cart-close aria-label="Κλείσιμο καλαθιού">κλείσιμο</button>
         </div>
         <?php echo ioulia_mini_cart_shell(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
     </aside>
@@ -997,7 +997,7 @@ function ioulia_custom_navbar_shortcode() {
                                     <path d="M2.37028 30.6129C1.60799 29.5351 1.27362 28.4722 0.866278 27.34C-0.763025 22.651 -0.282733 17.4728 3.9372 14.5744C5.80042 13.2936 6.59413 11.2555 6.35836 9.10527L5.88422 4.98454C5.63589 2.77274 4.86148 0.51342 5.07054 0.160259C5.46348 -0.509295 15.4108 1.0872 18.6073 1.85739C16.907 4.8991 15.5164 7.76056 14.6165 10.945C14.1678 12.5274 14.5071 14.0309 15.4656 15.3338C16.2631 16.6161 17.3173 17.8114 17.7044 19.261C18.6394 22.8209 17.4873 27.3329 15.0042 30.0942L11.6574 33.8446L3.20768 32.7003C3.08213 31.9242 2.83821 31.2729 2.38789 30.6351L2.37028 30.6129Z" fill="#FECAA7"/>
                                 </svg>
                             </span>
-                            <span class="ioulia-menu-text">Home</span>
+                            <span class="ioulia-menu-text">Αρχική</span>
                         </a>
                     </li>
                     <li class="ioulia-menu-item delay-2">
@@ -1007,7 +1007,7 @@ function ioulia_custom_navbar_shortcode() {
                                     <path d="M2.37028 30.6129C1.60799 29.5351 1.27362 28.4722 0.866278 27.34C-0.763025 22.651 -0.282733 17.4728 3.9372 14.5744C5.80042 13.2936 6.59413 11.2555 6.35836 9.10527L5.88422 4.98454C5.63589 2.77274 4.86148 0.51342 5.07054 0.160259C5.46348 -0.509295 15.4108 1.0872 18.6073 1.85739C16.907 4.8991 15.5164 7.76056 14.6165 10.945C14.1678 12.5274 14.5071 14.0309 15.4656 15.3338C16.2631 16.6161 17.3173 17.8114 17.7044 19.261C18.6394 22.8209 17.4873 27.3329 15.0042 30.0942L11.6574 33.8446L3.20768 32.7003C3.08213 31.9242 2.83821 31.2729 2.38789 30.6351L2.37028 30.6129Z" fill="#FECAA7"/>
                                 </svg>
                             </span>
-                            <span class="ioulia-menu-text">Shop</span>
+                            <span class="ioulia-menu-text">Κατάστημα</span>
                         </a>
                     </li>
                     <li class="ioulia-menu-item delay-3">
@@ -1017,7 +1017,7 @@ function ioulia_custom_navbar_shortcode() {
                                     <path d="M2.37028 30.6129C1.60799 29.5351 1.27362 28.4722 0.866278 27.34C-0.763025 22.651 -0.282733 17.4728 3.9372 14.5744C5.80042 13.2936 6.59413 11.2555 6.35836 9.10527L5.88422 4.98454C5.63589 2.77274 4.86148 0.51342 5.07054 0.160259C5.46348 -0.509295 15.4108 1.0872 18.6073 1.85739C16.907 4.8991 15.5164 7.76056 14.6165 10.945C14.1678 12.5274 14.5071 14.0309 15.4656 15.3338C16.2631 16.6161 17.3173 17.8114 17.7044 19.261C18.6394 22.8209 17.4873 27.3329 15.0042 30.0942L11.6574 33.8446L3.20768 32.7003C3.08213 31.9242 2.83821 31.2729 2.38789 30.6351L2.37028 30.6129Z" fill="#FECAA7"/>
                                 </svg>
                             </span>
-                            <span class="ioulia-menu-text">About</span>
+                            <span class="ioulia-menu-text">Σχετικά</span>
                         </a>
                     </li>
                 </div>
@@ -1030,7 +1030,7 @@ function ioulia_custom_navbar_shortcode() {
                                     <path d="M2.37028 30.6129C1.60799 29.5351 1.27362 28.4722 0.866278 27.34C-0.763025 22.651 -0.282733 17.4728 3.9372 14.5744C5.80042 13.2936 6.59413 11.2555 6.35836 9.10527L5.88422 4.98454C5.63589 2.77274 4.86148 0.51342 5.07054 0.160259C5.46348 -0.509295 15.4108 1.0872 18.6073 1.85739C16.907 4.8991 15.5164 7.76056 14.6165 10.945C14.1678 12.5274 14.5071 14.0309 15.4656 15.3338C16.2631 16.6161 17.3173 17.8114 17.7044 19.261C18.6394 22.8209 17.4873 27.3329 15.0042 30.0942L11.6574 33.8446L3.20768 32.7003C3.08213 31.9242 2.83821 31.2729 2.38789 30.6351L2.37028 30.6129Z" fill="#FECAA7"/>
                                 </svg>
                             </span>
-                            <span class="ioulia-menu-text">Workshops</span>
+                            <span class="ioulia-menu-text">Εργαστήρια</span>
                         </a>
                     </li>
                     <li class="ioulia-menu-item delay-5">
@@ -1040,7 +1040,7 @@ function ioulia_custom_navbar_shortcode() {
                                     <path d="M2.37028 30.6129C1.60799 29.5351 1.27362 28.4722 0.866278 27.34C-0.763025 22.651 -0.282733 17.4728 3.9372 14.5744C5.80042 13.2936 6.59413 11.2555 6.35836 9.10527L5.88422 4.98454C5.63589 2.77274 4.86148 0.51342 5.07054 0.160259C5.46348 -0.509295 15.4108 1.0872 18.6073 1.85739C16.907 4.8991 15.5164 7.76056 14.6165 10.945C14.1678 12.5274 14.5071 14.0309 15.4656 15.3338C16.2631 16.6161 17.3173 17.8114 17.7044 19.261C18.6394 22.8209 17.4873 27.3329 15.0042 30.0942L11.6574 33.8446L3.20768 32.7003C3.08213 31.9242 2.83821 31.2729 2.38789 30.6351L2.37028 30.6129Z" fill="#FECAA7"/>
                                 </svg>
                             </span>
-                            <span class="ioulia-menu-text">Contact</span>
+                            <span class="ioulia-menu-text">Επικοινωνία</span>
                         </a>
                     </li>
                 </div>
@@ -1048,9 +1048,9 @@ function ioulia_custom_navbar_shortcode() {
 
             <div class="ioulia-canvas-footer">
                 <div class="ioulia-privacy-links">
-                    <a href="/privacy-policy">Privacy Policy</a>
+                    <a href="/privacy-policy">Πολιτική Απορρήτου</a>
                     <span class="ioulia-divider">|</span>
-                    <a href="/data-protection">Data Protection</a>
+                    <a href="/data-protection">Προστασία Δεδομένων</a>
                 </div>
                 <div class="ioulia-social-links">
                     <a href="https://instagram.com" target="_blank" aria-label="Instagram">
