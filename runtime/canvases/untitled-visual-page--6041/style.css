@@ -35,7 +35,7 @@
 .ig-manifesto__word { display: inline; opacity: var(--manifesto-faint); will-change: opacity; }
 .ig-manifesto__illustration { position: absolute; z-index: 2; top: 82%; left: 50%; display: block; width: clamp(176px,16.8vw,225px); height: auto; pointer-events: none; transform: translate(-50%,-50%); transform-origin: center; }
 
-.ioulia-process { width: 100%; max-width: 1240px; margin: 0 auto; padding: clamp(3rem,6vw,7rem) clamp(1.5rem,4vw,4rem); }
+.ioulia-process { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(3rem,6vw,7rem) var(--about-x); }
 .ioulia-process__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem,6vw,6rem); align-items: start; }
 .ioulia-process__col-left, .ioulia-process__col-right { display: flex; flex-direction: column; }
 .ioulia-process__col-left .ioulia-section-title { margin-bottom: clamp(2.5rem,4vw,4.5rem); }
@@ -46,13 +46,13 @@
 .ioulia-process__icon { position: absolute; top: 50%; left: 50%; width: clamp(55px,8vw,85px); height: auto; pointer-events: none; opacity: 1; transform: translate(-50%,-50%); }
 .ioulia-process .ioulia-about-copy { max-width: 90%; margin-top: 2.2rem; }
 
-.ioulia-designs { width: 100%; max-width: 2200px; margin: 0 auto; padding: clamp(4rem,8vw,8rem) var(--about-x); }
+.ioulia-designs { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(4rem,8vw,8rem) var(--about-x); }
 .ioulia-designs__inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; width: 100%; }
 .ioulia-designs__col-left { width: 100%; max-width: 440px; }
 .ioulia-designs__col-right { display: flex; flex-direction: column; align-items: flex-end; padding-top: clamp(2rem,5vw,6rem); }
 .ioulia-designs__svg { display: block; width: clamp(220px,25vw,340px); height: auto; margin-bottom: 1.2rem; }
 
-.ioulia-production { width: 100%; max-width: 2200px; margin: 0 auto; padding: clamp(5rem,9vw,9rem) var(--about-x); }
+.ioulia-production { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(5rem,9vw,9rem) var(--about-x); }
 .ioulia-production__inner { display: flex; flex-direction: column; align-items: center; width: 100%; margin: 0 auto; text-align: center; }
 .ioulia-production__svg { display: block; width: clamp(100px,11vw,110px); height: auto; margin-bottom: clamp(1.5rem,3vw,2.5rem); }
 .ioulia-production .ioulia-section-title { margin-bottom: clamp(1.2rem,2.2vw,2rem); }

@@ -1,6 +1,6 @@
 .ioulia-footer {
   width: 100%;
-  max-width: 2200px;
+  max-width: var(--ioulia-shell);
   margin: 0 auto;
   padding: clamp(3rem, 5vw, 5rem) var(--ioulia-page-x) clamp(2.5rem, 4vw, 3.5rem);
   color: var(--ioulia-ink);

@@ -16,7 +16,7 @@
 
   .igc-container {
     width: 100%;
-    max-width: 2200px;
+    max-width: var(--ioulia-shell);
     margin-inline: auto;
     padding-left: var(--igc-x);
     padding-right: var(--igc-x);

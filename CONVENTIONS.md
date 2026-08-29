@@ -36,6 +36,29 @@ Backslashes are fine in strings *produced* at runtime — only the source stored
 this repository is affected. `ioulia_php_literal()` in the i18n editor snippet
 shows the pattern for emitting code that has to survive a round trip.
 
+## One page shell, no component widths
+
+Two tokens in `runtime/global/styles.css` size the whole site:
+
+| token | meaning |
+| --- | --- |
+| `--ioulia-shell` | max width of every top-level section, header and footer |
+| `--ioulia-page-x` | the gutter beside them |
+
+`--ioulia-shell` is `100%`, so sections run edge to edge and the gutter does the
+framing, the way the About hero always did. Giving it a length boxes the entire
+site in again, in one edit.
+
+No component declares its own container width or its own gutter. A component
+that needs a local gutter variable aliases the shared one:
+
+```css
+--igw-x: var(--ioulia-page-x, clamp(28px, 3.05vw, 46px));
+```
+
+Text measures (`max-width: 42ch`, a 520px paragraph) are not container widths and
+stay where they are.
+
 ## Check before committing
 
 ```

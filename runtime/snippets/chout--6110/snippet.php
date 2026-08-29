@@ -99,7 +99,7 @@ add_action( 'wp_head', function () {
 			--igc-muted: rgba(26, 26, 24, 0.48);
 			--igc-line: rgba(26, 26, 24, 0.15);
 			--igc-line-strong: #1A1A18;
-			--igc-x: clamp(28px, 3.05vw, 46px);
+			--igc-x: var(--ioulia-page-x, clamp(28px, 3.05vw, 46px));
 			--igc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 			--igc-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 			--igc-shadow-focus: 0 8px 24px rgba(0, 0, 0, 0.04);
@@ -122,8 +122,8 @@ add_action( 'wp_head', function () {
 		body.woocommerce-checkout:not(.woocommerce-order-received) .page-content,
 		body.woocommerce-checkout:not(.woocommerce-order-received) .entry-content,
 		body.woocommerce-checkout:not(.woocommerce-order-received) main.site-main {
-			width: min(100%, 1720px) !important;
-			max-width: 100% !important;
+			width: 100% !important;
+			max-width: var(--ioulia-shell) !important;
 			margin-right: auto !important;
 			margin-left: auto !important;
 			padding: 0 !important;
@@ -138,10 +138,10 @@ add_action( 'wp_head', function () {
 		.ig-checkout-app {
 			position: relative;
 			width: 100%;
-			max-width: min(100%, 1720px);
+			max-width: var(--ioulia-shell);
 			margin-right: auto !important;
 			margin-left: auto !important;
-			padding: 11em clamp(28px, 3.05vw, 46px) !important;
+			padding: 11em var(--igc-x) !important;
 			background: transparent;
 			color: var(--igc-ink);
 			font-family: inherit;

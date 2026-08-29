@@ -37,8 +37,8 @@ if ( ! function_exists( 'ioulia_cart_visual_layer' ) ) {
 
 			body.woocommerce-cart .page-header,
 			body.woocommerce-cart .page-content {
-				width: min(100%, 1720px);
-				max-width: none;
+				width: 100%;
+				max-width: var(--ioulia-shell);
 				margin-right: auto;
 				margin-left: auto;
 				padding: 0;

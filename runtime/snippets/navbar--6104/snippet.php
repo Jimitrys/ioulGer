@@ -172,7 +172,7 @@ function ioulia_custom_navbar_shortcode() {
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
-            max-width: 2200px;
+            max-width: var(--ioulia-shell);
             padding: 4em var(--ioulia-page-x) 0 var(--ioulia-page-x);
             display: flex;
             justify-content: space-between;
@@ -209,6 +209,28 @@ function ioulia_custom_navbar_shortcode() {
             align-items: center;
             gap: 4em;
         }
+
+        /* Language switcher. Inherits the header ink so the two header states
+           below only have to change one colour. */
+        .ioulia-lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: .5em;
+            color: var(--ioulia-dark);
+            font-size: var(--ioulia-micro, .72rem);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            transition: color 0.5s ease;
+        }
+        .ioulia-lang-switcher a {
+            color: inherit;
+            text-decoration: none;
+            opacity: .45;
+            transition: opacity .3s ease;
+        }
+        .ioulia-lang-switcher a:hover,
+        .ioulia-lang-switcher a.is-current { opacity: 1; }
+        .ioulia-lang-sep { opacity: .28; }
 
         .ioulia-cart-icon {
             position: relative;
@@ -714,6 +736,10 @@ function ioulia_custom_navbar_shortcode() {
         #ioulia-header.ioulia-nav-light:not(.menu-open) .ioulia-burger .line {
             background-color: var(--ioulia-cream);
         }
+        #ioulia-header.menu-open .ioulia-lang-switcher,
+        #ioulia-header.ioulia-nav-light:not(.menu-open) .ioulia-lang-switcher {
+            color: var(--ioulia-cream);
+        }
 
         /* --- Fullscreen/Overlay Canvas --- */
         #ioulia-menu-overlay {
@@ -738,7 +764,7 @@ function ioulia_custom_navbar_shortcode() {
         /* --- Canvas Layout --- */
         .ioulia-canvas-container {
             width: 100%;
-            max-width: 2200px;
+            max-width: var(--ioulia-shell);
             margin: 0 auto;
             height: 100%;
             display: flex;
@@ -962,6 +988,7 @@ function ioulia_custom_navbar_shortcode() {
             <a href="/" aria-label="Αρχική σελίδα"><div class="ioulia-logo-circle"></div></a>
         </div>
         <div class="ioulia-nav-right">
+            <?php if ( function_exists( 'ioulia_language_switcher' ) ) { echo ioulia_language_switcher(); } ?>
             <button type="button" class="ioulia-cart-icon" data-ioulia-cart-open aria-label="Άνοιγμα καλαθιού" aria-controls="ioulia-mini-cart" aria-expanded="false">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21.66 18.63">
                     <path d="M21.36,7.79h-5.75v-2.85c0-1.53-.74-2.96-1.95-3.9-1.81-1.42-4.4-1.38-6.18.09-1.15.94-1.84,2.34-1.84,3.84v2.82H.27C.06,7.79,0,7.96,0,8.13c.07,2.85,1.27,5.52,3.32,7.49,4.21,4.04,10.92,4.02,15.1-.09,1.36-1.33,2.35-2.99,2.85-4.82.23-.86.36-1.71.39-2.6,0-.18-.11-.32-.3-.32ZM14.58,7.79h-7.91v-2.87c0-1.12.53-2.15,1.35-2.88,1.25-1.11,3.05-1.31,4.5-.5,1.24.69,2.02,1.96,2.06,3.39v2.86Z"/>

@@ -69,6 +69,11 @@ body, .igw-page, .igw-page * {
   --ioulia-small: clamp(.76rem, .72vw, .88rem);
   --ioulia-micro: clamp(.68rem, .62vw, .78rem);
 
+  /* Page shell. Every top-level section, the header and the footer are sized
+     by these two and nothing else: no component carries its own width. The
+     shell is full-bleed like the About hero, so the gutter does the framing.
+     Give --ioulia-shell a length to box the whole site in again. */
+  --ioulia-shell: 100%;
   --ioulia-page-x: clamp(1rem, 2.35vw, 2.4rem);
   --ioulia-section-y: clamp(4.5rem, 9vw, 9.5rem);
 
@@ -454,7 +459,8 @@ a {
 }
 
 .ioulia-container {
-  width: min(100%,1600px);
+  width: 100%;
+  max-width: var(--ioulia-shell);
   margin-inline: auto;
 }
 
