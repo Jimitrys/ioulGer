@@ -574,6 +574,26 @@ if ( ! function_exists( 'ioulia_purge_old_bookings' ) ) {
  * Availability
  * ---------------------------------------------------------------------- */
 
+if ( ! function_exists( 'ioulia_lang' ) && class_exists( 'IGC_I18N' ) ) {
+	/**
+	 * Bridge to the language layer once it lives in the plugin rather than in
+	 * snippets. Defined only if nothing else has: with the i18n snippets still
+	 * installed theirs win, and with them gone these take over, so the booking
+	 * form keeps asking one question and does not care who answers it.
+	 */
+	function ioulia_lang() {
+		return IGC_I18N::language();
+	}
+
+	function ioulia_is_default_lang() {
+		return IGC_I18N::is_default();
+	}
+
+	function ioulia_lookup_translation( $lang, $source ) {
+		return IGC_I18N_Store::lookup( $lang, $source );
+	}
+}
+
 if ( ! function_exists( 'ioulia_locale_date_words' ) ) {
 	/**
 	 * Weekday and month names for the language the visitor is reading in.

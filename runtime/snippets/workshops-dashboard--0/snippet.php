@@ -107,6 +107,7 @@ if ( ! function_exists( 'ioulia_dashboard_not_translatable' ) ) {
 		return 0 === strpos( ltrim( (string) $path, '/' ), IOULIA_DASHBOARD_SLUG ) ? false : $translatable;
 	}
 	add_filter( 'ioulia_path_is_translatable', 'ioulia_dashboard_not_translatable', 10, 2 );
+	add_filter( 'igc_i18n_translatable_path', 'ioulia_dashboard_not_translatable', 10, 2 );
 }
 
 /* -------------------------------------------------------------------------
