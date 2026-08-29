@@ -358,20 +358,24 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		font-size: var(--ioulia-micro);
 		font-variant-numeric: tabular-nums;
 		cursor: pointer;
-		opacity: 0;
-		transform: translateY(6px);
-		animation: iwf-slot-in .5s var(--iwf-ease) forwards;
+		/* Visible by default, animated from hidden. The other way round leaves the
+		   chip invisible whenever the animation does not run. */
+		animation: iwf-slot-in .5s var(--iwf-ease) both;
 		transition: background-color .25s ease, color .25s ease, transform .25s var(--iwf-ease);
 	}
 	.iwf__slot:hover, .iwf__slot:focus-visible { background: var(--iwf-slot-ink); color: var(--iwf-paper); outline: none; transform: translateY(-2px); }
 	.iwf__slot.is-current { background: var(--iwf-slot-ink); color: var(--iwf-paper); }
 
-	@keyframes iwf-slot-in { to { opacity: 1; transform: translateY(0); } }
+	@keyframes iwf-slot-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 	.iwf__open { margin-top: clamp(2rem, 4vw, 3rem); min-height: 52px; padding-inline: 2rem; }
 
-	[data-iwf-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .8s var(--iwf-ease), transform .8s var(--iwf-ease); }
-	[data-iwf-reveal].is-in { opacity: 1; transform: none; }
+	/* Only hide what is going to be revealed once the observer is known to be
+	   running. Without the flag the open button starts invisible, and a browser
+	   without IntersectionObserver, or one that never fires it, leaves it that
+	   way. Fail open here too. */
+	.iwf.is-watching [data-iwf-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .8s var(--iwf-ease), transform .8s var(--iwf-ease); }
+	.iwf.is-watching [data-iwf-reveal].is-in { opacity: 1; transform: none; }
 
 	@media (min-width: 900px) {
 		.iwf__grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(3rem, 6vw, 7rem); }
@@ -405,8 +409,14 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-modal[hidden] { display: none; }
 	.iwf-modal *, .iwf-modal *::before, .iwf-modal *::after { box-sizing: border-box; }
 
-	.iwf-modal__backdrop { position: absolute; inset: 0; background: rgba(43, 43, 43, .4); opacity: 0; transition: opacity .4s ease; }
-	.iwf-modal.is-open .iwf-modal__backdrop { opacity: 1; }
+	/* Entrance is an animation from a hidden state, not a transition towards a
+	   visible one. A transition needs the browser to have resolved the starting
+	   style first, and anything that stops that resolution — a throttled tab, a
+	   style flush that never happens — leaves the dialog sitting at opacity 0
+	   with the page locked behind it. An animation either plays or is skipped,
+	   and skipping it lands on the visible state. It fails open. */
+	.iwf-modal__backdrop { position: absolute; inset: 0; background: rgba(43, 43, 43, .4); }
+	.iwf-modal.is-open .iwf-modal__backdrop { animation: iwf-fade .35s ease both; }
 
 	.iwf-modal__dialog {
 		position: relative;
@@ -418,11 +428,11 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		border-radius: 22px 22px 0 0;
 		background: var(--iwf-paper);
 		box-shadow: 0 -8px 40px rgba(43, 43, 43, .14);
-		transform: translateY(28px);
-		opacity: 0;
-		transition: transform .5s var(--iwf-ease), opacity .3s ease;
 	}
-	.iwf-modal.is-open .iwf-modal__dialog { transform: none; opacity: 1; }
+	.iwf-modal.is-open .iwf-modal__dialog { animation: iwf-rise .45s var(--iwf-ease) both; }
+
+	@keyframes iwf-fade { from { opacity: 0; } to { opacity: 1; } }
+	@keyframes iwf-rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
 
 	.iwf-modal__grab { display: block; width: 36px; height: 4px; margin: 10px auto 0; border-radius: 999px; background: var(--iwf-line); }
 
@@ -652,6 +662,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	/* Blocks settle in as they come into view, staggered by order of arrival. */
 	var reveals = root.querySelectorAll('[data-iwf-reveal]');
 	if (window.IntersectionObserver) {
+		root.classList.add('is-watching');
 		var seen = 0;
 		var watcher = new IntersectionObserver(function (entries) {
 			entries.forEach(function (entry) {
@@ -662,8 +673,6 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			});
 		}, { rootMargin: '0px 0px -12% 0px' });
 		reveals.forEach(function (node) { watcher.observe(node); });
-	} else {
-		reveals.forEach(function (node) { node.classList.add('is-in'); });
 	}
 
 	if (!programmes.length) { return; }
