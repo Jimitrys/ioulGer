@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "workshops dashboard",
+    "slug": "workshops-dashboard",
+    "status": "publish",
+    "menu_order": 12,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}

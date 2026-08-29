@@ -312,7 +312,11 @@ if ( ! function_exists( 'ioulia_path_is_translatable' ) ) {
 
 		$file = wp_parse_url( $path, PHP_URL_PATH );
 
-		return ! ( is_string( $file ) && preg_match( '/[.][a-z0-9]{2,5}$/i', $file ) );
+		$translatable = ! ( is_string( $file ) && preg_match( '/[.][a-z0-9]{2,5}$/i', $file ) );
+
+		// Lets a feature exclude its own paths — an internal tool that should have
+		// no English counterpart, for instance.
+		return (bool) apply_filters( 'ioulia_path_is_translatable', $translatable, $path );
 	}
 }
 
