@@ -726,6 +726,17 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- On the page ---- */
 
+	/* Nodes are built and kept, never written as markup and looked up again.
+	   Setting innerHTML to empty spans and then querySelector-ing them back
+	   assumes nothing touches the DOM in between, and on a page where something
+	   does, the lookup returns null and takes the whole open path with it. */
+	function span(className, text) {
+		var node = document.createElement('span');
+		node.className = className;
+		node.textContent = text;
+		return node;
+	}
+
 	function renderChips() {
 		el.chips.textContent = '';
 
@@ -788,16 +799,14 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			var node = document.createElement('button');
 			node.type = 'button';
 			node.className = 'iwf__option' + (programme === picked.programme ? ' is-current' : '');
-			node.innerHTML =
-				'<span class="iwf__option-top">' +
-					'<span class="iwf__option-title"></span>' +
-					'<span class="iwf__option-price"></span>' +
-				'</span>' +
-				'<span class="iwf__option-summary"></span>';
 
-			node.querySelector('.iwf__option-title').textContent = programme.title;
-			node.querySelector('.iwf__option-price').textContent = programme.price + ' €';
-			node.querySelector('.iwf__option-summary').textContent = programme.summary;
+			var top = document.createElement('span');
+			top.className = 'iwf__option-top';
+			top.appendChild(span('iwf__option-title', programme.title));
+			top.appendChild(span('iwf__option-price', programme.price + ' €'));
+
+			node.appendChild(top);
+			node.appendChild(span('iwf__option-summary', programme.summary));
 
 			node.addEventListener('click', function () {
 				picked.programme = programme;
