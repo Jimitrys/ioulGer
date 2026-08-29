@@ -384,7 +384,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		--iwd-ink: var(--ioulia-ink, #2B2B2B);
 		--iwd-paper: var(--ioulia-paper, #FFFEF7);
 		--iwd-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
-		--iwd-muted: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+		--iwd-muted: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
 		--iwd-danger: var(--ioulia-accent, #7C3737);
 
 		box-sizing: border-box;
@@ -416,8 +416,8 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		border-bottom: 1px solid var(--iwd-line);
 	}
 	.iwd-head h1 { margin: 0; font-size: 1.5rem; font-weight: 500; letter-spacing: -.02em; }
-	.iwd-head p { margin: 2px 0 0; color: var(--iwd-muted); font-size: .82rem; }
-	.iwd-signout { color: var(--iwd-muted); font-size: .82rem; text-decoration: none; padding: 8px 0; }
+	.iwd-head p { margin: 2px 0 0; color: var(--iwd-muted); font-size: var(--ioulia-small); }
+	.iwd-signout { color: var(--iwd-muted); font-size: var(--ioulia-small); text-decoration: none; padding: 8px 0; }
 
 	.iwd-tabs { display: flex; gap: 6px; margin: 14px 0 4px; }
 	.iwd-tab {
@@ -429,7 +429,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		background: transparent;
 		color: var(--iwd-muted);
 		font: inherit;
-		font-size: .84rem;
+		font-size: var(--ioulia-small);
 		cursor: pointer;
 	}
 	.iwd-tab.is-current { border-color: var(--iwd-ink); background: var(--iwd-ink); color: var(--iwd-paper); }
@@ -440,7 +440,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		border-radius: var(--ioulia-radius, 5px);
 		background: rgba(124, 55, 55, .08);
 		color: var(--iwd-danger);
-		font-size: .86rem;
+		font-size: var(--ioulia-small);
 	}
 
 	.iwd-day { margin-top: 22px; }
@@ -452,7 +452,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		padding: 6px 16px;
 		background: var(--iwd-paper);
 		color: var(--iwd-muted);
-		font-size: .74rem;
+		font-size: var(--ioulia-micro);
 		font-weight: 500;
 		letter-spacing: .1em;
 		text-transform: uppercase;
@@ -468,21 +468,21 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 	.iwd-card.is-cancelled { opacity: .55; }
 
 	.iwd-card__top { display: flex; align-items: baseline; gap: 10px; }
-	.iwd-card__time { font-size: 1.1rem; font-weight: 500; font-variant-numeric: tabular-nums; }
-	.iwd-card__programme { flex: 1 1 auto; min-width: 0; color: var(--iwd-muted); font-size: .82rem; }
+	.iwd-card__time { font-size: var(--ioulia-body); font-weight: 500; font-variant-numeric: tabular-nums; }
+	.iwd-card__programme { flex: 1 1 auto; min-width: 0; color: var(--iwd-muted); font-size: var(--ioulia-small); }
 	.iwd-card__seats {
 		flex: 0 0 auto;
 		padding: 2px 8px;
 		border: 1px solid var(--iwd-line);
 		border-radius: 999px;
-		font-size: .72rem;
+		font-size: var(--ioulia-micro);
 		font-variant-numeric: tabular-nums;
 	}
 
 	.iwd-card__who { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 10px 0 0; }
 	.iwd-card__who strong { font-weight: 500; }
-	.iwd-card__who span { color: var(--iwd-muted); font-size: .82rem; white-space: nowrap; }
-	.iwd-card__note { margin: 8px 0 0; color: var(--iwd-muted); font-size: .86rem; }
+	.iwd-card__who span { color: var(--iwd-muted); font-size: var(--ioulia-small); white-space: nowrap; }
+	.iwd-card__note { margin: 8px 0 0; color: var(--iwd-muted); font-size: var(--ioulia-small); }
 
 	.iwd-card__actions { display: flex; gap: 8px; margin-top: 12px; }
 	.iwd-action {
@@ -497,7 +497,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		background: transparent;
 		color: var(--iwd-ink);
 		font: inherit;
-		font-size: .84rem;
+		font-size: var(--ioulia-small);
         text-decoration: none;
 		cursor: pointer;
 	}
@@ -506,7 +506,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 
 	.iwd-cancel { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--iwd-line); }
 	.iwd-cancel[hidden] { display: none; }
-	.iwd-cancel label { display: block; margin-bottom: 6px; color: var(--iwd-muted); font-size: .78rem; }
+	.iwd-cancel label { display: block; margin-bottom: 6px; color: var(--iwd-muted); font-size: var(--ioulia-micro); }
 	.iwd-cancel textarea {
 		width: 100%;
 		padding: 10px;
@@ -518,10 +518,10 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 	}
 	.iwd-cancel__buttons { display: flex; gap: 8px; margin-top: 10px; }
 
-	.iwd-empty { margin: 28px 0; color: var(--iwd-muted); font-size: .9rem; text-align: center; }
+	.iwd-empty { margin: 28px 0; color: var(--iwd-muted); font-size: var(--ioulia-small); text-align: center; }
 
 	.iwd--gate form { margin-top: 24px; }
-	.iwd--gate label { display: block; margin-bottom: 14px; color: var(--iwd-muted); font-size: .82rem; }
+	.iwd--gate label { display: block; margin-bottom: 14px; color: var(--iwd-muted); font-size: var(--ioulia-small); }
 	.iwd--gate input[type="text"],
 	.iwd--gate input[type="password"] {
 		display: block;
@@ -543,7 +543,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		background: var(--iwd-ink);
 		color: var(--iwd-paper);
 		font: inherit;
-		font-size: .9rem;
+		font-size: var(--ioulia-small);
 		cursor: pointer;
 	}
 
@@ -553,6 +553,12 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		.iwd-head { margin-inline: -24px; padding-inline: 24px; }
 		.iwd-day__label { margin-inline: -24px; padding-inline: 24px; }
 	}
+
+	/* Muted tone always comes with more weight. Lower contrast must not also
+	   mean lighter strokes, or the text pays for the quietness twice. */
+	.iwd-head p, .iwd-signout, .iwd-tab, .iwd-card__programme,
+	.iwd-card__who span, .iwd-card__note, .iwd-empty,
+	.iwd-cancel label, .iwd-card__seats, .iwd-action { font-weight: 500; }
 </style>
 
 <script id="ioulia-dashboard-js">

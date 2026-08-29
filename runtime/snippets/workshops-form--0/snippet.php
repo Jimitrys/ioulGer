@@ -287,7 +287,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		--iwf-ink: var(--ioulia-ink, #2B2B2B);
 		--iwf-paper: var(--ioulia-paper, #FFFEF7);
 		--iwf-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
-		--iwf-muted: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+		--iwf-muted: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
 		--iwf-ease: cubic-bezier(.16, 1, .3, 1);
 
 		/* Times read as their own colour, not as the site's accent. */
@@ -322,9 +322,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 	.iwf__visual.is-in img { transform: scale(1); }
 
-	.iwf__eyebrow { margin: 0; color: var(--iwf-muted); font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; }
+	.iwf__eyebrow { margin: 0; color: var(--iwf-muted); font-size: var(--ioulia-micro); letter-spacing: .16em; text-transform: uppercase; }
 	.iwf__title { margin: .25em 0 0; font-size: clamp(2.8rem, 7vw, 5.2rem); font-weight: 300; letter-spacing: -.045em; line-height: 1; }
-	.iwf__intro { margin: 2rem 0 0; max-width: 40ch; color: var(--iwf-muted); font-size: .9rem; line-height: 1.65; }
+	.iwf__intro { margin: 2rem 0 0; max-width: 40ch; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.65; }
 
 	.iwf__chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: clamp(2rem, 4vw, 3rem); }
 	.iwf__chips--times { margin-top: .8rem; }
@@ -336,7 +336,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		background: transparent;
 		color: var(--iwf-muted);
 		font: inherit;
-		font-size: .78rem;
+		font-size: var(--ioulia-micro);
 		cursor: pointer;
 		transition: color .25s ease, border-color .25s ease, background-color .25s ease, transform .25s var(--iwf-ease);
 	}
@@ -345,7 +345,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	.iwf__schedule { margin-top: clamp(1.6rem, 3vw, 2.4rem); border-top: 1px solid var(--iwf-line); }
 	.iwf__row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--iwf-line); }
-	.iwf__row-day { color: var(--iwf-muted); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+	.iwf__row-day { color: var(--iwf-muted); font-size: var(--ioulia-micro); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
 	.iwf__row-times { display: flex; flex-wrap: wrap; gap: .35rem; justify-content: flex-end; }
 
 	.iwf__slot {
@@ -355,7 +355,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		background: var(--iwf-slot-bg);
 		color: var(--iwf-slot-ink);
 		font: inherit;
-		font-size: .76rem;
+		font-size: var(--ioulia-micro);
 		font-variant-numeric: tabular-nums;
 		cursor: pointer;
 		opacity: 0;
@@ -386,7 +386,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		--iwf-ink: var(--ioulia-ink, #2B2B2B);
 		--iwf-paper: var(--ioulia-paper, #FFFEF7);
 		--iwf-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
-		--iwf-muted: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+		--iwf-muted: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
 		--iwf-ease: cubic-bezier(.16, 1, .3, 1);
 		--iwf-slot-ink: #813527;
 		--iwf-slot-bg: rgba(129, 53, 39, .12);
@@ -427,7 +427,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-modal__grab { display: block; width: 36px; height: 4px; margin: 10px auto 0; border-radius: 999px; background: var(--iwf-line); }
 
 	.iwf-modal__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem var(--iwf-gutter) 0; }
-	.iwf-modal__step { margin: 0; color: var(--iwf-muted); font-size: .68rem; letter-spacing: .16em; font-variant-numeric: tabular-nums; }
+	.iwf-modal__step { margin: 0; color: var(--iwf-muted); font-size: var(--ioulia-micro); letter-spacing: .16em; font-variant-numeric: tabular-nums; }
 
 	.iwf-modal__close {
 		display: grid;
@@ -458,7 +458,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 
 	.iwf-modal__title { margin: 0; font-size: clamp(1.6rem, 5.5vw, 2.15rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.1; }
-	.iwf-modal__lead { margin: .5rem 0 0; color: var(--iwf-muted); font-size: .92rem; line-height: 1.5; }
+	.iwf-modal__lead { margin: .5rem 0 0; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; }
 	.iwf-modal__lead[hidden] { display: none; }
 
 	.iwf-step { margin-top: 1.75rem; }
@@ -473,9 +473,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		border-top: 1px solid var(--iwf-line);
 		background: var(--iwf-paper);
 	}
-	.iwf-modal__back { padding: .5rem 0; border: 0; background: none; color: var(--iwf-ink); font: inherit; font-size: .86rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+	.iwf-modal__back { padding: .5rem 0; border: 0; background: none; color: var(--iwf-ink); font: inherit; font-size: var(--ioulia-small); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 	.iwf-modal__back[hidden] { display: none; }
-	.iwf-modal__note { margin: 0 0 0 auto; color: var(--iwf-muted); font-size: .76rem; text-align: right; }
+	.iwf-modal__note { margin: 0 0 0 auto; color: var(--iwf-muted); font-size: var(--ioulia-micro); text-align: right; }
 
 	@media (min-width: 700px) {
 		.iwf-modal { align-items: center; padding: 2rem; }
@@ -505,14 +505,14 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf__option.is-current { border-color: var(--iwf-ink); box-shadow: inset 0 0 0 1px var(--iwf-ink); }
 
 	.iwf__option-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-	.iwf__option-title { font-size: 1.08rem; font-weight: 500; letter-spacing: -.015em; }
-	.iwf__option-price { color: var(--iwf-slot-ink); font-size: .88rem; white-space: nowrap; }
-	.iwf__option-summary { display: block; margin-top: .3rem; color: var(--iwf-muted); font-size: .86rem; line-height: 1.5; }
+	.iwf__option-title { font-size: var(--ioulia-body); font-weight: 500; letter-spacing: -.015em; }
+	.iwf__option-price { color: var(--iwf-slot-ink); font-size: var(--ioulia-small); white-space: nowrap; }
+	.iwf__option-summary { display: block; margin-top: .3rem; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; }
 
 	/* ---- Step 2: calendar ---- */
 
 	.iwf-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-	.iwf-cal__month { font-size: 1rem; font-weight: 500; letter-spacing: -.015em; }
+	.iwf-cal__month { font-size: var(--ioulia-body); font-weight: 500; letter-spacing: -.015em; }
 	.iwf-cal__nav { display: flex; gap: .4rem; }
 	.iwf-cal__nav button {
 		display: grid;
@@ -531,7 +531,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-cal__nav button:disabled { opacity: .25; cursor: default; }
 
 	.iwf-cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
-	.iwf-cal__dayname { padding: .3rem 0 .5rem; color: var(--iwf-muted); font-size: .66rem; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
+	.iwf-cal__dayname { padding: .3rem 0 .5rem; color: var(--iwf-muted); font-size: var(--ioulia-micro); letter-spacing: .06em; text-align: center; text-transform: uppercase; }
 
 	.iwf-cal__day {
 		display: grid;
@@ -543,7 +543,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		background: transparent;
 		color: var(--iwf-muted);
 		font: inherit;
-		font-size: .92rem;
+		font-size: var(--ioulia-small);
 		font-variant-numeric: tabular-nums;
 		opacity: .3;
 		cursor: default;
@@ -561,7 +561,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	.iwf-times { margin-top: 1.6rem; padding-top: 1.3rem; border-top: 1px solid var(--iwf-line); }
 	.iwf-times[hidden] { display: none; }
-	.iwf-times__label { margin: 0; font-size: .95rem; font-weight: 500; letter-spacing: -.01em; }
+	.iwf-times__label { margin: 0; font-size: var(--ioulia-body); font-weight: 500; letter-spacing: -.01em; }
 	.iwf__chips--times { margin-top: .75rem; }
 	.iwf__chips--times .iwf__chip {
 		padding: .6rem 1.05rem;
@@ -569,7 +569,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		border-color: transparent;
 		background: var(--iwf-slot-bg);
 		color: var(--iwf-slot-ink);
-		font-size: .88rem;
+		font-size: var(--ioulia-small);
 		font-variant-numeric: tabular-nums;
 	}
 	.iwf__chips--times .iwf__chip:hover,
@@ -578,18 +578,18 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- Step 3: details ---- */
 
-	.iwf__chosen { margin: 0 0 1.2rem; padding-left: .8rem; border-left: 2px solid var(--iwf-slot-ink); color: var(--iwf-muted); font-size: .84rem; }
-	.iwf__error { margin: 1.2rem 0 0; padding: .8rem 1rem; background: var(--iwf-slot-bg); color: var(--iwf-slot-ink); font-size: .84rem; }
+	.iwf__chosen { margin: 0 0 1.2rem; padding-left: .8rem; border-left: 2px solid var(--iwf-slot-ink); color: var(--iwf-muted); font-size: var(--ioulia-small); }
+	.iwf__error { margin: 1.2rem 0 0; padding: .8rem 1rem; background: var(--iwf-slot-bg); color: var(--iwf-slot-ink); font-size: var(--ioulia-small); }
 	.iwf__error[hidden] { display: none; }
 
 	.iwf__people { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1.2rem; }
 	.iwf__stepper { display: flex; align-items: center; gap: .4rem; }
-	.iwf__stepper button { width: 44px; height: 44px; border: 1px solid var(--iwf-line); border-radius: var(--ioulia-radius, 5px); background: transparent; color: inherit; font: inherit; font-size: 1.1rem; cursor: pointer; transition: border-color .2s ease; }
+	.iwf__stepper button { width: 44px; height: 44px; border: 1px solid var(--iwf-line); border-radius: var(--ioulia-radius, 5px); background: transparent; color: inherit; font: inherit; font-size: var(--ioulia-body); cursor: pointer; transition: border-color .2s ease; }
 	.iwf__stepper button:hover { border-color: currentColor; }
 	.iwf__stepper output { min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
 
 	.iwf__fields { display: grid; gap: 1rem; }
-	.iwf__field > span { display: block; margin-bottom: .35rem; color: var(--iwf-muted); font-size: .76rem; }
+	.iwf__field > span { display: block; margin-bottom: .35rem; color: var(--iwf-muted); font-size: var(--ioulia-micro); }
 	.iwf__field em { font-style: normal; opacity: .7; }
 	.iwf__field input, .iwf__field textarea {
 		display: block;
@@ -607,15 +607,15 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 	.iwf__field input:focus, .iwf__field textarea:focus { border-color: currentColor; outline: none; }
 
-	.iwf__consent { display: flex; gap: .7rem; margin-top: 1.3rem; color: var(--iwf-muted); font-size: .8rem; line-height: 1.5; }
+	.iwf__consent { display: flex; gap: .7rem; margin-top: 1.3rem; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; }
 	.iwf__consent input { width: 22px; height: 22px; margin: 0; flex: 0 0 auto; accent-color: var(--iwf-slot-ink); }
 	.iwf__consent a { color: inherit; }
 
 	.iwf__trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 	.iwf__submit { width: 100%; margin-top: 1.6rem; min-height: 52px; }
 
-	.iwf__done p { margin: 0 0 .7rem; color: var(--iwf-muted); font-size: .9rem; line-height: 1.55; }
-	.iwf__done p:first-child { color: var(--iwf-ink); font-size: 1rem; }
+	.iwf__done p { margin: 0 0 .7rem; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.55; }
+	.iwf__done p:first-child { color: var(--iwf-ink); font-size: var(--ioulia-body); }
 
 	@media (min-width: 560px) {
 		.iwf__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -630,6 +630,13 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			transform: none;
 		}
 	}
+
+	/* Muted tone always comes with more weight. Lower contrast must not also
+	   mean lighter strokes, or the text pays for the quietness twice. */
+	.iwf__eyebrow, .iwf__intro, .iwf__row-day, .iwf__chip,
+	.iwf-modal__step, .iwf-modal__lead, .iwf-modal__note,
+	.iwf__option-summary, .iwf__field > span, .iwf__consent,
+	.iwf-cal__dayname, .iwf__error, .iwf__chosen { font-weight: 500; }
 </style>
 
 <script id="ioulia-workshops-form-js">

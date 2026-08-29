@@ -273,7 +273,7 @@ if ( ! function_exists( 'ioulia_editor_render' ) ) {
 		border-left: 1px solid rgba(43, 43, 43, .2);
 		box-shadow: 0 0 40px rgba(43, 43, 43, .12);
 		font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-		font-size: 13px;
+		font-size: 14px;
 		line-height: 1.5;
 		color: #2B2B2B;
 	}
@@ -286,8 +286,8 @@ if ( ! function_exists( 'ioulia_editor_render' ) ) {
 		justify-content: space-between;
 		gap: 10px;
 	}
-	.ioulia-i18n-head strong { font-size: 13px; font-weight: 600; }
-	.ioulia-i18n-head small { display: block; color: rgba(43, 43, 43, .6); font-size: 11px; }
+	.ioulia-i18n-head strong { font-size: 14px; font-weight: 600; }
+	.ioulia-i18n-head small { display: block; color: rgba(43, 43, 43, .6); font-size: 14px; }
 	.ioulia-i18n-search { padding: 10px 16px; border-bottom: 1px solid rgba(43, 43, 43, .12); }
 	.ioulia-i18n-search input {
 		width: 100%;
@@ -313,10 +313,10 @@ if ( ! function_exists( 'ioulia_editor_render' ) ) {
 	.ioulia-i18n-row:hover { background: rgba(124, 55, 55, .06); }
 	.ioulia-i18n-row.is-active { background: rgba(124, 55, 55, .12); }
 	.ioulia-i18n-row .src { display: block; }
-	.ioulia-i18n-row .dst { display: block; color: rgba(43, 43, 43, .55); font-size: 11px; margin-top: 3px; }
+	.ioulia-i18n-row .dst { display: block; color: rgba(43, 43, 43, .55); font-size: 14px; margin-top: 3px; }
 	.ioulia-i18n-row .dst.is-missing { color: #A33; }
 	.ioulia-i18n-edit { border-top: 1px solid rgba(43, 43, 43, .12); padding: 12px 16px; background: #fff; }
-	.ioulia-i18n-edit label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: rgba(43, 43, 43, .55); margin-bottom: 4px; }
+	.ioulia-i18n-edit label { display: block; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: rgba(43, 43, 43, .55); margin-bottom: 4px; }
 	.ioulia-i18n-source {
 		background: rgba(43, 43, 43, .05);
 		border-radius: 4px;
@@ -346,9 +346,9 @@ if ( ! function_exists( 'ioulia_editor_render' ) ) {
 	}
 	.ioulia-i18n-btn.primary { background: #7C3737; border-color: #7C3737; color: #fff; }
 	.ioulia-i18n-btn[disabled] { opacity: .5; cursor: default; }
-	.ioulia-i18n-status { font-size: 11px; color: rgba(43, 43, 43, .6); margin-left: auto; }
+	.ioulia-i18n-status { font-size: 14px; color: rgba(43, 43, 43, .6); margin-left: auto; }
 	.ioulia-i18n-foot { padding: 10px 16px; border-top: 1px solid rgba(43, 43, 43, .12); display: flex; gap: 8px; }
-	.ioulia-i18n-foot a, .ioulia-i18n-foot button { font-size: 11px; }
+	.ioulia-i18n-foot a, .ioulia-i18n-foot button { font-size: 14px; }
 	body.ioulia-i18n-editing { cursor: crosshair; }
 </style>
 

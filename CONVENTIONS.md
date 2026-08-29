@@ -59,6 +59,34 @@ that needs a local gutter variable aliases the shared one:
 Text measures (`max-width: 42ch`, a 520px paragraph) are not container widths and
 stay where they are.
 
+## Type: one scale, one floor, and weight for quietness
+
+Sizes come from the tokens in `runtime/global/styles.css`, not from a number
+typed into a component:
+
+| token | 375px | 1440px |
+| --- | --- | --- |
+| `--ioulia-body-lg` | 17.3px | 21.6px |
+| `--ioulia-body` | 16.0px | 19.2px |
+| `--ioulia-small` | 14.4px | 16.8px |
+| `--ioulia-micro` | 13.1px | 15.2px |
+
+Each clamp's middle term is written as `vw + rem`, never `vw` alone. With `vw`
+alone the term stays below the minimum until roughly 1900px, so every clamp sits
+pinned to its floor and the scale never grows: `small` used to resolve to 12.2px
+on a 1440px screen and `micro` to 10.9px.
+
+`--ioulia-text-floor` is the smallest size any text may be set at. Something that
+needs to be quieter gets there through tone and weight, not by shrinking.
+
+**Muted tone always comes with more weight.** Text set in `--ioulia-ink-80` or
+lighter carries `font-weight: 500`, so lower contrast does not also mean lighter
+strokes — otherwise the text pays for being quiet twice. Prefer `--ioulia-ink-80`
+over `--ioulia-ink-65` for anything at `--ioulia-small` or below.
+
+One exception, deliberate: form inputs stay at a literal `16px`. Anything smaller
+makes iOS zoom the page when the field takes focus.
+
 ## Check before committing
 
 ```
