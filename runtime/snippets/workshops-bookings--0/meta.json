@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "workshops bookings",
+    "slug": "workshops-bookings",
+    "status": "publish",
+    "menu_order": 11,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}
