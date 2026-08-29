@@ -5,10 +5,13 @@
  * Answers [ioulia_workshops], which the home canvas and the Book Workshop page
  * already use, so replacing the old plugin needs no change to either.
  *
- * One screen, not a wizard. A row of programmes, then the dates that programme
- * runs with their times beside them, then the details. Everything stays visible,
- * which is how a weekly schedule is actually read: "Friday at 15:00", not four
- * separate questions.
+ * Two halves. On the page: two studio photographs, the title, the programmes,
+ * and the next few dates read as a day with its times beside it. In a dialog:
+ * the whole thing, as three steps, with a month calendar rather than a list.
+ *
+ * A list of every date a programme runs stops being readable at about six rows,
+ * and a programme running three days a week fills a screen with rows that all
+ * look alike. A calendar says the same thing in a shape people already know.
  *
  * Availability is rendered into the page as data rather than fetched per step,
  * so choosing is instant and no session is offered that would then be refused.
@@ -40,6 +43,20 @@ if ( ! function_exists( 'ioulia_workshops_visuals' ) ) {
 					'alt' => 'Ζωγραφική πάνω σε κεραμικό στο εργαστήριο',
 				),
 			)
+		);
+	}
+}
+
+if ( ! function_exists( 'ioulia_calendar_words' ) ) {
+	/**
+	 * Month names and weekday initials for the calendar, in the reading language.
+	 */
+	function ioulia_calendar_words() {
+		$words = ioulia_locale_date_words();
+
+		return array(
+			'months'   => array_values( $words['months'] ),
+			'weekdays' => array_values( $words['weekdays_abbr'] ),
 		);
 	}
 }
@@ -99,7 +116,6 @@ if ( ! function_exists( 'ioulia_book_ajax' ) ) {
 if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 	function ioulia_workshops_shortcode() {
 		$availability = ioulia_availability();
-		$settings     = ioulia_workshop_settings();
 		$privacy      = get_privacy_policy_url();
 		$visuals      = ioulia_workshops_visuals();
 
@@ -107,7 +123,8 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 		?>
 		<section class="iwf" data-iwf
 			data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"
-			data-nonce="<?php echo esc_attr( wp_create_nonce( 'ioulia_book' ) ); ?>">
+			data-nonce="<?php echo esc_attr( wp_create_nonce( 'ioulia_book' ) ); ?>"
+			data-words="<?php echo esc_attr( wp_json_encode( ioulia_calendar_words() ) ); ?>">
 
 			<div class="iwf__grid">
 
@@ -129,7 +146,7 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 
 					<?php else : ?>
 
-						<div class="iwf__chips iwf__chips--programmes" data-iwf-programmes data-iwf-reveal role="group" aria-label="Πρόγραμμα"></div>
+						<div class="iwf__chips" data-iwf-programmes data-iwf-reveal role="group" aria-label="Πρόγραμμα"></div>
 
 						<div class="iwf__schedule" data-iwf-schedule data-iwf-reveal></div>
 
@@ -141,82 +158,103 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 				</div>
 			</div>
 
+			<?php if ( ! empty( $availability ) ) : ?>
 			<div class="iwf-modal" data-iwf-modal hidden>
 				<div class="iwf-modal__backdrop" data-iwf-close></div>
 
 				<div class="iwf-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="iwf-modal-title">
 					<header class="iwf-modal__head">
-						<h3 id="iwf-modal-title" data-iwf-modal-title>Κλείσε τη θέση σου</h3>
+						<div class="iwf-modal__heading">
+							<p class="iwf-modal__step" data-iwf-steplabel></p>
+							<h3 id="iwf-modal-title" data-iwf-modal-title>Κλείσε τη θέση σου</h3>
+						</div>
 						<button type="button" class="iwf-modal__close" data-iwf-close aria-label="Κλείσιμο">×</button>
 					</header>
 
-					<div class="iwf-modal__body">
-						<div class="iwf__chips iwf__chips--programmes" data-iwf-modal-programmes role="group" aria-label="Πρόγραμμα"></div>
+					<div class="iwf-modal__body" data-iwf-scroll>
 
-						<div class="iwf__schedule iwf__schedule--full" data-iwf-modal-schedule></div>
+						<div class="iwf-step" data-iwf-step="1">
+							<div class="iwf__options" data-iwf-options></div>
+						</div>
 
-						<p class="iwf__error" data-iwf-error hidden role="alert"></p>
+						<div class="iwf-step" data-iwf-step="2" hidden>
+							<div class="iwf-cal" data-iwf-calendar></div>
+							<div class="iwf-times" data-iwf-times hidden>
+								<p class="iwf-times__label" data-iwf-times-label></p>
+								<div class="iwf__chips iwf__chips--times" data-iwf-times-list role="group" aria-label="Ώρα"></div>
+							</div>
+						</div>
 
-						<form class="iwf__form" data-iwf-form novalidate hidden>
-							<p class="iwf__chosen" data-iwf-chosen></p>
+						<div class="iwf-step" data-iwf-step="3" hidden>
+							<form class="iwf__form" data-iwf-form novalidate>
+								<p class="iwf__chosen" data-iwf-chosen></p>
 
-							<div class="iwf__people">
-								<span id="iwf-people-label">Άτομα</span>
-								<div class="iwf__stepper" role="group" aria-labelledby="iwf-people-label">
-									<button type="button" data-iwf-people="-1" aria-label="Λιγότερα άτομα">−</button>
-									<output data-iwf-people-value>1</output>
-									<button type="button" data-iwf-people="1" aria-label="Περισσότερα άτομα">+</button>
+								<div class="iwf__people">
+									<span id="iwf-people-label">Άτομα</span>
+									<div class="iwf__stepper" role="group" aria-labelledby="iwf-people-label">
+										<button type="button" data-iwf-people="-1" aria-label="Λιγότερα άτομα">−</button>
+										<output data-iwf-people-value>1</output>
+										<button type="button" data-iwf-people="1" aria-label="Περισσότερα άτομα">+</button>
+									</div>
 								</div>
-							</div>
 
-							<div class="iwf__fields">
-								<label class="iwf__field">
-									<span>Ονοματεπώνυμο</span>
-									<input type="text" name="name" autocomplete="name" required>
+								<div class="iwf__fields">
+									<label class="iwf__field">
+										<span>Ονοματεπώνυμο</span>
+										<input type="text" name="name" autocomplete="name" required>
+									</label>
+
+									<label class="iwf__field">
+										<span>Email</span>
+										<input type="email" name="email" autocomplete="email" required>
+									</label>
+
+									<label class="iwf__field">
+										<span>Τηλέφωνο</span>
+										<input type="tel" name="phone" autocomplete="tel">
+									</label>
+
+									<label class="iwf__field iwf__field--wide">
+										<span>Κάτι που πρέπει να ξέρουμε; <em>προαιρετικό</em></span>
+										<textarea name="note" rows="2"></textarea>
+									</label>
+								</div>
+
+								<label class="iwf__consent">
+									<input type="checkbox" name="consent" required>
+									<span>
+										Συμφωνώ να κρατήσετε τα στοιχεία μου για να διαχειριστείτε αυτή την κράτηση.
+										<?php if ( $privacy ) : ?>
+											<a href="<?php echo esc_url( $privacy ); ?>" target="_blank" rel="noopener">Πολιτική Απορρήτου</a>
+										<?php endif; ?>
+									</span>
 								</label>
 
-								<label class="iwf__field">
-									<span>Email</span>
-									<input type="email" name="email" autocomplete="email" required>
-								</label>
+								<div class="iwf__trap" aria-hidden="true">
+									<label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+								</div>
+								<input type="hidden" name="opened" value="<?php echo esc_attr( time() ); ?>">
 
-								<label class="iwf__field">
-									<span>Τηλέφωνο</span>
-									<input type="tel" name="phone" autocomplete="tel">
-								</label>
+								<button type="submit" class="ioulia-btn ioulia-btn--filled iwf__submit">Ολοκλήρωση κράτησης</button>
+							</form>
+						</div>
 
-								<label class="iwf__field iwf__field--wide">
-									<span>Κάτι που πρέπει να ξέρουμε; <em>προαιρετικό</em></span>
-									<textarea name="note" rows="2"></textarea>
-								</label>
-							</div>
-
-							<label class="iwf__consent">
-								<input type="checkbox" name="consent" required>
-								<span>
-									Συμφωνώ να κρατήσετε τα στοιχεία μου για να διαχειριστείτε αυτή την κράτηση.
-									<?php if ( $privacy ) : ?>
-										<a href="<?php echo esc_url( $privacy ); ?>" target="_blank" rel="noopener">Πολιτική Απορρήτου</a>
-									<?php endif; ?>
-								</span>
-							</label>
-
-							<div class="iwf__trap" aria-hidden="true">
-								<label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
-							</div>
-							<input type="hidden" name="opened" value="<?php echo esc_attr( time() ); ?>">
-
-							<button type="submit" class="ioulia-btn ioulia-btn--filled iwf__submit">Ολοκλήρωση κράτησης</button>
-						</form>
-
-						<div class="iwf__done" data-iwf-done hidden>
+						<div class="iwf-step iwf__done" data-iwf-step="done" hidden>
 							<h4>Η θέση σου κρατήθηκε.</h4>
 							<p data-iwf-summary></p>
 							<p>Σου στείλαμε email με τα στοιχεία. Θα σε περιμένουμε στο εργαστήριο.</p>
 						</div>
+
+						<p class="iwf__error" data-iwf-error hidden role="alert"></p>
 					</div>
+
+					<footer class="iwf-modal__foot">
+						<button type="button" class="iwf-modal__back" data-iwf-back hidden>Πίσω</button>
+						<p class="iwf-modal__note" data-iwf-foot-note></p>
+					</footer>
 				</div>
 			</div>
+			<?php endif; ?>
 
 			<script type="application/json" data-iwf-availability><?php echo wp_json_encode( $availability ); ?></script>
 		</section>
@@ -248,9 +286,11 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		--iwf-paper: var(--ioulia-paper, #FFFEF7);
 		--iwf-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
 		--iwf-muted: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
-		--iwf-accent: var(--ioulia-accent, #7C3737);
-		--iwf-peach: var(--ioulia-peach, #FECAA7);
 		--iwf-ease: cubic-bezier(.16, 1, .3, 1);
+
+		/* Times read as their own colour, not as the site's accent. */
+		--iwf-slot-ink: #813527;
+		--iwf-slot-bg: rgba(129, 53, 39, .12);
 
 		box-sizing: border-box;
 		width: 100%;
@@ -265,7 +305,6 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	.iwf__grid { display: grid; gap: clamp(2.5rem, 5vw, 5rem); align-items: start; }
 
-	/* Photographs: two panels, the second dropped and taller, as in the reference. */
 	.iwf__visuals { display: grid; grid-template-columns: 1fr 1.35fr; gap: clamp(.75rem, 2vw, 2.2rem); align-items: start; }
 	.iwf__visual { position: relative; margin: 0; overflow: hidden; background: rgba(43, 43, 43, .06); }
 	.iwf__visual--a { aspect-ratio: 3 / 4; }
@@ -284,10 +323,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf__eyebrow { margin: 0; color: var(--iwf-muted); font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; }
 	.iwf__title { margin: .25em 0 0; font-size: clamp(2.8rem, 7vw, 5.2rem); font-weight: 300; letter-spacing: -.045em; line-height: 1; }
 	.iwf__intro { margin: 2rem 0 0; max-width: 40ch; color: var(--iwf-muted); font-size: .9rem; line-height: 1.65; }
-	.iwf__hint { margin: 1.2rem 0 0; color: var(--iwf-muted); font-size: .76rem; }
 
-	.iwf__chips { display: flex; flex-wrap: wrap; gap: .4rem; }
-	.iwf__chips--programmes { margin-top: clamp(2rem, 4vw, 3rem); }
+	.iwf__chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: clamp(2rem, 4vw, 3rem); }
+	.iwf__chips--times { margin-top: .8rem; }
 
 	.iwf__chip {
 		padding: .5rem .85rem;
@@ -297,23 +335,14 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		color: var(--iwf-muted);
 		font: inherit;
 		font-size: .78rem;
-		letter-spacing: .01em;
 		cursor: pointer;
 		transition: color .25s ease, border-color .25s ease, background-color .25s ease, transform .25s var(--iwf-ease);
 	}
 	.iwf__chip:hover, .iwf__chip:focus-visible { border-color: var(--iwf-ink); color: var(--iwf-ink); outline: none; transform: translateY(-2px); }
 	.iwf__chip.is-current { border-color: var(--iwf-ink); background: var(--iwf-ink); color: var(--iwf-paper); }
 
-	/* Schedule: a day on the left, its times on the right, one rule between. */
 	.iwf__schedule { margin-top: clamp(1.6rem, 3vw, 2.4rem); border-top: 1px solid var(--iwf-line); }
-	.iwf__row {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		padding: .7rem 0;
-		border-bottom: 1px solid var(--iwf-line);
-	}
+	.iwf__row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--iwf-line); }
 	.iwf__row-day { color: var(--iwf-muted); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
 	.iwf__row-times { display: flex; flex-wrap: wrap; gap: .35rem; justify-content: flex-end; }
 
@@ -321,8 +350,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		padding: .3rem .7rem;
 		border: 1px solid transparent;
 		border-radius: 2px;
-		background: var(--iwf-peach);
-		color: var(--iwf-ink);
+		background: var(--iwf-slot-bg);
+		color: var(--iwf-slot-ink);
 		font: inherit;
 		font-size: .76rem;
 		font-variant-numeric: tabular-nums;
@@ -332,20 +361,15 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		animation: iwf-slot-in .5s var(--iwf-ease) forwards;
 		transition: background-color .25s ease, color .25s ease, transform .25s var(--iwf-ease);
 	}
-	.iwf__slot:hover, .iwf__slot:focus-visible { background: var(--iwf-ink); color: var(--iwf-paper); outline: none; transform: translateY(-2px); }
-	.iwf__slot.is-current { background: var(--iwf-ink); color: var(--iwf-paper); }
+	.iwf__slot:hover, .iwf__slot:focus-visible { background: var(--iwf-slot-ink); color: var(--iwf-paper); outline: none; transform: translateY(-2px); }
+	.iwf__slot.is-current { background: var(--iwf-slot-ink); color: var(--iwf-paper); }
 
 	@keyframes iwf-slot-in { to { opacity: 1; transform: translateY(0); } }
 
 	.iwf__open { margin-top: clamp(2rem, 4vw, 3rem); min-height: 52px; padding-inline: 2rem; }
 
-	/* Reveal on approach, staggered by position rather than by a fixed list. */
 	[data-iwf-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .8s var(--iwf-ease), transform .8s var(--iwf-ease); }
 	[data-iwf-reveal].is-in { opacity: 1; transform: none; }
-
-	@media (prefers-reduced-motion: reduce) {
-		[data-iwf-reveal], .iwf__visual img, .iwf__slot { transition: none; animation: none; opacity: 1; transform: none; }
-	}
 
 	@media (min-width: 900px) {
 		.iwf__grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(3rem, 6vw, 7rem); }
@@ -353,8 +377,27 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- Dialog ---- */
 
-	.iwf-modal { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: flex-end; justify-content: center; }
+	.iwf-modal {
+		--iwf-ink: var(--ioulia-ink, #2B2B2B);
+		--iwf-paper: var(--ioulia-paper, #FFFEF7);
+		--iwf-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
+		--iwf-muted: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+		--iwf-ease: cubic-bezier(.16, 1, .3, 1);
+		--iwf-slot-ink: #813527;
+		--iwf-slot-bg: rgba(129, 53, 39, .12);
+
+		position: fixed;
+		inset: 0;
+		z-index: 100000;
+		display: flex;
+		align-items: flex-end;
+		justify-content: center;
+		font-family: var(--ioulia-font, sans-serif);
+		color: var(--iwf-ink);
+	}
 	.iwf-modal[hidden] { display: none; }
+	.iwf-modal *, .iwf-modal *::before, .iwf-modal *::after { box-sizing: border-box; }
+
 	.iwf-modal__backdrop { position: absolute; inset: 0; background: rgba(43, 43, 43, .38); opacity: 0; transition: opacity .4s ease; }
 	.iwf-modal.is-open .iwf-modal__backdrop { opacity: 1; }
 
@@ -362,79 +405,143 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		width: min(640px, 100%);
+		width: min(560px, 100%);
+		/* svh rather than vh: mobile browser chrome should not clip the footer. */
 		max-height: 92svh;
-		background: var(--ioulia-paper, #FFFEF7);
-		color: var(--ioulia-ink, #2B2B2B);
-		font-family: var(--ioulia-font, sans-serif);
+		background: var(--iwf-paper);
 		transform: translateY(24px);
 		opacity: 0;
-		transition: transform .5s cubic-bezier(.16, 1, .3, 1), opacity .35s ease;
+		transition: transform .5s var(--iwf-ease), opacity .35s ease;
 	}
 	.iwf-modal.is-open .iwf-modal__dialog { transform: none; opacity: 1; }
 
-	.iwf-modal__head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		padding: 1.2rem clamp(1.1rem, 3vw, 2rem);
-		border-bottom: 1px solid var(--ioulia-ink-12, rgba(43, 43, 43, .12));
-	}
+	.iwf-modal__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.1rem clamp(1.1rem, 3vw, 1.8rem); border-bottom: 1px solid var(--iwf-line); }
+	.iwf-modal__step { margin: 0 0 .25rem; color: var(--iwf-muted); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; }
 	.iwf-modal__head h3 { margin: 0; font-size: 1.05rem; font-weight: 400; letter-spacing: -.01em; }
-	.iwf-modal__close {
-		width: 44px;
-		height: 44px;
-		margin-right: -.6rem;
-		border: 0;
-		background: none;
-		color: inherit;
-		font-size: 1.6rem;
-		line-height: 1;
-		cursor: pointer;
+	.iwf-modal__close { width: 44px; height: 44px; margin: -.4rem -.6rem 0 0; border: 0; background: none; color: inherit; font-size: 1.6rem; line-height: 1; cursor: pointer; }
+
+	.iwf-modal__body {
+		flex: 1 1 auto;
+		/* Without this a flex child refuses to shrink, the body grows to its
+		   content, the dialog overflows, and the page behind scrolls instead. */
+		min-height: 0;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		-webkit-overflow-scrolling: touch;
+		padding: clamp(1.1rem, 3vw, 1.8rem);
 	}
-	.iwf-modal__body { flex: 1 1 auto; overflow-y: auto; padding: clamp(1.1rem, 3vw, 2rem) clamp(1.1rem, 3vw, 2rem) calc(1.6rem + env(safe-area-inset-bottom)); -webkit-overflow-scrolling: touch; }
-	.iwf-modal__body .iwf__chips--programmes { margin-top: 0; }
-	.iwf-modal__body .iwf__schedule { margin-top: 1.4rem; }
+
+	.iwf-modal__foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem clamp(1.1rem, 3vw, 1.8rem) calc(.9rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--iwf-line); }
+	.iwf-modal__back { padding: .5rem 0; border: 0; background: none; color: var(--iwf-muted); font: inherit; font-size: .82rem; cursor: pointer; }
+	.iwf-modal__back[hidden] { display: none; }
+	.iwf-modal__note { margin: 0 0 0 auto; color: var(--iwf-muted); font-size: .76rem; text-align: right; }
+
+	.iwf-step[hidden] { display: none; }
 
 	@media (min-width: 700px) {
 		.iwf-modal { align-items: center; padding: 2rem; }
 		.iwf-modal__dialog { max-height: 86vh; border-radius: var(--ioulia-radius, 5px); }
 	}
 
-	/* ---- Details ---- */
+	/* ---- Step 1: programmes ---- */
 
-	.iwf__form[hidden], .iwf__done[hidden] { display: none; }
-	.iwf__form { margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid var(--ioulia-ink-12, rgba(43, 43, 43, .12)); }
-	.iwf__chosen { margin: 0 0 1.2rem; padding-left: .8rem; border-left: 2px solid var(--ioulia-accent, #7C3737); color: var(--ioulia-ink-65, rgba(43, 43, 43, .65)); font-size: .84rem; }
-	.iwf__error { margin: 1.2rem 0 0; padding: .8rem 1rem; background: rgba(124, 55, 55, .08); color: var(--ioulia-accent, #7C3737); font-size: .84rem; }
-	.iwf__error[hidden] { display: none; }
-
-	.iwf__people { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1.2rem; }
-	.iwf__stepper { display: flex; align-items: center; gap: .4rem; }
-	.iwf__stepper button {
-		width: 44px;
-		height: 44px;
-		border: 1px solid var(--ioulia-ink-12, rgba(43, 43, 43, .12));
+	.iwf__options { display: grid; gap: .5rem; }
+	.iwf__option {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		gap: .35rem .8rem;
+		padding: .95rem 1rem;
+		border: 1px solid var(--iwf-line);
 		border-radius: var(--ioulia-radius, 5px);
 		background: transparent;
 		color: inherit;
 		font: inherit;
-		font-size: 1.1rem;
+		text-align: left;
 		cursor: pointer;
-		transition: border-color .2s ease;
+		transition: border-color .25s ease, background-color .25s ease;
 	}
+	.iwf__option:hover, .iwf__option:focus-visible { border-color: var(--iwf-ink); outline: none; }
+	.iwf__option.is-current { border-color: var(--iwf-ink); }
+	.iwf__option-num { color: var(--iwf-muted); font-size: .72rem; font-variant-numeric: tabular-nums; }
+	.iwf__option-title { font-size: .98rem; }
+	.iwf__option-price { color: var(--iwf-slot-ink); font-size: .82rem; white-space: nowrap; }
+	.iwf__option-summary { grid-column: 2 / -1; color: var(--iwf-muted); font-size: .78rem; line-height: 1.5; }
+
+	/* ---- Step 2: calendar ---- */
+
+	.iwf-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .9rem; }
+	.iwf-cal__month { font-size: .92rem; letter-spacing: -.01em; }
+	.iwf-cal__nav { display: flex; gap: .3rem; }
+	.iwf-cal__nav button {
+		width: 40px;
+		height: 40px;
+		border: 1px solid var(--iwf-line);
+		border-radius: var(--ioulia-radius, 5px);
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		cursor: pointer;
+		transition: border-color .2s ease, opacity .2s ease;
+	}
+	.iwf-cal__nav button:hover:not(:disabled) { border-color: var(--iwf-ink); }
+	.iwf-cal__nav button:disabled { opacity: .3; cursor: default; }
+
+	.iwf-cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+	.iwf-cal__dayname { padding: .4rem 0; color: var(--iwf-muted); font-size: .64rem; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+
+	.iwf-cal__day {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		aspect-ratio: 1;
+		min-height: 40px;
+		border: 1px solid transparent;
+		border-radius: var(--ioulia-radius, 5px);
+		background: transparent;
+		color: var(--iwf-muted);
+		font: inherit;
+		font-size: .84rem;
+		font-variant-numeric: tabular-nums;
+		opacity: .35;
+		cursor: default;
+	}
+	.iwf-cal__day.is-open {
+		background: var(--iwf-slot-bg);
+		color: var(--iwf-slot-ink);
+		opacity: 1;
+		cursor: pointer;
+		transition: background-color .22s ease, color .22s ease, transform .22s var(--iwf-ease);
+	}
+	.iwf-cal__day.is-open:hover, .iwf-cal__day.is-open:focus-visible { background: var(--iwf-slot-ink); color: var(--iwf-paper); outline: none; transform: translateY(-2px); }
+	.iwf-cal__day.is-current { background: var(--iwf-slot-ink); color: var(--iwf-paper); }
+	.iwf-cal__day--blank { border: 0; }
+
+	.iwf-times { margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--iwf-line); }
+	.iwf-times[hidden] { display: none; }
+	.iwf-times__label { margin: 0; color: var(--iwf-muted); font-size: .76rem; }
+	.iwf__chips--times .iwf__chip { background: var(--iwf-slot-bg); border-color: transparent; color: var(--iwf-slot-ink); font-variant-numeric: tabular-nums; }
+	.iwf__chips--times .iwf__chip:hover, .iwf__chips--times .iwf__chip:focus-visible, .iwf__chips--times .iwf__chip.is-current { background: var(--iwf-slot-ink); color: var(--iwf-paper); }
+
+	/* ---- Step 3: details ---- */
+
+	.iwf__chosen { margin: 0 0 1.2rem; padding-left: .8rem; border-left: 2px solid var(--iwf-slot-ink); color: var(--iwf-muted); font-size: .84rem; }
+	.iwf__error { margin: 1.2rem 0 0; padding: .8rem 1rem; background: var(--iwf-slot-bg); color: var(--iwf-slot-ink); font-size: .84rem; }
+	.iwf__error[hidden] { display: none; }
+
+	.iwf__people { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1.2rem; }
+	.iwf__stepper { display: flex; align-items: center; gap: .4rem; }
+	.iwf__stepper button { width: 44px; height: 44px; border: 1px solid var(--iwf-line); border-radius: var(--ioulia-radius, 5px); background: transparent; color: inherit; font: inherit; font-size: 1.1rem; cursor: pointer; transition: border-color .2s ease; }
 	.iwf__stepper button:hover { border-color: currentColor; }
 	.iwf__stepper output { min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
 
 	.iwf__fields { display: grid; gap: 1rem; }
-	.iwf__field > span { display: block; margin-bottom: .35rem; color: var(--ioulia-ink-65, rgba(43, 43, 43, .65)); font-size: .76rem; }
+	.iwf__field > span { display: block; margin-bottom: .35rem; color: var(--iwf-muted); font-size: .76rem; }
 	.iwf__field em { font-style: normal; opacity: .7; }
 	.iwf__field input, .iwf__field textarea {
 		display: block;
 		width: 100%;
 		padding: .75rem .85rem;
-		border: 1px solid var(--ioulia-ink-12, rgba(43, 43, 43, .12));
+		border: 1px solid var(--iwf-line);
 		border-radius: var(--ioulia-radius, 5px);
 		background: #fff;
 		color: inherit;
@@ -446,19 +553,28 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 	.iwf__field input:focus, .iwf__field textarea:focus { border-color: currentColor; outline: none; }
 
-	.iwf__consent { display: flex; gap: .7rem; margin-top: 1.3rem; color: var(--ioulia-ink-65, rgba(43, 43, 43, .65)); font-size: .8rem; line-height: 1.5; }
-	.iwf__consent input { width: 22px; height: 22px; margin: 0; flex: 0 0 auto; accent-color: var(--ioulia-ink, #2B2B2B); }
+	.iwf__consent { display: flex; gap: .7rem; margin-top: 1.3rem; color: var(--iwf-muted); font-size: .8rem; line-height: 1.5; }
+	.iwf__consent input { width: 22px; height: 22px; margin: 0; flex: 0 0 auto; accent-color: var(--iwf-slot-ink); }
 	.iwf__consent a { color: inherit; }
 
 	.iwf__trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 	.iwf__submit { width: 100%; margin-top: 1.6rem; min-height: 52px; }
 
-	.iwf__done h4 { margin: 1.5rem 0 0; font-size: 1.2rem; font-weight: 400; }
-	.iwf__done p { margin: .7rem 0 0; color: var(--ioulia-ink-65, rgba(43, 43, 43, .65)); font-size: .88rem; }
+	.iwf__done h4 { margin: .5rem 0 0; font-size: 1.2rem; font-weight: 400; }
+	.iwf__done p { margin: .7rem 0 0; color: var(--iwf-muted); font-size: .88rem; }
 
 	@media (min-width: 560px) {
 		.iwf__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 		.iwf__field--wide { grid-column: 1 / -1; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		[data-iwf-reveal], .iwf__visual img, .iwf__slot, .iwf-modal__dialog, .iwf-modal__backdrop {
+			transition: none;
+			animation: none;
+			opacity: 1;
+			transform: none;
+		}
 	}
 </style>
 
@@ -470,9 +586,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	var payload = root.querySelector('[data-iwf-availability]');
 	var programmes = payload ? JSON.parse(payload.textContent || '[]') : [];
+	var words = JSON.parse(root.dataset.words || '{}');
 
-	/* Reveal on approach. Staggered by order of arrival so a column of elements
-	   settles rather than appearing all at once. */
+	/* Blocks settle in as they come into view, staggered by order of arrival. */
 	var reveals = root.querySelectorAll('[data-iwf-reveal]');
 	if (window.IntersectionObserver) {
 		var seen = 0;
@@ -493,52 +609,69 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	var modal = root.querySelector('[data-iwf-modal]');
 	var picked = { programme: programmes[0], date: null, time: null, people: 1 };
+	var month = null;
+	var step = 1;
 	var lastFocused = null;
+	var lockedAt = 0;
 
 	var el = {
-		inlineChips: root.querySelector('[data-iwf-programmes]'),
-		inlineDays: root.querySelector('[data-iwf-schedule]'),
-		modalChips: root.querySelector('[data-iwf-modal-programmes]'),
-		modalDays: root.querySelector('[data-iwf-modal-schedule]'),
+		chips: root.querySelector('[data-iwf-programmes]'),
+		schedule: root.querySelector('[data-iwf-schedule]'),
+		options: root.querySelector('[data-iwf-options]'),
+		calendar: root.querySelector('[data-iwf-calendar]'),
+		times: root.querySelector('[data-iwf-times]'),
+		timesLabel: root.querySelector('[data-iwf-times-label]'),
+		timesList: root.querySelector('[data-iwf-times-list]'),
+		stepLabel: root.querySelector('[data-iwf-steplabel]'),
 		title: root.querySelector('[data-iwf-modal-title]'),
+		back: root.querySelector('[data-iwf-back]'),
+		footNote: root.querySelector('[data-iwf-foot-note]'),
 		form: root.querySelector('[data-iwf-form]'),
 		chosen: root.querySelector('[data-iwf-chosen]'),
 		error: root.querySelector('[data-iwf-error]'),
-		done: root.querySelector('[data-iwf-done]'),
 		summary: root.querySelector('[data-iwf-summary]'),
-		people: root.querySelector('[data-iwf-people-value]')
+		people: root.querySelector('[data-iwf-people-value]'),
+		scroll: root.querySelector('[data-iwf-scroll]')
 	};
+
+	var STEPS = { 1: 'πρόγραμμα', 2: 'ημερομηνία', 3: 'στοιχεία' };
 
 	function showError(message) {
 		el.error.textContent = message || '';
 		el.error.hidden = !message;
 	}
 
-	function chip(label, current) {
-		var node = document.createElement('button');
-		node.type = 'button';
-		node.className = 'iwf__chip' + (current ? ' is-current' : '');
-		node.textContent = label;
-		return node;
+	function datesByKey(programme) {
+		var index = {};
+		programme.dates.forEach(function (date) { index[date.date] = date; });
+		return index;
 	}
 
-	function renderProgrammes(target, onPick) {
-		target.textContent = '';
+	/* ---- On the page ---- */
+
+	function renderChips() {
+		el.chips.textContent = '';
 
 		programmes.forEach(function (programme) {
-			var node = chip(programme.title, programme === picked.programme);
-			node.addEventListener('click', function () { onPick(programme); });
-			target.appendChild(node);
+			var node = document.createElement('button');
+			node.type = 'button';
+			node.className = 'iwf__chip' + (programme === picked.programme ? ' is-current' : '');
+			node.textContent = programme.title;
+			node.addEventListener('click', function () {
+				picked.programme = programme;
+				picked.date = null;
+				picked.time = null;
+				renderChips();
+				renderSchedule();
+			});
+			el.chips.appendChild(node);
 		});
 	}
 
-	/* The schedule is the reference's shape: a day, then its times beside it. */
-	function renderSchedule(target, limit, onPick) {
-		target.textContent = '';
+	function renderSchedule() {
+		el.schedule.textContent = '';
 
-		var dates = picked.programme.dates.slice(0, limit || picked.programme.dates.length);
-
-		dates.forEach(function (date, index) {
+		picked.programme.dates.slice(0, 3).forEach(function (date, index) {
 			var row = document.createElement('div');
 			row.className = 'iwf__row';
 
@@ -550,73 +683,242 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			times.className = 'iwf__row-times';
 
 			date.times.forEach(function (time, position) {
-				var node = document.createElement('button');
-				node.type = 'button';
-				node.className = 'iwf__slot' + (picked.time && picked.time.starts === time.starts ? ' is-current' : '');
-				node.textContent = time.label.split(' ')[0];
-				node.title = time.left === 1 ? '1 θέση' : time.left + ' θέσεις';
-				node.style.animationDelay = ((index * 3) + position) * 35 + 'ms';
-				node.addEventListener('click', function () { onPick(date, time); });
-				times.appendChild(node);
+				var slot = document.createElement('button');
+				slot.type = 'button';
+				slot.className = 'iwf__slot';
+				slot.textContent = time.label.split(' ')[0];
+				slot.style.animationDelay = ((index * 3) + position) * 35 + 'ms';
+				slot.addEventListener('click', function () {
+					chooseDate(date);
+					chooseTime(time);
+					openModal(3);
+				});
+				times.appendChild(slot);
 			});
 
 			row.appendChild(day);
 			row.appendChild(times);
-			target.appendChild(row);
+			el.schedule.appendChild(row);
 		});
 	}
 
-	function describe() {
-		el.chosen.textContent = [
-			picked.programme.title,
+	/* ---- Step 1 ---- */
+
+	function renderOptions() {
+		el.options.textContent = '';
+
+		programmes.forEach(function (programme) {
+			var node = document.createElement('button');
+			node.type = 'button';
+			node.className = 'iwf__option' + (programme === picked.programme ? ' is-current' : '');
+			node.innerHTML =
+				'<span class="iwf__option-num"></span>' +
+				'<span class="iwf__option-title"></span>' +
+				'<span class="iwf__option-price"></span>' +
+				'<span class="iwf__option-summary"></span>';
+
+			node.querySelector('.iwf__option-num').textContent = programme.number;
+			node.querySelector('.iwf__option-title').textContent = programme.title;
+			node.querySelector('.iwf__option-price').textContent = programme.price + ' €';
+			node.querySelector('.iwf__option-summary').textContent = programme.summary;
+
+			node.addEventListener('click', function () {
+				picked.programme = programme;
+				picked.date = null;
+				picked.time = null;
+				month = null;
+				renderChips();
+				renderSchedule();
+				goTo(2);
+			});
+
+			el.options.appendChild(node);
+		});
+	}
+
+	/* ---- Step 2: a month at a time ---- */
+
+	function monthKey(date) { return date.slice(0, 7); }
+
+	function availableMonths() {
+		var months = [];
+		picked.programme.dates.forEach(function (date) {
+			var key = monthKey(date.date);
+			if (months.indexOf(key) === -1) { months.push(key); }
+		});
+		return months;
+	}
+
+	function renderCalendar() {
+		var months = availableMonths();
+		if (!months.length) { return; }
+
+		if (months.indexOf(month) === -1) { month = months[0]; }
+
+		var open = datesByKey(picked.programme);
+		var year = Number(month.slice(0, 4));
+		var index = Number(month.slice(5, 7)) - 1;
+		var first = new Date(Date.UTC(year, index, 1));
+		var days = new Date(Date.UTC(year, index + 1, 0)).getUTCDate();
+		/* Weeks start on Monday, so Sunday moves from 0 to the seventh slot. */
+		var offset = (first.getUTCDay() + 6) % 7;
+		var position = months.indexOf(month);
+
+		el.calendar.textContent = '';
+
+		var head = document.createElement('div');
+		head.className = 'iwf-cal__head';
+
+		var label = document.createElement('span');
+		label.className = 'iwf-cal__month';
+		label.textContent = words.months[index] + ' ' + year;
+
+		var nav = document.createElement('span');
+		nav.className = 'iwf-cal__nav';
+
+		[['‹', -1, position === 0], ['›', 1, position === months.length - 1]].forEach(function (spec) {
+			var button = document.createElement('button');
+			button.type = 'button';
+			button.textContent = spec[0];
+			button.disabled = spec[2];
+			button.setAttribute('aria-label', spec[1] < 0 ? 'Προηγούμενος μήνας' : 'Επόμενος μήνας');
+			button.addEventListener('click', function () {
+				month = months[position + spec[1]];
+				renderCalendar();
+			});
+			nav.appendChild(button);
+		});
+
+		head.appendChild(label);
+		head.appendChild(nav);
+		el.calendar.appendChild(head);
+
+		var grid = document.createElement('div');
+		grid.className = 'iwf-cal__grid';
+
+		words.weekdays.forEach(function (name) {
+			var cell = document.createElement('span');
+			cell.className = 'iwf-cal__dayname';
+			cell.textContent = name;
+			grid.appendChild(cell);
+		});
+
+		for (var blank = 0; blank < offset; blank += 1) {
+			var spacer = document.createElement('span');
+			spacer.className = 'iwf-cal__day iwf-cal__day--blank';
+			grid.appendChild(spacer);
+		}
+
+		for (var day = 1; day <= days; day += 1) {
+			var key = month + '-' + (day < 10 ? '0' + day : day);
+			var date = open[key];
+			var cell = document.createElement(date ? 'button' : 'span');
+
+			cell.className = 'iwf-cal__day' +
+				(date ? ' is-open' : '') +
+				(picked.date && picked.date.date === key ? ' is-current' : '');
+			cell.textContent = day;
+
+			if (date) {
+				cell.type = 'button';
+				cell.setAttribute('aria-label', date.full);
+				cell.addEventListener('click', function (chosen) {
+					return function () { chooseDate(chosen); renderCalendar(); };
+				}(date));
+			}
+
+			grid.appendChild(cell);
+		}
+
+		el.calendar.appendChild(grid);
+	}
+
+	function chooseDate(date) {
+		picked.date = date;
+		picked.time = null;
+		month = monthKey(date.date);
+
+		el.timesLabel.textContent = date.full;
+		el.timesList.textContent = '';
+
+		date.times.forEach(function (time) {
+			var node = document.createElement('button');
+			node.type = 'button';
+			node.className = 'iwf__chip';
+			node.textContent = time.label;
+			node.title = time.left === 1 ? '1 θέση' : time.left + ' θέσεις';
+			node.addEventListener('click', function () {
+				chooseTime(time);
+				goTo(3);
+			});
+			el.timesList.appendChild(node);
+		});
+
+		el.times.hidden = false;
+		updateFoot();
+	}
+
+	function chooseTime(time) {
+		picked.time = time;
+		picked.people = 1;
+		el.people.textContent = '1';
+		el.chosen.textContent = [picked.programme.title, picked.date.full, time.label].join('  ·  ');
+		updateFoot();
+	}
+
+	function updateFoot() {
+		el.footNote.textContent = [
+			picked.programme ? picked.programme.title : '',
 			picked.date ? picked.date.full : '',
 			picked.time ? picked.time.label : ''
 		].filter(Boolean).join('  ·  ');
 	}
 
-	function chooseTime(date, time) {
-		picked.date = date;
-		picked.time = time;
-		picked.people = 1;
-		el.people.textContent = '1';
-		renderSchedule(el.modalDays, 0, chooseTime);
-		describe();
-		el.form.hidden = false;
-		el.done.hidden = true;
-		showError('');
-	}
+	/* ---- Steps ---- */
 
-	function chooseProgramme(programme, inModal) {
-		picked.programme = programme;
-		picked.date = null;
-		picked.time = null;
+	function goTo(next) {
+		step = next;
 
-		renderProgrammes(el.inlineChips, function (next) { chooseProgramme(next, false); });
-		renderSchedule(el.inlineDays, 3, function (date, time) {
-			chooseTime(date, time);
-			openModal();
+		modal.querySelectorAll('[data-iwf-step]').forEach(function (panel) {
+			panel.hidden = panel.getAttribute('data-iwf-step') !== String(next);
 		});
 
-		if (inModal || modal.classList.contains('is-open')) {
-			renderProgrammes(el.modalChips, function (next) { chooseProgramme(next, true); });
-			renderSchedule(el.modalDays, 0, chooseTime);
-			el.title.textContent = programme.title;
-			el.form.hidden = true;
-		}
+		if (next === 2) { renderCalendar(); }
+
+		el.stepLabel.textContent = STEPS[next]
+			? '0' + next + ' / 03 · ' + STEPS[next]
+			: '';
+		el.title.textContent = next === 1 ? 'Κλείσε τη θέση σου' : picked.programme.title;
+		el.back.hidden = next === 1 || next === 'done';
+		showError('');
+		updateFoot();
+
+		/* Each step starts at the top of the dialog, never of the page. */
+		el.scroll.scrollTop = 0;
 	}
 
 	/* ---- Dialog ---- */
 
-	function openModal() {
+	function lockPage() {
+		lockedAt = window.scrollY;
+		document.body.style.position = 'fixed';
+		document.body.style.top = '-' + lockedAt + 'px';
+		document.body.style.width = '100%';
+	}
+
+	function unlockPage() {
+		document.body.style.position = '';
+		document.body.style.top = '';
+		document.body.style.width = '';
+		window.scrollTo(0, lockedAt);
+	}
+
+	function openModal(at) {
 		lastFocused = document.activeElement;
 		modal.hidden = false;
-		document.body.style.overflow = 'hidden';
-
-		renderProgrammes(el.modalChips, function (next) { chooseProgramme(next, true); });
-		renderSchedule(el.modalDays, 0, chooseTime);
-		el.title.textContent = picked.programme.title;
-		el.form.hidden = !picked.time;
-		el.done.hidden = true;
+		lockPage();
+		renderOptions();
+		goTo(at || (picked.time ? 3 : 1));
 
 		window.requestAnimationFrame(function () {
 			modal.classList.add('is-open');
@@ -626,7 +928,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	function closeModal() {
 		modal.classList.remove('is-open');
-		document.body.style.overflow = '';
+		unlockPage();
 
 		window.setTimeout(function () {
 			modal.hidden = true;
@@ -634,21 +936,25 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		}, 320);
 	}
 
-	root.querySelector('[data-iwf-open]').addEventListener('click', openModal);
+	root.querySelector('[data-iwf-open]').addEventListener('click', function () { openModal(1); });
 
 	modal.querySelectorAll('[data-iwf-close]').forEach(function (node) {
 		node.addEventListener('click', closeModal);
 	});
 
+	el.back.addEventListener('click', function () { goTo(Math.max(1, Number(step) - 1)); });
+
 	document.addEventListener('keydown', function (event) {
 		if ('Escape' === event.key && modal.classList.contains('is-open')) { closeModal(); }
 	});
 
-	/* Keep tabbing inside the dialog while it is open. */
 	modal.addEventListener('keydown', function (event) {
 		if ('Tab' !== event.key) { return; }
 
-		var focusable = modal.querySelectorAll('button, input, textarea, a[href], select');
+		var focusable = Array.prototype.filter.call(
+			modal.querySelectorAll('button:not(:disabled), input, textarea, a[href]'),
+			function (node) { return node.offsetParent !== null; }
+		);
 		if (!focusable.length) { return; }
 
 		var first = focusable[0];
@@ -663,16 +969,16 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		}
 	});
 
-	/* ---- Details ---- */
+	/* ---- Step 3 ---- */
 
 	root.querySelectorAll('[data-iwf-people]').forEach(function (control) {
 		control.addEventListener('click', function () {
-			var step = Number(control.getAttribute('data-iwf-people'));
+			var change = Number(control.getAttribute('data-iwf-people'));
 			var most = picked.time ? picked.time.left : 1;
 
-			picked.people = Math.min(most, Math.max(1, picked.people + step));
+			picked.people = Math.min(most, Math.max(1, picked.people + change));
 			el.people.textContent = String(picked.people);
-			showError(picked.people === most && step > 0 ? 'Αυτές είναι οι διαθέσιμες θέσεις.' : '');
+			showError(picked.people === most && change > 0 ? 'Αυτές είναι οι διαθέσιμες θέσεις.' : '');
 		});
 	});
 
@@ -702,9 +1008,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 				}
 
 				el.summary.textContent = result.data.programme + '  ·  ' + result.data.when;
-				el.form.hidden = true;
-				el.done.hidden = false;
-				showError('');
+				goTo('done');
+				el.footNote.textContent = '';
 			})
 			.catch(function () {
 				submit.disabled = false;
@@ -713,7 +1018,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			});
 	});
 
-	chooseProgramme(programmes[0], false);
+	renderChips();
+	renderSchedule();
 }());
 </script>
 		<?php
