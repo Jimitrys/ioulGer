@@ -98,6 +98,22 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Εικονογράφηση κεραμικού σκεύους' => 'Ceramic vessel illustration',
 				'Η παραγωγή' => 'The Production',
 				'Ακολουθούμε μια συνειδητά αργή χειροτεχνική διαδικασία. Κάθε αντικείμενο πλάθεται, ζωγραφίζεται και υαλώνεται στο χέρι, μακριά από τη μαζική παραγωγή. Αυτό σημαίνει ότι κανένα κομμάτι δεν είναι ακριβώς ίδιο με το άλλο. Κάθε μικρή ατέλεια είναι το προσωπικό μας μήνυμα.' => 'We follow a consciously slow craft process. Every object is shaped, illustrated, and glazed by hand, far removed from mass production. This means no two pieces are exactly alike. Every slight imperfection is our personal message.',
+				/* HOME HERO */
+				'Αντικείμενα που πλάθονται αργά.' => 'Objects shaped slowly.',
+				'Φτιαγμένα για να τα κρατάς.' => 'Made to be held.',
+				'Μια πρακτική κεραμικής' => 'A ceramic practice',
+				'φτιαγμένη στο χέρι.' => 'made by hand.',
+				'Δες τα κομμάτια' => 'Explore pieces',
+				'Εργαστήρια Κεραμικής' => 'Ceramic Workshops',
+				'Δες' => 'Explore',
+				'Αθήνα, Ελλάδα' => 'Athens, Greece',
+
+				/* HOME PRODUCT REEL */
+				'Πρόσφατα προϊόντα' => 'Recent products',
+				'ΣΥΡΕ' => 'DRAG',
+				'ΔΕΣ' => 'VIEW',
+				'Νέες' => 'Latest',
+				'δημιουργίες' => 'creations',
 			)
 		);
 	}

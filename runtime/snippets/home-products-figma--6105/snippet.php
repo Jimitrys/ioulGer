@@ -75,7 +75,7 @@ if ( ! function_exists( 'mxl_iph_product_price_html' ) ) {
  * [infinite_products_hero]
  *
  * Example:
- * [infinite_products_hero limit="10" heading_line_1="Latest" heading_line_2="creations" show_price="yes"]
+ * [infinite_products_hero limit="10" heading_line_1="Νέες" heading_line_2="δημιουργίες" show_price="yes"]
  */
 function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 	if ( ! function_exists( 'wc_get_products' ) ) {
@@ -95,12 +95,12 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			'min_height'        => '620',
 			'text_color'        => '#2B2B2B',
 			'aria_label'        => 'Πρόσφατα προϊόντα',
-			'cursor_drag'       => 'DRAG',
-			'cursor_link'       => 'VIEW',
+			'cursor_drag'       => 'ΣΥΡΕ',
+			'cursor_link'       => 'ΔΕΣ',
 			'show_heading'      => 'yes',
-			'heading_line_1'    => 'Latest',
-			'heading_line_2'    => 'creations',
-			'store_text'        => 'Explore pieces',
+			'heading_line_1'    => 'Νέες',
+			'heading_line_2'    => 'δημιουργίες',
+			'store_text'        => 'Δες τα κομμάτια',
 			'store_url'         => '',
 			'accent_color'      => '#7C3737',
 			'edge_color'        => '#FFFEF7',
@@ -882,7 +882,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 
 		function resetItems() {
 			section.classList.remove('is-item-hover');
-			if (cursorEl) cursorEl.textContent = section.dataset.cursorDrag || 'DRAG';
+			if (cursorEl) cursorEl.textContent = section.dataset.cursorDrag || 'ΣΥΡΕ';
 			allItems.forEach(function (item) { item.classList.remove('is-focused'); });
 		}
 

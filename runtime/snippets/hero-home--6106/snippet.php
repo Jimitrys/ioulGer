@@ -9,10 +9,10 @@
  *
  * Example:
  * [ioulia_cursor_products_hero
- *   title_line_1="Objects shaped slowly."
- *   title_line_2="Made to be held."
- *   second_line_1="A ceramic practice"
- *   second_line_2="made by hand."
+ *   title_line_1="Αντικείμενα που πλάθονται αργά."
+ *   title_line_2="Φτιαγμένα για να τα κρατάς."
+ *   second_line_1="Μια πρακτική κεραμικής"
+ *   second_line_2="φτιαγμένη στο χέρι."
  *   pieces_url="/store/"
  *   workshops_url="/workshops/"
  * ]
@@ -31,16 +31,16 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
             array(
                 'limit'          => 8,
                 'category'       => '',
-                'title_line_1'   => 'Objects shaped slowly.',
-                'title_line_2'   => 'Made to be held.',
-                'second_line_1'  => 'A ceramic practice',
-                'second_line_2'  => 'made by hand.',
-                'pieces_text'    => 'Explore pieces',
+                'title_line_1'   => 'Αντικείμενα που πλάθονται αργά.',
+                'title_line_2'   => 'Φτιαγμένα για να τα κρατάς.',
+                'second_line_1'  => 'Μια πρακτική κεραμικής',
+                'second_line_2'  => 'φτιαγμένη στο χέρι.',
+                'pieces_text'    => 'Δες τα κομμάτια',
                 'pieces_url'     => '/store/',
-                'workshops_text' => 'Ceramic Workshops',
+                'workshops_text' => 'Εργαστήρια Κεραμικής',
                 'workshops_url'  => '/workshops/',
                 'show_price'     => 'no',
-                'cursor_word'    => 'Explore',
+                'cursor_word'    => 'Δες',
                 'second_svg'     => 'https://iouliageraskliceramics.com/wp-content/uploads/2026/07/Group-13.svg',
             ),
             $atts,
@@ -699,7 +699,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         <div class="icph__meta" aria-hidden="true">
             <span>Ioulia Geraskli / Ceramic Lab</span>
             <span class="icph__meta-product"><?php echo esc_html($products[0]['title']); ?></span>
-            <span>Athens, Greece</span>
+            <span>Αθήνα, Ελλάδα</span>
         </div>
 
         <div class="icph__cursor" aria-hidden="true"><?php echo esc_html($atts['cursor_word']); ?></div>
