@@ -745,6 +745,7 @@ if ( ! function_exists( 'ioulia_availability' ) ) {
 				'price'    => $programme['price'],
 				'note'     => ioulia_maybe_translate( $programme['note'] ),
 				'capacity' => (int) $programme['capacity'],
+				'popular'  => ! empty( $programme['popular'] ),
 				'dates'    => $dates,
 			);
 		}

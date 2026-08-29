@@ -157,6 +157,9 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Στέλνουμε...' => 'Sending...',
 				'Κάτι πήγε στραβά.' => 'Something went wrong.',
 				'Δεν υπάρχει σύνδεση. Δοκίμασε ξανά.' => 'No connection. Please try again.',
+				/* WORKSHOPS — dialog chrome */
+				'Δημοφιλές' => 'Popular',
+				'Επόμενο' => 'Next',
 			)
 		);
 	}

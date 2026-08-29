@@ -59,6 +59,8 @@ if ( ! function_exists( 'ioulia_workshop_programmes' ) ) {
 
 			'handbuilding' => array(
 				'active'   => true,
+				// Marked in the picker. One at most: a badge on everything says nothing.
+				'popular'  => true,
 				'number'   => '01',
 				'title'    => 'Workshop Πηλοπλαστικής',
 				'summary'  => 'Κατασκευές με τα χέρια και με εργαλεία χειρός: pinch pots, μακαρόνι, φύλλο.',
