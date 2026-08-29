@@ -312,7 +312,7 @@ if ( ! function_exists( 'ioulia_path_is_translatable' ) ) {
 
 		$file = wp_parse_url( $path, PHP_URL_PATH );
 
-		return ! ( is_string( $file ) && preg_match( '/\.[a-z0-9]{2,5}$/i', $file ) );
+		return ! ( is_string( $file ) && preg_match( '/[.][a-z0-9]{2,5}$/i', $file ) );
 	}
 }
 
@@ -508,14 +508,14 @@ if ( ! function_exists( 'ioulia_head_alternates' ) ) {
 
 		foreach ( ioulia_languages() as $code => $language ) {
 			$output .= sprintf(
-				'<link rel="alternate" hreflang="%1$s" href="%2$s" />' . "\n",
+				'<link rel="alternate" hreflang="%1$s" href="%2$s" />' . chr( 10 ),
 				esc_attr( $language['hreflang'] ),
 				esc_url( ioulia_alternate_url( $code ) )
 			);
 		}
 
 		$output .= sprintf(
-			'<link rel="alternate" hreflang="x-default" href="%s" />' . "\n",
+			'<link rel="alternate" hreflang="x-default" href="%s" />' . chr( 10 ),
 			esc_url( ioulia_alternate_url( IOULIA_LANG_DEFAULT ) )
 		);
 

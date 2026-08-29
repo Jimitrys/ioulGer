@@ -165,6 +165,27 @@ if ( ! function_exists( 'ioulia_editor_save_ajax' ) ) {
 	add_action( 'wp_ajax_ioulia_i18n_save', 'ioulia_editor_save_ajax' );
 }
 
+if ( ! function_exists( 'ioulia_php_literal' ) ) {
+	/**
+	 * A single-quoted PHP string literal that survives a Site Studio import.
+	 *
+	 * Snippet code is stored through update_post_meta(), which unslashes it, so a
+	 * backslash written into a snippet never reaches PHP. Escapes are therefore
+	 * unusable and an apostrophe has to be concatenated in as chr( 39 ) instead.
+	 * Backslashes in the text itself are dropped for the same reason.
+	 */
+	function ioulia_php_literal( $value ) {
+		$value = str_replace( chr( 92 ), '', (string) $value );
+		$parts = array();
+
+		foreach ( explode( chr( 39 ), $value ) as $part ) {
+			$parts[] = chr( 39 ) . $part . chr( 39 );
+		}
+
+		return implode( ' . chr( 39 ) . ', $parts );
+	}
+}
+
 if ( ! function_exists( 'ioulia_editor_export_ajax' ) ) {
 	/**
 	 * Everything saved through the editor, rendered as the PHP array the
@@ -176,18 +197,15 @@ if ( ! function_exists( 'ioulia_editor_export_ajax' ) ) {
 		$lang  = ioulia_editor_request_lang();
 		$store = ioulia_translation_store( true );
 		$rows  = isset( $store[ $lang ] ) && is_array( $store[ $lang ] ) ? $store[ $lang ] : array();
-		$lines = array();
+		$indent = str_repeat( chr( 9 ), 4 );
+		$lines  = array();
 
 		foreach ( $rows as $entry ) {
 			if ( ! is_array( $entry ) || ! isset( $entry['source'], $entry['text'] ) ) {
 				continue;
 			}
 
-			$lines[] = sprintf(
-				"\t\t\t%s => %s,",
-				"'" . str_replace( array( '\\', "'" ), array( '\\\\', "\\'" ), $entry['source'] ) . "'",
-				"'" . str_replace( array( '\\', "'" ), array( '\\\\', "\\'" ), $entry['text'] ) . "'"
-			);
+			$lines[] = $indent . ioulia_php_literal( $entry['source'] ) . ' => ' . ioulia_php_literal( $entry['text'] ) . ',';
 		}
 
 		sort( $lines );
@@ -195,7 +213,7 @@ if ( ! function_exists( 'ioulia_editor_export_ajax' ) ) {
 		wp_send_json_success(
 			array(
 				'count' => count( $lines ),
-				'php'   => implode( "\n", $lines ),
+				'php'   => implode( chr( 10 ), $lines ),
 			)
 		);
 	}
@@ -221,6 +239,7 @@ if ( ! function_exists( 'ioulia_editor_render' ) ) {
 			'lang'       => $lang,
 			'langName'   => isset( $languages[ $lang ]['name'] ) ? $languages[ $lang ]['name'] : $lang,
 			'skipTags'   => array_map( 'strtoupper', ioulia_html_skip_tags() ),
+			'whitespace' => chr( 32 ) . chr( 9 ) . chr( 10 ) . chr( 13 ) . chr( 12 ),
 			'attributes' => ioulia_translatable_attributes(),
 			'previewUrl' => ioulia_alternate_url( $lang ),
 			'exitUrl'    => remove_query_arg( IOULIA_I18N_EDIT_PARAM ),
@@ -389,8 +408,12 @@ if ( ! function_exists( 'ioulia_editor_render' ) ) {
 	var active = null;
 	var highlight = null;
 
+	/* Built at runtime from real whitespace characters: an escape written in the
+	   snippet source is stripped before PHP ever sees it. */
+	var WHITESPACE = new RegExp('[' + config.whitespace + ']+', 'g');
+
 	function normalize(text) {
-		return String(text).replace(/\s+/g, ' ').trim();
+		return String(text).replace(WHITESPACE, ' ').trim();
 	}
 
 	function isSkipped(node) {

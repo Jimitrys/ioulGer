@@ -46,7 +46,7 @@ if ( ! function_exists( 'ioulia_normalize_source' ) ) {
 	 * are the same string as far as a translator is concerned.
 	 */
 	function ioulia_normalize_source( $text ) {
-		$text = preg_replace( '/\s+/u', ' ', (string) $text );
+		$text = preg_replace( '/[[:space:]]+/u', ' ', (string) $text );
 
 		return trim( (string) $text );
 	}
@@ -218,11 +218,11 @@ if ( ! function_exists( 'ioulia_walk_html' ) ) {
 			}
 
 			if ( '<' === $part[0] ) {
-				if ( preg_match( '#^</\s*([a-z0-9:_-]+)#i', $part, $matches ) ) {
+				if ( preg_match( '#^</[[:space:]]*([a-z0-9:_-]+)#i', $part, $matches ) ) {
 					if ( in_array( strtolower( $matches[1] ), $skip_tags, true ) && $depth > 0 ) {
 						$depth--;
 					}
-				} elseif ( preg_match( '#^<\s*([a-z0-9:_-]+)#i', $part, $matches ) ) {
+				} elseif ( preg_match( '#^<[[:space:]]*([a-z0-9:_-]+)#i', $part, $matches ) ) {
 					if ( in_array( strtolower( $matches[1] ), $skip_tags, true ) && '/>' !== substr( rtrim( $part ), -2 ) ) {
 						$depth++;
 					}
@@ -266,7 +266,7 @@ if ( ! function_exists( 'ioulia_translate_html' ) ) {
 				return $text;
 			}
 
-			if ( ! preg_match( '/^(\s*)(.*?)(\s*)$/su', $text, $matches ) ) {
+			if ( ! preg_match( '/^([[:space:]]*)(.*?)([[:space:]]*)$/su', $text, $matches ) ) {
 				return $text;
 			}
 
@@ -283,7 +283,7 @@ if ( ! function_exists( 'ioulia_translate_html' ) ) {
 		);
 
 		return (string) preg_replace_callback(
-			'/(\s(?:' . $attributes . ')\s*=\s*")([^"]+)(")/i',
+			'/([[:space:]](?:' . $attributes . ')[[:space:]]*=[[:space:]]*")([^"]+)(")/i',
 			static function ( $matches ) use ( $map ) {
 				$hash = md5( ioulia_normalize_source( html_entity_decode( $matches[2], ENT_QUOTES, 'UTF-8' ) ) );
 

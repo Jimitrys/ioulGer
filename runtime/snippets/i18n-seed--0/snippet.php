@@ -21,6 +21,16 @@
  *     on the live site survives a deploy. Use the editor's "Εξαγωγή για Git"
  *     button to fold those corrections back into this file.
  *
+ * Writing a value that contains an apostrophe:
+ *
+ *   Site Studio stores snippet code through update_post_meta(), which unslashes
+ *   it, so a backslash written here never reaches PHP and an escaped apostrophe
+ *   becomes a syntax error there. Wrap such a value in double quotes instead:
+ *
+ *     'Το κομμάτι' => "the piece's character",
+ *
+ *   The same rule applies to every snippet in this repository: no backslashes.
+ *
  * Requires the "i18n translate" snippet.
  */
 
@@ -64,7 +74,7 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Υφή φόντου' => 'Background Texture',
 				'Ένας σύγχρονος χώρος' => 'A contemporary space',
 				'για δημιουργία με τα χέρια.' => 'for tactile creation.',
-				'Σεβόμαστε τον ρυθμό του υλικού, κάνοντας κάθε μικρή ατέλεια αναπόσπαστο κομμάτι του μοναδικού χαρακτήρα κάθε αντικειμένου. Είναι μια ανοιχτή πρόσκληση να μπεις στον χώρο μας, να επιβραδύνεις και να δημιουργήσεις με τα ίδια σου τα χέρια.' => 'We respect the rhythm of the material, making every slight imperfection an essential part of a piece\'s unique character. It is an open invitation to step into our own space, slow down, and create with your own hands.',
+				'Σεβόμαστε τον ρυθμό του υλικού, κάνοντας κάθε μικρή ατέλεια αναπόσπαστο κομμάτι του μοναδικού χαρακτήρα κάθε αντικειμένου. Είναι μια ανοιχτή πρόσκληση να μπεις στον χώρο μας, να επιβραδύνεις και να δημιουργήσεις με τα ίδια σου τα χέρια.' => "We respect the rhythm of the material, making every slight imperfection an essential part of a piece's unique character. It is an open invitation to step into our own space, slow down, and create with your own hands.",
 				'Η πρακτική του τροχού' => 'The Wheel Practice',
 
 				/* ABOUT */
