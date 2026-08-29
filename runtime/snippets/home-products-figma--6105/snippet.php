@@ -349,74 +349,6 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				transform: translate3d(0, 0, 0);
 			}
 
-			.mxl-iph__drag-cue {
-				position: absolute;
-				z-index: 7;
-				left: 50%;
-				bottom: clamp(74px, 10vh, 118px);
-				display: grid;
-				place-items: center;
-				width: 78px;
-				height: 78px;
-				border: 1px solid currentColor;
-				border-radius: 50%;
-				color: var(--mxl-iph-text);
-				background: rgba(255, 254, 247, .72);
-				background: color-mix(in srgb, var(--mxl-iph-edge) 72%, transparent);
-				backdrop-filter: blur(5px);
-				font: inherit;
-				font-size: var(--ioulia-micro);
-				font-weight: 500;
-				line-height: 1;
-				letter-spacing: .075em;
-				text-transform: uppercase;
-				opacity: 0;
-				pointer-events: none;
-				transform: translate3d(-50%, 18px, 0) scale(.82);
-				will-change: opacity, transform;
-			}
-
-			.mxl-iph.has-reveal.is-drag-demo .mxl-iph__drag-cue {
-				animation: mxl-iph-cue 3.35s cubic-bezier(.45, 0, .15, 1) .16s both;
-			}
-
-			.mxl-iph.is-hovered .mxl-iph__drag-cue,
-			.mxl-iph.is-dragging .mxl-iph__drag-cue {
-				opacity: 0 !important;
-			}
-
-			/*
-			 * Hover only hides the guided cursor while its one-time animation
-			 * keeps running. Cancelling it on hover would restart the demo
-			 * every time the pointer leaves the button/viewport.
-			 */
-			.mxl-iph.is-dragging .mxl-iph__drag-cue {
-				animation: none !important;
-			}
-
-			@keyframes mxl-iph-cue {
-				0% {
-					opacity: 0;
-					transform: translate3d(-50%, 0, 0) scale(.9);
-				}
-				12% {
-					opacity: .88;
-					transform: translate3d(-50%, 0, 0) scale(1);
-				}
-				72% {
-					opacity: .88;
-					transform: translate3d(calc(-50% + var(--mxl-iph-demo-x)), var(--mxl-iph-demo-y), 0) scale(1);
-				}
-				88% {
-					opacity: .5;
-					transform: translate3d(calc(-50% + var(--mxl-iph-demo-x)), var(--mxl-iph-demo-y), 0) scale(.98);
-				}
-				100% {
-					opacity: 0;
-					transform: translate3d(calc(-50% + var(--mxl-iph-demo-x)), var(--mxl-iph-demo-y), 0) scale(.95);
-				}
-			}
-
 			.mxl-iph__viewport {
 				position: absolute;
 				z-index: 1;
@@ -587,12 +519,6 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 					padding: 10px 16px !important;
 				}
 
-				.mxl-iph__drag-cue {
-					bottom: clamp(58px, 9vh, 92px);
-					width: 72px;
-					height: 72px;
-					font-size: var(--ioulia-micro);
-				}
 				.mxl-iph.is-dragging { cursor: grabbing; }
 				.mxl-iph__cursor { display: none !important; }
 				.mxl-iph__caption { font-size: var(--ioulia-micro); }
@@ -605,8 +531,6 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 					transform: none !important;
 					filter: none !important;
 				}
-
-				.mxl-iph__drag-cue { display: none !important; }
 
 				.mxl-iph__store,
 				.mxl-iph__store-link {
@@ -646,10 +570,6 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			<a class="mxl-iph__store-link" href="<?php echo esc_url( $store_url ); ?>">
 				<?php echo esc_html( $atts['store_text'] ); ?>
 			</a>
-		</div>
-
-		<div class="mxl-iph__drag-cue" aria-hidden="true">
-			<?php echo esc_html( $atts['cursor_drag'] ); ?>
 		</div>
 
 		<div id="<?php echo esc_attr( $cursor_id ); ?>" class="mxl-iph__cursor" aria-hidden="true">
@@ -781,6 +701,8 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 		var parallaxStrength = reducedMotion ? 0 : 48;
 		var lerp = 0.065;
 		var resizeTimer = null;
+		var layoutViewportWidth = window.innerWidth;
+		var layoutIsMobile = window.innerWidth < 990;
 
 		function getHeaderHeight() {
 			if (section.dataset.subtractHeader !== '1') return 0;
@@ -839,6 +761,8 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			var positions = mobile ? positionsMobile : positionsDesktop;
 			tileW = mobile ? 1080 : 2200;
 			tileH = mobile ? 900 : 1400;
+			layoutViewportWidth = window.innerWidth;
+			layoutIsMobile = mobile;
 
 			Array.prototype.slice.call(canvas.querySelectorAll('[data-clone="1"]')).forEach(function (clone) {
 				clone.remove();
@@ -1113,8 +1037,6 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 
 			dragDemoPlayed = true;
 			guidedDragActive = true;
-			section.classList.add('is-drag-demo');
-
 			var startTime = performance.now();
 			var duration = 3200;
 			var fromX = posX;
@@ -1202,11 +1124,30 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 		scheduleSectionEffects();
 
 		window.addEventListener('resize', function () {
+			var nextIsMobile = window.innerWidth < 990;
+			var widthChanged = Math.abs(window.innerWidth - layoutViewportWidth) > 2;
+
+			/*
+			 * Mobile browser chrome changes innerHeight while scrolling. Rebuilding
+			 * the canvas for those height-only resizes resets the guided motion and
+			 * makes the canvas, heading and button jump.
+			 */
+			if (!widthChanged && nextIsMobile === layoutIsMobile) return;
+
 			window.clearTimeout(resizeTimer);
 			resizeTimer = window.setTimeout(function () {
 				cancelMomentum();
+
+				if (guidedDragFrame) {
+					window.cancelAnimationFrame(guidedDragFrame);
+					guidedDragFrame = null;
+				}
+
+				guidedDragActive = false;
+				dragDemoPlayed = false;
 				setSectionHeight();
 				buildCanvas();
+				scheduleSectionEffects();
 			}, 120);
 		});
 
