@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "workshops shortcode guard",
+    "slug": "workshops-shortcode-guard",
+    "status": "publish",
+    "menu_order": 7,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}
