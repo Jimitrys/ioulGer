@@ -367,7 +367,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     margin-top: 7px;
     color: inherit;
     font-family: inherit;
-    font-size: clamp(10px, .72vw, 13px);
+    font-size: var(--ioulia-micro);
     font-weight: 400;
     line-height: 1.15;
     opacity: 0;
@@ -408,7 +408,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         opacity 180ms ease,
         transform 340ms cubic-bezier(.16, 1, .3, 1);
     font-family: inherit;
-    font-size: 9px;
+    font-size: var(--ioulia-micro);
     font-weight: 500;
     line-height: 1;
     letter-spacing: .045em;
@@ -435,7 +435,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     gap: 18px;
     color: var(--icph-grey);
     font-family: inherit;
-    font-size: clamp(10px, .72vw, 13px);
+    font-size: var(--ioulia-micro);
     font-weight: 400;
     line-height: 1.1;
     letter-spacing: .045em;
@@ -513,7 +513,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     .icph__mobile-product span {
         display: block;
         margin-top: 6px;
-        font-size: 11px;
+        font-size: var(--ioulia-micro);
         line-height: 1.15;
     }
 

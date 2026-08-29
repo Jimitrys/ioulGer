@@ -217,7 +217,7 @@ function ioulia_custom_navbar_shortcode() {
             align-items: center;
             gap: .5em;
             color: var(--ioulia-dark);
-            font-size: clamp(.82rem, .95vw, 1rem);
+            font-size: var(--ioulia-small);
             font-weight: 500;
             letter-spacing: .08em;
             text-transform: uppercase;
@@ -288,7 +288,7 @@ function ioulia_custom_navbar_shortcode() {
             background: var(--ioulia-dark);
             color: var(--ioulia-cream);
             font-family: var(--ioulia-font);
-            font-size: 9px;
+            font-size: var(--ioulia-micro);
             font-weight: 400;
             line-height: 1;
             box-sizing: border-box;
@@ -579,7 +579,7 @@ function ioulia_custom_navbar_shortcode() {
 
         .ioulia-mini-cart-line-price {
             color: var(--ioulia-dark);
-            font-size: 12px;
+            font-size: var(--ioulia-small);
             line-height: 1.2;
             white-space: nowrap;
         }
@@ -909,7 +909,7 @@ function ioulia_custom_navbar_shortcode() {
         }
         .ioulia-privacy-links a {
             font-family: var(--ioulia-font);
-            font-size: 11px;
+            font-size: var(--ioulia-micro);
             font-weight: 500;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -922,7 +922,7 @@ function ioulia_custom_navbar_shortcode() {
         }
         .ioulia-divider {
             color: rgba(254, 250, 228, 0.2);
-            font-size: 11px;
+            font-size: var(--ioulia-micro);
         }
 
         .ioulia-social-links {
@@ -959,7 +959,7 @@ function ioulia_custom_navbar_shortcode() {
             .ioulia-menu-item-link { font-size: 2.4rem; }
             .ioulia-canvas-footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; padding-top: 2.5vh; }
             .ioulia-nav-right { gap: 1.5em; }
-            .ioulia-lang-switcher { font-size: .78rem; gap: .35em; }
+            .ioulia-lang-switcher { font-size: var(--ioulia-small); gap: .35em; }
             .ioulia-mini-cart-panel {
                 width: 100%;
                 padding: 118px 24px max(24px, env(safe-area-inset-bottom));

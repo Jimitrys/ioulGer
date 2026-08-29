@@ -166,7 +166,7 @@ add_action( 'wp_head', function () {
 		.ig-checkout-app__eyebrow {
 			margin: 0 0 16px;
 			color: var(--igc-muted);
-			font-size: 11px;
+			font-size: var(--ioulia-micro);
 			font-weight: 500;
 			line-height: 1;
 			letter-spacing: 0.12em;
@@ -190,7 +190,7 @@ add_action( 'wp_head', function () {
 			border: 0;
 			background: transparent;
 			color: var(--igc-muted) !important;
-			font-size: 12px;
+			font-size: var(--ioulia-small);
 			font-weight: 400;
 			line-height: 1;
 			text-decoration: none !important;
@@ -223,7 +223,7 @@ add_action( 'wp_head', function () {
 			box-shadow: none !important;
 			color: var(--igc-muted) !important;
 			font-family: inherit;
-			font-size: 13px;
+			font-size: var(--ioulia-small);
 			font-weight: 400;
 			line-height: 1;
 			text-transform: lowercase;
@@ -233,7 +233,7 @@ add_action( 'wp_head', function () {
 
 		.ig-checkout-progress button span {
 			margin-right: 8px;
-			font-size: 10px;
+			font-size: var(--ioulia-micro);
 			font-weight: 500;
 			letter-spacing: 0.08em;
 			transition: transform 300ms var(--igc-ease-spring);
@@ -509,7 +509,7 @@ add_action( 'wp_head', function () {
 			border: 1px solid var(--igc-ink) !important;
 			background: var(--igc-ink) !important;
 			color: var(--igc-paper) !important;
-			font-size: 12px;
+			font-size: var(--ioulia-small);
 			font-weight: 500;
 			text-transform: lowercase;
 			cursor: pointer;
@@ -621,7 +621,7 @@ add_action( 'wp_head', function () {
 			display: block;
 			margin-top: 8px;
 			color: var(--igc-muted);
-			font-size: 11px;
+			font-size: var(--ioulia-micro);
 		}
 
 		.ig-checkout-app table.shop_table .order-total {

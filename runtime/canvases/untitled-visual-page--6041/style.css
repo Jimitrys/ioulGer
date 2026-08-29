@@ -11,7 +11,7 @@
 .ioulia-about-page figure { margin: 0; }
 .ioulia-about-page img { max-width: 100%; }
 .ioulia-section-title { margin: 0; color: var(--about-ink); font: 300 clamp(2.8rem, 5vw, 4.8rem)/1.05 inherit; letter-spacing: -.035em; }
-.ioulia-about-copy { margin: 0; color: var(--about-muted); font-size: clamp(.82rem,.9vw,.95rem); font-weight: 400; letter-spacing: -.01em; line-height: 1.7; }
+.ioulia-about-copy { margin: 0; color: var(--about-muted); font-size: var(--ioulia-small); font-weight: 400; letter-spacing: -.01em; line-height: 1.7; }
 
 .ig-about { width: 100%; height: 100svh; overflow: hidden; }
 .ig-about__inner { display: grid; width: 100%; height: 100%; padding: calc(var(--about-nav) + clamp(16px,2.5vh,32px)) var(--about-x) clamp(24px,4vh,40px); grid-template-columns: repeat(12,minmax(0,1fr)); grid-template-rows: 1fr auto; column-gap: clamp(18px,2vw,32px); row-gap: clamp(20px,3vh,40px); }
@@ -21,7 +21,7 @@
 .ig-about__visual { position: relative; grid-column: 7/-1; grid-row: 1/span 2; width: 100%; height: 100%; min-height: 0; overflow: hidden; background: #e8e4d9; opacity: 0; transform: translateY(22px); animation: ig-about-reveal 1100ms 180ms cubic-bezier(.16,1,.3,1) forwards; }
 .ig-about__visual img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: cover; object-position: bottom; transform: scale(1.025); animation: ig-about-image 1500ms 160ms cubic-bezier(.16,1,.3,1) forwards; }
 .ig-about__copy { display: grid; align-self: end; grid-column: 1/span 5; grid-row: 2; grid-template-columns: repeat(2,minmax(0,1fr)); gap: clamp(20px,2.5vw,40px); }
-.ig-about__copy p { max-width: 42ch; margin: 0; color: var(--about-muted); font-size: clamp(12px,.85vw,14px); font-weight: 300; letter-spacing: -.018em; line-height: 1.45; opacity: 0; transform: translateY(16px); animation: ig-about-reveal 820ms cubic-bezier(.16,1,.3,1) forwards; }
+.ig-about__copy p { max-width: 42ch; margin: 0; color: var(--about-muted); font-size: var(--ioulia-small); font-weight: 300; letter-spacing: -.018em; line-height: 1.45; opacity: 0; transform: translateY(16px); animation: ig-about-reveal 820ms cubic-bezier(.16,1,.3,1) forwards; }
 .ig-about__copy p:first-child { animation-delay: 330ms; } .ig-about__copy p:last-child { animation-delay: 410ms; }
 @keyframes ig-about-reveal { to { opacity: 1; transform: translateY(0); } }
 @keyframes ig-about-image { to { transform: scale(1); } }
@@ -65,7 +65,7 @@
   .ig-about__title { font-size: clamp(48px,15vw,76px); line-height: .96; }
   .ig-about__visual { height: auto; aspect-ratio: 4/5; }
   .ig-about__copy { grid-template-columns: 1fr; gap: 18px; }
-  .ig-about__copy p { max-width: 100%; font-size: 13px; }
+  .ig-about__copy p { max-width: 100%; font-size: var(--ioulia-small); }
 }
 @media (max-width: 700px) {
   .ig-manifesto { height: 190svh; }

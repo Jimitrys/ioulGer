@@ -305,7 +305,7 @@ function igsp_render_single_product( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__count {
-				font-size: 9px;
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				line-height: 1;
 				letter-spacing: .035em;
@@ -397,7 +397,7 @@ function igsp_render_single_product( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__price {
 				margin-top: 13px;
-				font-size: 13px;
+				font-size: var(--ioulia-small);
 				line-height: 1.35;
 			}
 
@@ -413,7 +413,7 @@ function igsp_render_single_product( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__stock {
 				margin-top: 8px;
 				color: var(--igsp-muted);
-				font-size: 11px;
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				text-transform: lowercase;
 			}
@@ -426,7 +426,7 @@ function igsp_render_single_product( $atts = array() ) {
 				max-width: 44ch;
 				margin-top: clamp(25px, 2.3vw, 34px);
 				color: var(--igsp-ink);
-				font-size: clamp(13px, .82vw, 15px);
+				font-size: var(--ioulia-small);
 				font-weight: 400;
 				line-height: 1.58;
 			}
@@ -504,7 +504,7 @@ function igsp_render_single_product( $atts = array() ) {
 				background: transparent;
 				color: var(--igsp-ink);
 				box-shadow: none;
-				font-size: 12px;
+				font-size: var(--ioulia-small);
 				font-weight: 400;
 				text-align: center;
 			}
@@ -603,7 +603,7 @@ function igsp_render_single_product( $atts = array() ) {
 				display: block;
 				margin-bottom: 6px;
 				color: var(--igsp-muted);
-				font-size: 11px;
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				letter-spacing: .03em;
 				text-transform: lowercase;
@@ -625,7 +625,7 @@ function igsp_render_single_product( $atts = array() ) {
 					var(--igsp-paper);
 				color: var(--igsp-ink);
 				box-shadow: none;
-				font-size: 12px;
+				font-size: var(--ioulia-small);
 				font-weight: 400;
 				text-transform: lowercase;
 			}
@@ -664,7 +664,7 @@ function igsp_render_single_product( $atts = array() ) {
 				box-shadow: none;
 				cursor: pointer;
 				align-items: center;
-				font-size: 12px;
+				font-size: var(--ioulia-small);
 				font-weight: 400;
 				text-align: left;
 				text-transform: lowercase;
@@ -730,7 +730,7 @@ function igsp_render_single_product( $atts = array() ) {
 				color: var(--igsp-muted);
 				box-shadow: none;
 				cursor: pointer;
-				font-size: 12px;
+				font-size: var(--ioulia-small);
 				font-weight: 400;
 				line-height: 1.25;
 				text-align: left;
@@ -769,7 +769,7 @@ function igsp_render_single_product( $atts = array() ) {
 				display: inline-block;
 				margin-top: 6px;
 				color: var(--igsp-muted);
-				font-size: 10px;
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				text-decoration: underline;
 				text-transform: lowercase;
@@ -778,19 +778,19 @@ function igsp_render_single_product( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .woocommerce-variation {
 				margin-bottom: 12px;
-				font-size: 12px;
+				font-size: var(--ioulia-small);
 				line-height: 1.45;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .woocommerce-variation-price {
 				color: var(--igsp-ink);
-				font-size: 13px;
+				font-size: var(--ioulia-small);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .stock {
 				margin: 0 0 8px;
 				color: var(--igsp-muted);
-				font-size: 11px;
+				font-size: var(--ioulia-micro);
 				text-transform: lowercase;
 			}
 
@@ -813,7 +813,7 @@ function igsp_render_single_product( $atts = array() ) {
 				color: var(--igsp-muted);
 				align-items: center;
 				gap: 12px;
-				font-size: 10px;
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				text-transform: lowercase;
 			}
@@ -854,7 +854,7 @@ function igsp_render_single_product( $atts = array() ) {
 				align-items: center;
 				grid-template-columns: 30px minmax(0, 1fr) 30px;
 				gap: 10px;
-				font-size: 13px;
+				font-size: var(--ioulia-small);
 				font-weight: 400;
 				line-height: 1.35;
 				list-style: none;
@@ -869,7 +869,7 @@ function igsp_render_single_product( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion summary::before {
 				content: counter(igsp-accordion, decimal-leading-zero);
 				color: var(--igsp-muted);
-				font-size: 10px;
+				font-size: var(--ioulia-micro);
 				letter-spacing: .04em;
 			}
 
@@ -901,7 +901,7 @@ function igsp_render_single_product( $atts = array() ) {
 				margin: 3px 0 18px 40px;
 				padding: 0;
 				color: var(--igsp-muted);
-				font-size: 12px;
+				font-size: var(--ioulia-small);
 				font-weight: 400;
 				line-height: 1.65;
 			}
@@ -1007,7 +1007,7 @@ function igsp_render_single_product( $atts = array() ) {
 				right: 24px;
 				bottom: 20px;
 				color: var(--igsp-muted);
-				font-size: 9px;
+				font-size: var(--ioulia-micro);
 				letter-spacing: .035em;
 			}
 
@@ -1144,12 +1144,12 @@ function igsp_render_single_product( $atts = array() ) {
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion summary {
 					min-height: 48px;
-					font-size: 13px;
+					font-size: var(--ioulia-small);
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion-content {
 					max-width: 62ch;
-					font-size: 12px;
+					font-size: var(--ioulia-small);
 				}
 			}
 

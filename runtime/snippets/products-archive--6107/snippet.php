@@ -181,7 +181,7 @@ function igpa_render_product_archive( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__head-count {
 				margin: 0;
 				color: var(--igpa-muted);
-				font-size: 10px;
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				line-height: 1.2;
 				letter-spacing: .035em;
@@ -211,7 +211,7 @@ function igpa_render_product_archive( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__toolbar-count {
 				color: var(--igpa-muted);
-				font-size: 9px;
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				line-height: 1;
 				letter-spacing: .04em;
@@ -242,7 +242,7 @@ function igpa_render_product_archive( $atts = array() ) {
 				cursor: pointer;
 				align-items: center;
 				gap: 8px;
-				font-size: clamp(9px, .7vw, 11px);
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				line-height: 1;
 				letter-spacing: .025em;
@@ -317,7 +317,7 @@ function igpa_render_product_archive( $atts = array() ) {
 				background: transparent;
 				color: var(--igpa-muted);
 				cursor: pointer;
-				font-size: 10px;
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				line-height: 1.25;
 				letter-spacing: .018em;
@@ -421,7 +421,7 @@ function igpa_render_product_archive( $atts = array() ) {
 				padding: 7px 9px;
 				background: var(--igpa-paper);
 				color: var(--igpa-ink);
-				font-size: 8px;
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				line-height: 1;
 				letter-spacing: .025em;
@@ -446,7 +446,7 @@ function igpa_render_product_archive( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__name,
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__name a {
 				color: var(--igpa-ink);
-				font-size: clamp(10px, .78vw, 12px);
+				font-size: var(--ioulia-micro);
 				font-weight: 400;
 				line-height: 1.35;
 				letter-spacing: -.008em;
@@ -455,7 +455,7 @@ function igpa_render_product_archive( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__price {
 				color: var(--igpa-ink);
-				font-size: clamp(9px, .72vw, 11px);
+				font-size: var(--ioulia-micro);
 				line-height: 1.35;
 			}
 
@@ -472,7 +472,7 @@ function igpa_render_product_archive( $atts = array() ) {
 				display: none;
 				margin: 80px 0 0;
 				color: var(--igpa-muted);
-				font-size: 12px;
+				font-size: var(--ioulia-small);
 				font-weight: 400;
 				text-transform: lowercase;
 			}
@@ -516,7 +516,7 @@ function igpa_render_product_archive( $atts = array() ) {
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__trigger {
-					font-size: 9px;
+					font-size: var(--ioulia-micro);
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__picker:first-child .igpa__menu {
@@ -541,7 +541,7 @@ function igpa_render_product_archive( $atts = array() ) {
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__name,
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__name a,
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__price {
-					font-size: 10px;
+					font-size: var(--ioulia-micro);
 				}
 			}
 

@@ -485,7 +485,7 @@ a {
   box-shadow: none;
   color: var(--ioulia-ink);
   font-family: inherit;
-  font-size: clamp(11px, .76vw, 13px);
+  font-size: var(--ioulia-micro);
   font-weight: 500;
   line-height: 1;
   letter-spacing: .025em;

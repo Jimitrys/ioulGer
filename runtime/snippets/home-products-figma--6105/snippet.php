@@ -309,7 +309,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				color: var(--mxl-iph-edge) !important;
 				box-shadow: none !important;
 				font: inherit;
-				font-size: clamp(11px, .76vw, 13px);
+				font-size: var(--ioulia-micro);
 				font-weight: 500;
 				line-height: 1;
 				letter-spacing: .025em;
@@ -363,7 +363,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				background: color-mix(in srgb, var(--mxl-iph-edge) 72%, transparent);
 				backdrop-filter: blur(5px);
 				font: inherit;
-				font-size: 10px;
+				font-size: var(--ioulia-micro);
 				font-weight: 500;
 				line-height: 1;
 				letter-spacing: .075em;
@@ -492,7 +492,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				gap: 10px;
 				margin-top: 6px;
 				font: inherit;
-				font-size: 12px;
+				font-size: var(--ioulia-small);
 				line-height: 1.2;
 				color: inherit;
 				pointer-events: none;
@@ -538,7 +538,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				border: 1px solid currentColor;
 				border-radius: 50%;
 				font: inherit;
-				font-size: 10px;
+				font-size: var(--ioulia-micro);
 				font-weight: 500;
 				letter-spacing: .065em;
 				line-height: 1;
@@ -587,11 +587,11 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 					bottom: clamp(58px, 9vh, 92px);
 					width: 72px;
 					height: 72px;
-					font-size: 9px;
+					font-size: var(--ioulia-micro);
 				}
 				.mxl-iph.is-dragging { cursor: grabbing; }
 				.mxl-iph__cursor { display: none !important; }
-				.mxl-iph__caption { font-size: 11px; }
+				.mxl-iph__caption { font-size: var(--ioulia-micro); }
 			}
 
 
