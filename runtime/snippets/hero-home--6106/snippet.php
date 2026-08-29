@@ -820,7 +820,7 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
             var secondTitleBottom = secondLines.reduce(function (bottom, line) {
                 return Math.max(bottom, line.getBoundingClientRect().bottom);
             }, rootRect.top);
-            var actionsTop = secondTitleBottom - rootRect.top + 16;
+            var actionsTop = secondTitleBottom - rootRect.top + 28;
             var actionsMax = root.clientHeight - actions.offsetHeight - 24;
 
             actions.style.top = clamp(actionsTop, 0, actionsMax).toFixed(2) + "px";
