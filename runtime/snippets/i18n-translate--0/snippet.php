@@ -189,10 +189,14 @@ if ( ! function_exists( 'ioulia_save_translation' ) ) {
 
 if ( ! function_exists( 'ioulia_html_skip_tags' ) ) {
 	/**
-	 * Elements whose text is code, not copy.
+	 * Elements whose text is code, not copy, and which are parsed normally.
+	 *
+	 * script, style, textarea and noscript are deliberately absent: their content
+	 * is not markup, so they are consumed whole in ioulia_walk_html() instead of
+	 * being counted open and closed.
 	 */
 	function ioulia_html_skip_tags() {
-		return array( 'script', 'style', 'svg', 'canvas', 'textarea', 'code', 'pre', 'noscript' );
+		return array( 'svg', 'canvas', 'code', 'pre' );
 	}
 }
 
@@ -200,9 +204,21 @@ if ( ! function_exists( 'ioulia_walk_html' ) ) {
 	/**
 	 * Split HTML into tags, comments and text, hand every text run to $callback,
 	 * and glue the result back together unchanged everywhere else.
+	 *
+	 * Raw-text elements are matched whole, opening tag to closing tag, rather than
+	 * counted open and closed. Their content is not markup: a comparison like
+	 * "i < n" inside a script reads as the start of a tag, and the generic tag
+	 * pattern then runs past the real </script> to find its closing angle bracket.
+	 * That swallows the closing tag, leaves the counter stuck open, and silently
+	 * drops every remaining text run on the page from translation.
 	 */
 	function ioulia_walk_html( $html, $callback ) {
-		$parts = preg_split( '/(<!--.*?-->|<[^>]*>)/s', (string) $html, -1, PREG_SPLIT_DELIM_CAPTURE );
+		$raw_text = '<script[^>]*>.*?</script[[:space:]]*>'
+			. '|<style[^>]*>.*?</style[[:space:]]*>'
+			. '|<textarea[^>]*>.*?</textarea[[:space:]]*>'
+			. '|<noscript[^>]*>.*?</noscript[[:space:]]*>';
+
+		$parts = preg_split( '#((?:' . $raw_text . ')|<!--.*?-->|<[^>]*>)#si', (string) $html, -1, PREG_SPLIT_DELIM_CAPTURE );
 
 		if ( ! is_array( $parts ) ) {
 			return $html;

@@ -958,7 +958,8 @@ function ioulia_custom_navbar_shortcode() {
             .ioulia-col-right .ioulia-menu-item-link:hover .ioulia-menu-text { transform: translateX(20px); }
             .ioulia-menu-item-link { font-size: 2.4rem; }
             .ioulia-canvas-footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; padding-top: 2.5vh; }
-            .ioulia-nav-right { gap: 2.2em; }
+            .ioulia-nav-right { gap: 1.5em; }
+            .ioulia-lang-switcher { font-size: .78rem; gap: .35em; }
             .ioulia-mini-cart-panel {
                 width: 100%;
                 padding: 118px 24px max(24px, env(safe-area-inset-bottom));
