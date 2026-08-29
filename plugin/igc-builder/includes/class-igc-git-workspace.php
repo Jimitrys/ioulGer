@@ -829,6 +829,36 @@ final class IGC_Git_Workspace {
 		return $commit_url ?: substr( $head, 0, 12 );
 	}
 
+	/**
+	 * Bring up the WordPress filesystem API before unzipping.
+	 *
+	 * unzip_file() starts by checking $wp_filesystem and returns
+	 * "Could not access filesystem." if nobody has initialised it. WordPress does
+	 * that for you on its own install and update screens; on ours nothing does,
+	 * so the pull failed with an error that reads like a server permissions
+	 * problem when it is simply a missing call.
+	 *
+	 * WP_Filesystem() picks the direct method whenever the web user owns the
+	 * files, which is the normal case. When it cannot, it is asking for FTP
+	 * credentials, and the honest fix is FS_METHOD in wp-config.php rather than
+	 * anything this plugin can do.
+	 */
+	private static function require_filesystem(): void {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
+		global $wp_filesystem;
+
+		if ( $wp_filesystem instanceof WP_Filesystem_Base ) {
+			return;
+		}
+
+		if ( ! WP_Filesystem() ) {
+			throw new RuntimeException(
+				__( 'WordPress could not get write access to the filesystem. Add: define( "FS_METHOD", "direct" ); to wp-config.php, or check that the web server user owns wp-content.', 'igc-builder' )
+			);
+		}
+	}
+
 	private static function github_pull(): void {
 		$repository = self::github_repository();
 		$branch = (string) self::settings()['branch'];
@@ -850,7 +880,7 @@ final class IGC_Git_Workspace {
 			@unlink( $zip );
 			throw new RuntimeException( is_wp_error( $response ) ? $response->get_error_message() : __( 'GitHub archive download failed.', 'igc-builder' ) );
 		}
-		require_once ABSPATH . 'wp-admin/includes/file.php';
+		self::require_filesystem();
 		$extract = dirname( self::workspace_dir() ) . '/.site-studio-pull-' . wp_generate_password( 8, false, false );
 		wp_mkdir_p( $extract );
 		$unzipped = unzip_file( $zip, $extract );
