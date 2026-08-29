@@ -102,6 +102,7 @@
 
   .iznE-parallax__copy {
     width: min(900px, 82vw);
+    margin-left: clamp(72px, 10vw, 160px);
     pointer-events: auto;
   }
 
@@ -182,7 +183,7 @@
     .iznE-parallax { min-height: calc(var(--izn-section-height-mobile) * 1svh); }
     .iznE-parallax__track, .iznE-parallax__content { min-height: calc(var(--izn-section-height-mobile) * 1svh); }
     .iznE-parallax__content { padding-top: 15svh; padding-bottom: 70px; }
-    .iznE-parallax__copy { width: 100%; }
+    .iznE-parallax__copy { width: 100%; margin-left: 0; }
     .iznE-parallax__title { font-size: clamp(48px, 16vw, 78px); line-height: 0.92; }
     .iznE-parallax__title-line:nth-child(2) { margin-left: 0; }
     .iznE-parallax__title-line:nth-child(3) { margin-left: 12vw; }
