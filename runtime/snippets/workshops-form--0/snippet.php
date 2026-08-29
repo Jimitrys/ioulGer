@@ -368,7 +368,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	@keyframes iwf-slot-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-	.iwf__open { margin-top: clamp(2rem, 4vw, 3rem); min-height: 52px; padding-inline: 2rem; }
+	.iwf__open { margin-top: clamp(2rem, 4vw, 3rem); }
 
 	/* Only hide what is going to be revealed once the observer is known to be
 	   running. Without the flag the open button starts invisible, and a browser
@@ -622,7 +622,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf__consent a { color: inherit; }
 
 	.iwf__trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-	.iwf__submit { width: 100%; margin-top: 1.6rem; min-height: 52px; }
+	.iwf__submit { width: 100%; margin-top: 1.6rem; }
 
 	.iwf__done p { margin: 0 0 .7rem; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.55; }
 	.iwf__done p:first-child { color: var(--iwf-ink); font-size: var(--ioulia-body); }

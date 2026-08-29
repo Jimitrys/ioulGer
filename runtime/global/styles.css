@@ -477,15 +477,18 @@ a {
   align-items: center;
   justify-content: center;
   gap: .75em;
-  min-height: 42px;
-  padding: 11px 18px;
+  /* A button is sized by the pointer using it, so it grows with the viewport
+     the same way the type does. Fixed at 42px tall it read as a control on a
+     phone and as a footnote on a desktop. */
+  min-height: clamp(46px, 1.6vw + 2.5rem, 58px);
+  padding: clamp(.75rem, .35vw + .6rem, 1.05rem) clamp(1.15rem, 1vw + .8rem, 1.9rem);
   border: 1px solid transparent;
   border-radius: var(--ioulia-radius, 5px);
   background: transparent;
   box-shadow: none;
   color: var(--ioulia-ink);
   font-family: inherit;
-  font-size: var(--ioulia-micro);
+  font-size: var(--ioulia-small);
   font-weight: 500;
   line-height: 1;
   letter-spacing: .025em;
