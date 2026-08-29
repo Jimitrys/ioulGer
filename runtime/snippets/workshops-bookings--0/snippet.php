@@ -569,3 +569,166 @@ if ( ! function_exists( 'ioulia_purge_old_bookings' ) ) {
 	}
 	add_action( 'ioulia_purge_old_bookings', 'ioulia_purge_old_bookings' );
 }
+
+/* -------------------------------------------------------------------------
+ * Availability
+ * ---------------------------------------------------------------------- */
+
+if ( ! function_exists( 'ioulia_locale_date_words' ) ) {
+	/**
+	 * Weekday and month names for the language the visitor is reading in.
+	 *
+	 * The booking form is public, so its dates follow the site language, unlike
+	 * the emails and the dashboard, which stay Greek because they are internal.
+	 */
+	function ioulia_locale_date_words() {
+		$english = function_exists( 'ioulia_lang' ) && 'en' === ioulia_lang();
+
+		if ( ! $english ) {
+			return array(
+				'weekdays'      => ioulia_greek_weekdays(),
+				'months'        => ioulia_greek_months(),
+				'weekdays_abbr' => array( 1 => 'Δευ', 2 => 'Τρι', 3 => 'Τετ', 4 => 'Πεμ', 5 => 'Παρ', 6 => 'Σαβ', 7 => 'Κυρ' ),
+				'months_abbr'   => array( 1 => 'Ιαν', 2 => 'Φεβ', 3 => 'Μαρ', 4 => 'Απρ', 5 => 'Μαι', 6 => 'Ιουν', 7 => 'Ιουλ', 8 => 'Αυγ', 9 => 'Σεπ', 10 => 'Οκτ', 11 => 'Νοε', 12 => 'Δεκ' ),
+			);
+		}
+
+		return array(
+			'weekdays'      => array( 1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday' ),
+			'months'        => array( 1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December' ),
+			'weekdays_abbr' => array( 1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun' ),
+			'months_abbr'   => array( 1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec' ),
+		);
+	}
+}
+
+if ( ! function_exists( 'ioulia_maybe_translate' ) ) {
+	/**
+	 * Translate a string that will not be reachable by the page-wide pass.
+	 *
+	 * The booking form ships its programmes as JSON inside a script tag, and the
+	 * translation pass deliberately never looks inside a script. So these few
+	 * strings ask the dictionary directly, using the same Greek source text as
+	 * their key, rather than keeping a second set of English titles here.
+	 */
+	function ioulia_maybe_translate( $text ) {
+		if ( ! function_exists( 'ioulia_lang' ) || ! function_exists( 'ioulia_lookup_translation' ) ) {
+			return $text;
+		}
+
+		if ( ioulia_is_default_lang() ) {
+			return $text;
+		}
+
+		$translated = ioulia_lookup_translation( ioulia_lang(), $text );
+
+		return '' !== $translated ? $translated : $text;
+	}
+}
+
+if ( ! function_exists( 'ioulia_seat_map' ) ) {
+	/**
+	 * Seats already taken across a whole window, as programme and start time to a
+	 * count, in one query.
+	 *
+	 * Asking per session instead would mean a database round trip for every
+	 * programme on every day of the window, which is hundreds of queries to draw
+	 * one form.
+	 */
+	function ioulia_seat_map( $from, $until ) {
+		$map = array();
+
+		foreach ( ioulia_get_bookings( array( 'from' => $from, 'until' => $until, 'limit' => 1000 ) ) as $booking ) {
+			$key = $booking['programme'] . '|' . $booking['starts'];
+
+			$map[ $key ] = ( isset( $map[ $key ] ) ? $map[ $key ] : 0 ) + $booking['participants'];
+		}
+
+		return $map;
+	}
+}
+
+if ( ! function_exists( 'ioulia_availability' ) ) {
+	/**
+	 * Everything the booking form needs to draw itself: the programmes, and for
+	 * each one the dates it runs with the times still open on them.
+	 *
+	 * Dates with nothing free are left out, so the payload stays small and the
+	 * form never offers a session it would then refuse.
+	 */
+	function ioulia_availability() {
+		$settings = ioulia_workshop_settings();
+		$words    = ioulia_locale_date_words();
+		$now      = current_time( 'timestamp' );
+		$first    = $now + ( (int) $settings['lead_days'] * DAY_IN_SECONDS );
+		$last     = $now + ( (int) $settings['window_days'] * DAY_IN_SECONDS );
+		$map      = ioulia_seat_map( gmdate( 'Y-m-d H:i:s', $first ), gmdate( 'Y-m-d H:i:s', $last ) );
+		$out      = array();
+
+		foreach ( ioulia_workshop_active_programmes() as $slug => $programme ) {
+			$dates = array();
+
+			for ( $stamp = $first; $stamp <= $last; $stamp += DAY_IN_SECONDS ) {
+				$date    = gmdate( 'Y-m-d', $stamp );
+				$weekday = (int) gmdate( 'N', $stamp );
+				$times   = array();
+
+				foreach ( $programme['sessions'] as $session ) {
+					if ( (int) $session['day'] !== $weekday ) {
+						continue;
+					}
+
+					$starts = $date . ' ' . $session['start'] . ':00';
+
+					if ( strtotime( $starts ) < $first ) {
+						continue;
+					}
+
+					$key   = $slug . '|' . $starts;
+					$taken = isset( $map[ $key ] ) ? $map[ $key ] : 0;
+					$left  = (int) $programme['capacity'] - $taken;
+
+					if ( $left < 1 ) {
+						continue;
+					}
+
+					$times[] = array(
+						'starts' => $starts,
+						'label'  => $session['start'] . ' – ' . $session['end'],
+						'left'   => $left,
+					);
+				}
+
+				if ( empty( $times ) ) {
+					continue;
+				}
+
+				$dates[] = array(
+					'date'  => $date,
+					'day'   => $words['weekdays_abbr'][ $weekday ],
+					'num'   => (int) gmdate( 'j', $stamp ),
+					'month' => $words['months_abbr'][ (int) gmdate( 'n', $stamp ) ],
+					'full'  => $words['weekdays'][ $weekday ] . ' ' . (int) gmdate( 'j', $stamp ) . ' ' . $words['months'][ (int) gmdate( 'n', $stamp ) ],
+					'times' => $times,
+				);
+			}
+
+			if ( empty( $dates ) ) {
+				continue;
+			}
+
+			$out[] = array(
+				'slug'     => $slug,
+				'number'   => $programme['number'],
+				'title'    => ioulia_maybe_translate( $programme['title'] ),
+				'summary'  => ioulia_maybe_translate( $programme['summary'] ),
+				'price'    => $programme['price'],
+				'note'     => ioulia_maybe_translate( $programme['note'] ),
+				'capacity' => (int) $programme['capacity'],
+				'dates'    => $dates,
+			);
+		}
+
+		return $out;
+	}
+}
