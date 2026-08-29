@@ -190,6 +190,8 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				--mxl-iph-edge: #FFFEF7;
 				--mxl-iph-page-x: clamp(16px, 2.35vw, 38px);
 				--mxl-iph-blend: clamp(88px, 14vh, 176px);
+				--mxl-iph-demo-x: -180px;
+				--mxl-iph-demo-y: 128px;
 				position: relative;
 				width: 100%;
 				height: 112vh;
@@ -403,15 +405,15 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				}
 				72% {
 					opacity: .88;
-					transform: translate3d(calc(-50% - 72px), 48px, 0) scale(1);
+					transform: translate3d(calc(-50% + var(--mxl-iph-demo-x)), var(--mxl-iph-demo-y), 0) scale(1);
 				}
 				88% {
 					opacity: .5;
-					transform: translate3d(calc(-50% - 75px), 50px, 0) scale(.98);
+					transform: translate3d(calc(-50% + var(--mxl-iph-demo-x)), var(--mxl-iph-demo-y), 0) scale(.98);
 				}
 				100% {
 					opacity: 0;
-					transform: translate3d(calc(-50% - 76px), 51px, 0) scale(.95);
+					transform: translate3d(calc(-50% + var(--mxl-iph-demo-x)), var(--mxl-iph-demo-y), 0) scale(.95);
 				}
 			}
 
@@ -562,6 +564,8 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			@media (max-width: 989px), (pointer: coarse) {
 				.mxl-iph {
 					--mxl-iph-blend: clamp(70px, 11vh, 112px);
+					--mxl-iph-demo-x: -112px;
+					--mxl-iph-demo-y: 94px;
 					cursor: grab;
 				}
 
@@ -1115,8 +1119,9 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			var duration = 3200;
 			var fromX = posX;
 			var fromY = posY;
-			var distanceX = -76;
-			var distanceY = 51;
+			var sectionStyles = window.getComputedStyle(section);
+			var distanceX = parseFloat(sectionStyles.getPropertyValue('--mxl-iph-demo-x')) || -180;
+			var distanceY = parseFloat(sectionStyles.getPropertyValue('--mxl-iph-demo-y')) || 128;
 
 			cancelMomentum();
 			velX = 0;
