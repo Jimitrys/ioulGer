@@ -102,7 +102,7 @@
 
   .iznE-parallax__copy {
     width: min(900px, 82vw);
-    margin-left: clamp(72px, 10vw, 160px);
+    margin-left: clamp(120px, 16vw, 240px);
     pointer-events: auto;
   }
 
