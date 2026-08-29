@@ -269,12 +269,46 @@ if ( ! function_exists( 'ioulia_translatable_attributes' ) ) {
  * The translation pass
  * ---------------------------------------------------------------------- */
 
+if ( ! function_exists( 'ioulia_localise_links' ) ) {
+	/**
+	 * Carry the language across root-relative links.
+	 *
+	 * Anything built through home_url() already keeps the prefix, but a link
+	 * typed straight into a template as href="/shop" never goes near it, so a
+	 * visitor reading the English site is dropped back into Greek the moment
+	 * they use the menu. Rewriting them here covers every one of them in the
+	 * markup as rendered, including any typed in later.
+	 *
+	 * Only root-relative paths are touched. Protocol-relative, absolute and
+	 * anchor links are left alone, as is anything the path check calls
+	 * untranslatable: wp-admin, uploads, files, the dashboard.
+	 */
+	function ioulia_localise_links( $html ) {
+		$lang = ioulia_lang();
+
+		return (string) preg_replace_callback(
+			'#([[:space:]](?:href|action)=")(/[^"/][^"]*|/)(")#i',
+			static function ( $matches ) use ( $lang ) {
+				$path = ltrim( $matches[2], '/' );
+
+				if ( ! ioulia_path_is_translatable( $path ) ) {
+					return $matches[0];
+				}
+
+				return $matches[1] . '/' . ioulia_prefix_path( $path, $lang ) . $matches[3];
+			},
+			$html
+		);
+	}
+}
+
 if ( ! function_exists( 'ioulia_translate_html' ) ) {
 	function ioulia_translate_html( $html ) {
 		$map = ioulia_translation_map( ioulia_lang() );
 
+		// Links still need the prefix even when no wording has been translated.
 		if ( empty( $map ) ) {
-			return $html;
+			return ioulia_localise_links( $html );
 		}
 
 		$translate = static function ( $text ) use ( $map ) {
@@ -298,7 +332,7 @@ if ( ! function_exists( 'ioulia_translate_html' ) ) {
 			$translate
 		);
 
-		return (string) preg_replace_callback(
+		$html = (string) preg_replace_callback(
 			'/([[:space:]](?:' . $attributes . ')[[:space:]]*=[[:space:]]*")([^"]+)(")/i',
 			static function ( $matches ) use ( $map ) {
 				$hash = md5( ioulia_normalize_source( html_entity_decode( $matches[2], ENT_QUOTES, 'UTF-8' ) ) );
@@ -309,6 +343,8 @@ if ( ! function_exists( 'ioulia_translate_html' ) ) {
 			},
 			$html
 		);
+
+		return ioulia_localise_links( $html );
 	}
 }
 
