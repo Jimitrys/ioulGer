@@ -163,15 +163,18 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 				<div class="iwf-modal__backdrop" data-iwf-close></div>
 
 				<div class="iwf-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="iwf-modal-title">
+					<span class="iwf-modal__grab" aria-hidden="true"></span>
+
 					<header class="iwf-modal__head">
-						<div class="iwf-modal__heading">
-							<p class="iwf-modal__step" data-iwf-steplabel></p>
-							<h3 id="iwf-modal-title" data-iwf-modal-title>Κλείσε τη θέση σου</h3>
-						</div>
-						<button type="button" class="iwf-modal__close" data-iwf-close aria-label="Κλείσιμο">×</button>
+						<p class="iwf-modal__step" data-iwf-steplabel></p>
+						<button type="button" class="iwf-modal__close" data-iwf-close aria-label="Κλείσιμο">
+							<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 2 L14 14 M14 2 L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+						</button>
 					</header>
 
 					<div class="iwf-modal__body" data-iwf-scroll>
+						<h3 class="iwf-modal__title" id="iwf-modal-title" data-iwf-modal-title>Κλείσε τη θέση σου</h3>
+						<p class="iwf-modal__lead" data-iwf-lead></p>
 
 						<div class="iwf-step" data-iwf-step="1">
 							<div class="iwf__options" data-iwf-options></div>
@@ -240,7 +243,6 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 						</div>
 
 						<div class="iwf-step iwf__done" data-iwf-step="done" hidden>
-							<h4>Η θέση σου κρατήθηκε.</h4>
 							<p data-iwf-summary></p>
 							<p>Σου στείλαμε email με τα στοιχεία. Θα σε περιμένουμε στο εργαστήριο.</p>
 						</div>
@@ -328,9 +330,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf__chips--times { margin-top: .8rem; }
 
 	.iwf__chip {
-		padding: .5rem .85rem;
+		padding: .55rem 1rem;
 		border: 1px solid var(--iwf-line);
-		border-radius: 2px;
+		border-radius: 999px;
 		background: transparent;
 		color: var(--iwf-muted);
 		font: inherit;
@@ -347,9 +349,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf__row-times { display: flex; flex-wrap: wrap; gap: .35rem; justify-content: flex-end; }
 
 	.iwf__slot {
-		padding: .3rem .7rem;
+		padding: .35rem .8rem;
 		border: 1px solid transparent;
-		border-radius: 2px;
+		border-radius: 999px;
 		background: var(--iwf-slot-bg);
 		color: var(--iwf-slot-ink);
 		font: inherit;
@@ -375,7 +377,10 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		.iwf__grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(3rem, 6vw, 7rem); }
 	}
 
-	/* ---- Dialog ---- */
+	/* ---- Dialog ----
+	   A sheet on a phone and a card on a desktop, from one set of rules. The
+	   step's own title carries the hierarchy rather than a bar across the top,
+	   which is what makes it read as a screen instead of a window. */
 
 	.iwf-modal {
 		--iwf-ink: var(--ioulia-ink, #2B2B2B);
@@ -385,6 +390,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		--iwf-ease: cubic-bezier(.16, 1, .3, 1);
 		--iwf-slot-ink: #813527;
 		--iwf-slot-bg: rgba(129, 53, 39, .12);
+		--iwf-card: 14px;
+		--iwf-gutter: clamp(1.25rem, 5vw, 2rem);
 
 		position: fixed;
 		inset: 0;
@@ -398,27 +405,46 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-modal[hidden] { display: none; }
 	.iwf-modal *, .iwf-modal *::before, .iwf-modal *::after { box-sizing: border-box; }
 
-	.iwf-modal__backdrop { position: absolute; inset: 0; background: rgba(43, 43, 43, .38); opacity: 0; transition: opacity .4s ease; }
+	.iwf-modal__backdrop { position: absolute; inset: 0; background: rgba(43, 43, 43, .4); opacity: 0; transition: opacity .4s ease; }
 	.iwf-modal.is-open .iwf-modal__backdrop { opacity: 1; }
 
 	.iwf-modal__dialog {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		width: min(560px, 100%);
-		/* svh rather than vh: mobile browser chrome should not clip the footer. */
+		width: min(600px, 100%);
+		/* svh, so mobile browser chrome cannot clip the footer. */
 		max-height: 92svh;
+		border-radius: 22px 22px 0 0;
 		background: var(--iwf-paper);
-		transform: translateY(24px);
+		box-shadow: 0 -8px 40px rgba(43, 43, 43, .14);
+		transform: translateY(28px);
 		opacity: 0;
-		transition: transform .5s var(--iwf-ease), opacity .35s ease;
+		transition: transform .5s var(--iwf-ease), opacity .3s ease;
 	}
 	.iwf-modal.is-open .iwf-modal__dialog { transform: none; opacity: 1; }
 
-	.iwf-modal__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.1rem clamp(1.1rem, 3vw, 1.8rem); border-bottom: 1px solid var(--iwf-line); }
-	.iwf-modal__step { margin: 0 0 .25rem; color: var(--iwf-muted); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; }
-	.iwf-modal__head h3 { margin: 0; font-size: 1.05rem; font-weight: 400; letter-spacing: -.01em; }
-	.iwf-modal__close { width: 44px; height: 44px; margin: -.4rem -.6rem 0 0; border: 0; background: none; color: inherit; font-size: 1.6rem; line-height: 1; cursor: pointer; }
+	.iwf-modal__grab { display: block; width: 36px; height: 4px; margin: 10px auto 0; border-radius: 999px; background: var(--iwf-line); }
+
+	.iwf-modal__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem var(--iwf-gutter) 0; }
+	.iwf-modal__step { margin: 0; color: var(--iwf-muted); font-size: .68rem; letter-spacing: .16em; font-variant-numeric: tabular-nums; }
+
+	.iwf-modal__close {
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		margin-right: -8px;
+		padding: 0;
+		border: 0;
+		border-radius: 999px;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+		transition: background-color .2s ease;
+	}
+	.iwf-modal__close:hover, .iwf-modal__close:focus-visible { background: rgba(43, 43, 43, .07); outline: none; }
+	.iwf-modal__close svg { width: 15px; height: 15px; }
 
 	.iwf-modal__body {
 		flex: 1 1 auto;
@@ -428,55 +454,73 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		overflow-y: auto;
 		overscroll-behavior: contain;
 		-webkit-overflow-scrolling: touch;
-		padding: clamp(1.1rem, 3vw, 1.8rem);
+		padding: .5rem var(--iwf-gutter) 1.5rem;
 	}
 
-	.iwf-modal__foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem clamp(1.1rem, 3vw, 1.8rem) calc(.9rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--iwf-line); }
-	.iwf-modal__back { padding: .5rem 0; border: 0; background: none; color: var(--iwf-muted); font: inherit; font-size: .82rem; cursor: pointer; }
+	.iwf-modal__title { margin: 0; font-size: clamp(1.6rem, 5.5vw, 2.15rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.1; }
+	.iwf-modal__lead { margin: .5rem 0 0; color: var(--iwf-muted); font-size: .92rem; line-height: 1.5; }
+	.iwf-modal__lead[hidden] { display: none; }
+
+	.iwf-step { margin-top: 1.75rem; }
+	.iwf-step[hidden] { display: none; }
+
+	.iwf-modal__foot {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: .9rem var(--iwf-gutter) calc(.9rem + env(safe-area-inset-bottom));
+		border-top: 1px solid var(--iwf-line);
+		background: var(--iwf-paper);
+	}
+	.iwf-modal__back { padding: .5rem 0; border: 0; background: none; color: var(--iwf-ink); font: inherit; font-size: .86rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 	.iwf-modal__back[hidden] { display: none; }
 	.iwf-modal__note { margin: 0 0 0 auto; color: var(--iwf-muted); font-size: .76rem; text-align: right; }
 
-	.iwf-step[hidden] { display: none; }
-
 	@media (min-width: 700px) {
 		.iwf-modal { align-items: center; padding: 2rem; }
-		.iwf-modal__dialog { max-height: 86vh; border-radius: var(--ioulia-radius, 5px); }
+		.iwf-modal__dialog { max-height: 86vh; border-radius: var(--iwf-card); box-shadow: 0 24px 70px rgba(43, 43, 43, .2); }
+		.iwf-modal__grab { display: none; }
+		.iwf-modal__head { padding-top: 1rem; }
 	}
 
 	/* ---- Step 1: programmes ---- */
 
-	.iwf__options { display: grid; gap: .5rem; }
+	.iwf__options { display: grid; gap: .6rem; }
 	.iwf__option {
-		display: grid;
-		grid-template-columns: auto 1fr auto;
-		gap: .35rem .8rem;
-		padding: .95rem 1rem;
+		display: block;
+		width: 100%;
+		padding: 1.1rem 1.15rem;
 		border: 1px solid var(--iwf-line);
-		border-radius: var(--ioulia-radius, 5px);
+		border-radius: var(--iwf-card);
 		background: transparent;
 		color: inherit;
 		font: inherit;
 		text-align: left;
 		cursor: pointer;
-		transition: border-color .25s ease, background-color .25s ease;
+		transition: border-color .22s ease, box-shadow .22s ease, transform .22s var(--iwf-ease);
 	}
-	.iwf__option:hover, .iwf__option:focus-visible { border-color: var(--iwf-ink); outline: none; }
-	.iwf__option.is-current { border-color: var(--iwf-ink); }
-	.iwf__option-num { color: var(--iwf-muted); font-size: .72rem; font-variant-numeric: tabular-nums; }
-	.iwf__option-title { font-size: .98rem; }
-	.iwf__option-price { color: var(--iwf-slot-ink); font-size: .82rem; white-space: nowrap; }
-	.iwf__option-summary { grid-column: 2 / -1; color: var(--iwf-muted); font-size: .78rem; line-height: 1.5; }
+	.iwf__option:hover, .iwf__option:focus-visible { border-color: var(--iwf-ink); outline: none; transform: translateY(-2px); }
+	/* Two rings rather than a thicker border: the row must not resize when picked. */
+	.iwf__option.is-current { border-color: var(--iwf-ink); box-shadow: inset 0 0 0 1px var(--iwf-ink); }
+
+	.iwf__option-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+	.iwf__option-title { font-size: 1.08rem; font-weight: 500; letter-spacing: -.015em; }
+	.iwf__option-price { color: var(--iwf-slot-ink); font-size: .88rem; white-space: nowrap; }
+	.iwf__option-summary { display: block; margin-top: .3rem; color: var(--iwf-muted); font-size: .86rem; line-height: 1.5; }
 
 	/* ---- Step 2: calendar ---- */
 
-	.iwf-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .9rem; }
-	.iwf-cal__month { font-size: .92rem; letter-spacing: -.01em; }
-	.iwf-cal__nav { display: flex; gap: .3rem; }
+	.iwf-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+	.iwf-cal__month { font-size: 1rem; font-weight: 500; letter-spacing: -.015em; }
+	.iwf-cal__nav { display: flex; gap: .4rem; }
 	.iwf-cal__nav button {
+		display: grid;
+		place-items: center;
 		width: 40px;
 		height: 40px;
 		border: 1px solid var(--iwf-line);
-		border-radius: var(--ioulia-radius, 5px);
+		border-radius: 999px;
 		background: transparent;
 		color: inherit;
 		font: inherit;
@@ -484,43 +528,53 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		transition: border-color .2s ease, opacity .2s ease;
 	}
 	.iwf-cal__nav button:hover:not(:disabled) { border-color: var(--iwf-ink); }
-	.iwf-cal__nav button:disabled { opacity: .3; cursor: default; }
+	.iwf-cal__nav button:disabled { opacity: .25; cursor: default; }
 
-	.iwf-cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
-	.iwf-cal__dayname { padding: .4rem 0; color: var(--iwf-muted); font-size: .64rem; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+	.iwf-cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+	.iwf-cal__dayname { padding: .3rem 0 .5rem; color: var(--iwf-muted); font-size: .66rem; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
 
 	.iwf-cal__day {
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		display: grid;
+		place-items: center;
 		aspect-ratio: 1;
-		min-height: 40px;
-		border: 1px solid transparent;
-		border-radius: var(--ioulia-radius, 5px);
+		min-height: 44px;
+		border: 0;
+		border-radius: 999px;
 		background: transparent;
 		color: var(--iwf-muted);
 		font: inherit;
-		font-size: .84rem;
+		font-size: .92rem;
 		font-variant-numeric: tabular-nums;
-		opacity: .35;
+		opacity: .3;
 		cursor: default;
 	}
 	.iwf-cal__day.is-open {
 		background: var(--iwf-slot-bg);
 		color: var(--iwf-slot-ink);
+		font-weight: 500;
 		opacity: 1;
 		cursor: pointer;
-		transition: background-color .22s ease, color .22s ease, transform .22s var(--iwf-ease);
+		transition: background-color .2s ease, color .2s ease, transform .2s var(--iwf-ease);
 	}
-	.iwf-cal__day.is-open:hover, .iwf-cal__day.is-open:focus-visible { background: var(--iwf-slot-ink); color: var(--iwf-paper); outline: none; transform: translateY(-2px); }
+	.iwf-cal__day.is-open:hover, .iwf-cal__day.is-open:focus-visible { background: var(--iwf-slot-ink); color: var(--iwf-paper); outline: none; transform: scale(1.06); }
 	.iwf-cal__day.is-current { background: var(--iwf-slot-ink); color: var(--iwf-paper); }
-	.iwf-cal__day--blank { border: 0; }
 
-	.iwf-times { margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--iwf-line); }
+	.iwf-times { margin-top: 1.6rem; padding-top: 1.3rem; border-top: 1px solid var(--iwf-line); }
 	.iwf-times[hidden] { display: none; }
-	.iwf-times__label { margin: 0; color: var(--iwf-muted); font-size: .76rem; }
-	.iwf__chips--times .iwf__chip { background: var(--iwf-slot-bg); border-color: transparent; color: var(--iwf-slot-ink); font-variant-numeric: tabular-nums; }
-	.iwf__chips--times .iwf__chip:hover, .iwf__chips--times .iwf__chip:focus-visible, .iwf__chips--times .iwf__chip.is-current { background: var(--iwf-slot-ink); color: var(--iwf-paper); }
+	.iwf-times__label { margin: 0; font-size: .95rem; font-weight: 500; letter-spacing: -.01em; }
+	.iwf__chips--times { margin-top: .75rem; }
+	.iwf__chips--times .iwf__chip {
+		padding: .6rem 1.05rem;
+		border-radius: 999px;
+		border-color: transparent;
+		background: var(--iwf-slot-bg);
+		color: var(--iwf-slot-ink);
+		font-size: .88rem;
+		font-variant-numeric: tabular-nums;
+	}
+	.iwf__chips--times .iwf__chip:hover,
+	.iwf__chips--times .iwf__chip:focus-visible,
+	.iwf__chips--times .iwf__chip.is-current { background: var(--iwf-slot-ink); color: var(--iwf-paper); }
 
 	/* ---- Step 3: details ---- */
 
@@ -560,8 +614,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf__trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 	.iwf__submit { width: 100%; margin-top: 1.6rem; min-height: 52px; }
 
-	.iwf__done h4 { margin: .5rem 0 0; font-size: 1.2rem; font-weight: 400; }
-	.iwf__done p { margin: .7rem 0 0; color: var(--iwf-muted); font-size: .88rem; }
+	.iwf__done p { margin: 0 0 .7rem; color: var(--iwf-muted); font-size: .9rem; line-height: 1.55; }
+	.iwf__done p:first-child { color: var(--iwf-ink); font-size: 1rem; }
 
 	@media (min-width: 560px) {
 		.iwf__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -612,7 +666,6 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	var month = null;
 	var step = 1;
 	var lastFocused = null;
-	var lockedAt = 0;
 
 	var el = {
 		chips: root.querySelector('[data-iwf-programmes]'),
@@ -623,6 +676,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		timesLabel: root.querySelector('[data-iwf-times-label]'),
 		timesList: root.querySelector('[data-iwf-times-list]'),
 		stepLabel: root.querySelector('[data-iwf-steplabel]'),
+		lead: root.querySelector('[data-iwf-lead]'),
 		title: root.querySelector('[data-iwf-modal-title]'),
 		back: root.querySelector('[data-iwf-back]'),
 		footNote: root.querySelector('[data-iwf-foot-note]'),
@@ -635,6 +689,13 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	};
 
 	var STEPS = { 1: 'πρόγραμμα', 2: 'ημερομηνία', 3: 'στοιχεία' };
+
+	var HEADINGS = {
+		1: ['Τι θέλεις να κάνεις;', 'Πέντε εργαστήρια, όλα ανοιχτά και σε αρχάριους.'],
+		2: ['', 'Διάλεξε ημέρα και ώρα.'],
+		3: ['Τα στοιχεία σου', 'Θα λάβεις email με την επιβεβαίωση.'],
+		done: ['Η θέση σου κρατήθηκε.', '']
+	};
 
 	function showError(message) {
 		el.error.textContent = message || '';
@@ -712,12 +773,12 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			node.type = 'button';
 			node.className = 'iwf__option' + (programme === picked.programme ? ' is-current' : '');
 			node.innerHTML =
-				'<span class="iwf__option-num"></span>' +
-				'<span class="iwf__option-title"></span>' +
-				'<span class="iwf__option-price"></span>' +
+				'<span class="iwf__option-top">' +
+					'<span class="iwf__option-title"></span>' +
+					'<span class="iwf__option-price"></span>' +
+				'</span>' +
 				'<span class="iwf__option-summary"></span>';
 
-			node.querySelector('.iwf__option-num').textContent = programme.number;
 			node.querySelector('.iwf__option-title').textContent = programme.title;
 			node.querySelector('.iwf__option-price').textContent = programme.price + ' €';
 			node.querySelector('.iwf__option-summary').textContent = programme.summary;
@@ -885,10 +946,13 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 		if (next === 2) { renderCalendar(); }
 
-		el.stepLabel.textContent = STEPS[next]
-			? '0' + next + ' / 03 · ' + STEPS[next]
-			: '';
-		el.title.textContent = next === 1 ? 'Κλείσε τη θέση σου' : picked.programme.title;
+		el.stepLabel.textContent = STEPS[next] ? '0' + next + ' / 03' : '';
+		el.title.textContent = HEADINGS[next] ? HEADINGS[next][0] : picked.programme.title;
+		el.lead.textContent = HEADINGS[next] ? HEADINGS[next][1] : '';
+		el.lead.hidden = !el.lead.textContent;
+
+		if (next === 2) { el.title.textContent = picked.programme.title; }
+
 		el.back.hidden = next === 1 || next === 'done';
 		showError('');
 		updateFoot();
@@ -899,18 +963,22 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- Dialog ---- */
 
+	/* Locking by taking the page out of flow means restoring its scroll by hand,
+	   and any disagreement about where it was reads as a jump. Hiding the
+	   overflow leaves the page exactly where it is; the width the scrollbar gave
+	   back is paid straight back as padding so nothing reflows either. */
 	function lockPage() {
-		lockedAt = window.scrollY;
-		document.body.style.position = 'fixed';
-		document.body.style.top = '-' + lockedAt + 'px';
-		document.body.style.width = '100%';
+		var page = document.documentElement;
+		var bar = window.innerWidth - page.clientWidth;
+
+		page.style.overflow = 'hidden';
+
+		if (bar > 0) { page.style.paddingRight = bar + 'px'; }
 	}
 
 	function unlockPage() {
-		document.body.style.position = '';
-		document.body.style.top = '';
-		document.body.style.width = '';
-		window.scrollTo(0, lockedAt);
+		document.documentElement.style.overflow = '';
+		document.documentElement.style.paddingRight = '';
 	}
 
 	function openModal(at) {
