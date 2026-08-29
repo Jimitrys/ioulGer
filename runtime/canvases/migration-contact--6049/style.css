@@ -406,48 +406,8 @@
     border-top: 1px solid var(--igc-line);
   }
 
-  .igc-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 14px 30px;
-    min-height: 50px;
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    text-decoration: none !important;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-  }
-
-  .igc-btn--primary {
-    background: var(--igc-ink) !important;
-    color: #FFFEF7 !important;
-    margin-left: auto;
-  }
-
-  .igc-btn--primary:hover {
-    background: transparent !important;
-    color: var(--igc-ink) !important;
-    border-color: var(--igc-ink) !important;
-    transform: translateY(-2px);
-  }
-
-  .igc-btn--ghost {
-    background: transparent !important;
-    color: var(--igc-ink) !important;
-    border-color: var(--igc-ink) !important;
-  }
-
-  .igc-btn--ghost:hover {
-    background: var(--igc-ink) !important;
-    color: #FFFEF7 !important;
-    border-color: var(--igc-ink) !important;
-  }
+  /* Placement only; the skin comes from the global button system. */
+  .igc-btn--primary { margin-left: auto; }
 
   .igc-arrow-icon {
     width: 16px;

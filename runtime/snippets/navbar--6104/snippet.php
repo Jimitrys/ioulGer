@@ -217,7 +217,8 @@ function ioulia_custom_navbar_shortcode() {
             align-items: center;
             gap: .5em;
             color: var(--ioulia-dark);
-            font-size: var(--ioulia-micro, .72rem);
+            font-size: clamp(.82rem, .95vw, 1rem);
+            font-weight: 500;
             letter-spacing: .08em;
             text-transform: uppercase;
             transition: color 0.5s ease;
@@ -780,14 +781,20 @@ function ioulia_custom_navbar_shortcode() {
         }
 
         /* Δεξιά Στήλη */
-        .ioulia-col-right {
+        .ioulia-col-right .ioulia-menu-list {
             align-items: flex-end;
-            text-align: right;
         }
 
         /* --- Parallax Entrance Content --- */
-        .ioulia-menu-item {
+        .ioulia-menu-list {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
             list-style: none;
+        }
+
+        .ioulia-menu-item {
             margin: 0 0 1rem 0;
             padding: 0;
             opacity: 0;
@@ -943,8 +950,9 @@ function ioulia_custom_navbar_shortcode() {
         @media (max-width: 991px) {
             #ioulia-header { padding-top: 2.5em; }
             #ioulia-menu-overlay { height: 100vh; padding-top: 12vh; padding-bottom: 6vh; }
-            .ioulia-canvas-main { flex-direction: column; gap: 2rem; }
-            .ioulia-col-right { align-items: flex-start; text-align: left; }
+            .ioulia-canvas-main { flex-direction: column; gap: 0; }
+            .ioulia-col-left{ padding-bottom: 0; }
+            .ioulia-col-right .ioulia-menu-list { align-items: flex-start; }
             .ioulia-col-right .ioulia-menu-item-link { flex-direction: row; }
             .ioulia-col-right .ioulia-vessel-svg { transform: translateX(-25px) scale(0.8); }
             .ioulia-col-right .ioulia-menu-item-link:hover .ioulia-menu-text { transform: translateX(20px); }
@@ -1017,6 +1025,7 @@ function ioulia_custom_navbar_shortcode() {
             <div class="ioulia-canvas-main">
                 
                 <div class="ioulia-col-left">
+                    <ul class="ioulia-menu-list">
                     <li class="ioulia-menu-item delay-1">
                         <a href="/" class="ioulia-menu-item-link">
                             <span class="ioulia-vessel-svg">
@@ -1047,9 +1056,11 @@ function ioulia_custom_navbar_shortcode() {
                             <span class="ioulia-menu-text">Σχετικά</span>
                         </a>
                     </li>
+                    </ul>
                 </div>
 
                 <div class="ioulia-col-right">
+                    <ul class="ioulia-menu-list">
                     <li class="ioulia-menu-item delay-4">
                         <a href="/workshops" class="ioulia-menu-item-link">
                             <span class="ioulia-vessel-svg">
@@ -1070,6 +1081,7 @@ function ioulia_custom_navbar_shortcode() {
                             <span class="ioulia-menu-text">Επικοινωνία</span>
                         </a>
                     </li>
+                    </ul>
                 </div>
             </div>
 

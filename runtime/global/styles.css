@@ -452,6 +452,76 @@ a {
 }
 
 /* LAYOUT */
+/* BUTTONS
+   One system for the whole site, taken from the home hero: a filled variant and
+   an outlined one, and hovering swaps a button for the other variant.
+
+   Global owns the skin — type, colour, border, radius, transition. Components
+   keep only their own layout: where the button sits, how wide it is. Add
+   .ioulia-btn plus a variant to anything new; the selectors listed beside it are
+   the buttons that existed before this system and keep their own class names. */
+
+:is(.ioulia-btn, .icph__button, .iznE-parallax__button, .igw-btn--hero,
+    .igw-location__gmaps-btn, .igc-btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75em;
+  min-height: 42px;
+  padding: 11px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--ioulia-radius, 5px);
+  background: transparent;
+  box-shadow: none;
+  color: var(--ioulia-ink);
+  font-family: inherit;
+  font-size: clamp(11px, .76vw, 13px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .025em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 320ms cubic-bezier(.16, 1, .3, 1),
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease;
+}
+
+:is(.ioulia-btn, .icph__button, .iznE-parallax__button, .igw-btn--hero,
+    .igw-location__gmaps-btn, .igc-btn):is(:hover, :focus-visible) {
+  transform: translateY(-3px);
+  outline: none;
+}
+
+/* Filled */
+:is(.ioulia-btn--filled, .icph__button--filled, .iznE-parallax__button,
+    .igw-btn--hero, .igw-location__gmaps-btn, .igc-btn--primary) {
+  border-color: var(--ioulia-ink);
+  background: var(--ioulia-ink) !important;
+  color: var(--ioulia-paper) !important;
+}
+
+:is(.ioulia-btn--filled, .icph__button--filled, .iznE-parallax__button,
+    .igw-btn--hero, .igw-location__gmaps-btn, .igc-btn--primary):is(:hover, :focus-visible) {
+  background: transparent !important;
+  color: var(--ioulia-ink) !important;
+}
+
+/* Outlined */
+:is(.ioulia-btn--outline, .icph__button--outline, .igc-btn--ghost) {
+  border-color: var(--ioulia-ink-22);
+  background: transparent !important;
+  color: var(--ioulia-ink) !important;
+}
+
+:is(.ioulia-btn--outline, .icph__button--outline,
+    .igc-btn--ghost):is(:hover, :focus-visible) {
+  border-color: var(--ioulia-ink);
+  background: var(--ioulia-ink-07) !important;
+}
+
 .ioulia-section {
   width: 100%;
   padding: var(--ioulia-section-y) var(--ioulia-page-x);

@@ -18,8 +18,6 @@
  * ]
  */
 
-
-
 if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
 
     function ioulia_cursor_products_hero_shortcode($atts = array()) {
@@ -293,71 +291,6 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     transform: translate3d(-50%, 18px, 0);
     pointer-events: none;
     will-change: transform, opacity;
-}
-
-.icph__button,
-.elementor .icph__button {
-    appearance: none !important;
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    min-height: 42px;
-    padding: 11px 18px !important;
-    border-radius: 5px !important;
-    box-shadow: none !important;
-    font-family: inherit;
-    font-size: clamp(11px, .76vw, 13px);
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: .025em;
-    text-decoration: none !important;
-    white-space: nowrap;
-    transition:
-        transform 320ms cubic-bezier(.16, 1, .3, 1),
-        background-color 220ms ease,
-        color 220ms ease,
-        border-color 220ms ease !important;
-}
-
-.icph__button--filled,
-.elementor .icph__button--filled {
-    border: 1px solid var(--icph-dark) !important;
-    background: var(--icph-dark) !important;
-    color: var(--icph-paper) !important;
-}
-
-.icph__button--outline,
-.elementor .icph__button--outline {
-    border: 1px solid rgba(56, 55, 53, .38) !important;
-    background: transparent !important;
-    color: var(--icph-dark) !important;
-}
-
-.icph__button:hover,
-.icph__button:focus-visible,
-.elementor .icph__button:hover,
-.elementor .icph__button:focus-visible {
-    transform: translateY(-3px);
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-.icph__button--filled:hover,
-.icph__button--filled:focus-visible,
-.elementor .icph__button--filled:hover,
-.elementor .icph__button--filled:focus-visible {
-    border-color: var(--icph-dark) !important;
-    background: transparent !important;
-    color: var(--icph-dark) !important;
-}
-
-.icph__button--outline:hover,
-.icph__button--outline:focus-visible,
-.elementor .icph__button--outline:hover,
-.elementor .icph__button--outline:focus-visible {
-    border-color: var(--icph-dark) !important;
-    background: rgba(56, 55, 53, .07) !important;
-    color: var(--icph-dark) !important;
 }
 
 .icph__product {

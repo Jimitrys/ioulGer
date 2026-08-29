@@ -111,29 +111,6 @@
     line-height: 0.98;
   }
 
-  .igw-btn--hero {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 28px;
-    background: var(--igw-ink);
-    color: var(--igw-paper) !important;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    text-decoration: none !important;
-    border-radius: 0;
-    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
-  }
-
-  .igw-btn--hero:hover {
-    background: transparent;
-    color: var(--igw-ink) !important;
-    outline: 1px solid var(--igw-ink);
-    transform: translateY(-2px);
-  }
-
   .igw-btn--hero:hover .igw-arrow-icon {
     transform: translate(2px, -2px);
   }
@@ -705,27 +682,11 @@
     border-top: 1px solid var(--igw-line);
   }
 
+  /* Layout only; this one is a full-width bar rather than a pill. */
   .igw-location__gmaps-btn {
-    display: flex;
-    align-items: center;
     justify-content: space-between;
     width: 100%;
     padding: 13px 16px;
-    background: var(--igw-ink);
-    color: var(--igw-paper) !important;
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    text-decoration: none !important;
-    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
-  }
-
-  .igw-location__gmaps-btn:hover {
-    background: transparent;
-    color: var(--igw-ink) !important;
-    outline: 1px solid var(--igw-ink);
-    transform: translateY(-2px);
   }
 
   .igw-arrow-icon {
