@@ -293,7 +293,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		--iwf-paper: var(--ioulia-paper, #FFFEF7);
 		--iwf-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
 		--iwf-muted: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
-		--iwf-ease: cubic-bezier(.16, 1, .3, 1);
+		--iwf-ease: cubic-bezier(.2, .82, .2, 1);
+		--iwf-spring: cubic-bezier(.2, 1.08, .32, 1);
+		--iwf-exit: cubic-bezier(.4, 0, .7, .2);
 
 		/* Times read as their own colour, not as the site's accent. */
 		/* Availability is a quiet tint of the ink, and choosing fills it. Colour
@@ -405,7 +407,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		   open slot means. */
 		--iwf-slot-ink: var(--ioulia-ink, #2B2B2B);
 		--iwf-slot-bg: rgba(43, 43, 43, .07);
-		--iwf-card: 16px;
+		--iwf-shell-radius: 24px;
+		--iwf-card: 18px;
+		--iwf-control: 12px;
 		--iwf-gutter: clamp(1.25rem, 5vw, 2rem);
 
 		position: fixed;
@@ -426,8 +430,10 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	   style flush that never happens — leaves the dialog sitting at opacity 0
 	   with the page locked behind it. An animation either plays or is skipped,
 	   and skipping it lands on the visible state. It fails open. */
-	.iwf-modal__backdrop { position: absolute; inset: 0; background: rgba(43, 43, 43, .4); }
-	.iwf-modal.is-open .iwf-modal__backdrop { animation: iwf-fade .35s ease both; }
+	.iwf-modal__backdrop { position: absolute; inset: 0; background: rgba(43, 43, 43, .42); }
+	.iwf-modal.is-open .iwf-modal__backdrop { animation: iwf-backdrop-in .34s ease-out both; }
+	.iwf-modal.is-closing .iwf-modal__backdrop { animation: iwf-backdrop-out .28s ease-in both; }
+	.iwf-modal.is-drag-closing .iwf-modal__backdrop { animation-name: iwf-backdrop-drag-out; }
 
 	.iwf-modal__dialog {
 		position: relative;
@@ -435,33 +441,46 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		flex-direction: column;
 		width: min(600px, 100%);
 		/* svh, so mobile browser chrome cannot clip the footer. */
+		height: min(92svh, 860px);
 		max-height: 92svh;
-		border-radius: 24px 24px 0 0;
+		border-radius: var(--iwf-shell-radius) var(--iwf-shell-radius) 0 0;
 		background: var(--iwf-paper);
-		box-shadow: 0 -8px 40px rgba(43, 43, 43, .14);
+		box-shadow: 0 -16px 52px rgba(43, 43, 43, .16);
+		overflow: hidden;
+		transform-origin: 50% 100%;
 	}
-	.iwf-modal.is-open .iwf-modal__dialog { animation: iwf-rise .45s var(--iwf-ease) both; }
+	.iwf-modal.is-open .iwf-modal__dialog { animation: iwf-dialog-in .5s var(--iwf-spring) both; }
+	.iwf-modal.is-closing .iwf-modal__dialog { animation: iwf-dialog-out .32s var(--iwf-exit) both; }
+	.iwf-modal.is-drag-closing .iwf-modal__dialog { animation-name: iwf-dialog-drag-out; }
 
-	@keyframes iwf-fade { from { opacity: 0; } to { opacity: 1; } }
-	@keyframes iwf-rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+	@keyframes iwf-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+	@keyframes iwf-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+	@keyframes iwf-backdrop-drag-out { from { opacity: var(--iwf-drag-alpha, 1); } to { opacity: 0; } }
+	@keyframes iwf-dialog-in {
+		from { opacity: 0; transform: translateY(52px) scale(.985); }
+		72% { opacity: 1; }
+		to { opacity: 1; transform: none; }
+	}
+	@keyframes iwf-dialog-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(36px) scale(.99); } }
+	@keyframes iwf-dialog-drag-out { from { opacity: 1; transform: translateY(var(--iwf-drag-y, 0)); } to { opacity: 0; transform: translateY(100%); } }
 
 	.iwf-modal__grab { display: block; width: 40px; height: 4px; margin: 10px auto 0; border-radius: 999px; background: var(--iwf-line); }
 	.iwf-modal__grab, .iwf-modal__head { touch-action: none; }
 	@media (min-width: 700px) { .iwf-modal__head { touch-action: auto; } }
 
-	.iwf-modal__head { display: flex; align-items: center; gap: 1rem; padding: .9rem var(--iwf-gutter) 0; }
+	.iwf-modal__head { display: flex; flex: 0 0 auto; align-items: center; gap: 1rem; padding: .9rem var(--iwf-gutter) 0; }
 	.iwf-modal__step { margin: 0; color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 500; letter-spacing: .14em; font-variant-numeric: tabular-nums; }
 
 	/* Where you are, as three marks rather than a sentence. */
 	.iwf-progress { display: flex; flex: 0 1 150px; gap: 5px; margin-inline: auto; }
-	.iwf-progress__bar { flex: 1 1 0; height: 3px; border-radius: 999px; background: var(--iwf-line); transition: background-color .4s var(--iwf-ease); }
+	.iwf-progress__bar { flex: 1 1 0; height: 3px; border-radius: 999px; background: var(--iwf-line); transform: scaleX(1); transform-origin: left; transition: background-color .34s var(--iwf-ease), transform .34s var(--iwf-spring); }
 	.iwf-progress__bar.is-done { background: var(--iwf-ink); }
 
 	.iwf-modal__close {
 		display: grid;
 		place-items: center;
-		width: 40px;
-		height: 40px;
+		width: 44px;
+		height: 44px;
 		margin-right: -.4rem;
 		padding: 0;
 		border: 1px solid var(--iwf-line);
@@ -470,9 +489,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
-		transition: background-color .2s ease;
+		transition: border-color .22s ease, background-color .22s ease, transform .22s var(--iwf-spring);
 	}
-	.iwf-modal__close:hover, .iwf-modal__close:focus-visible { border-color: var(--iwf-ink); background: rgba(43, 43, 43, .05); outline: none; }
+	.iwf-modal__close:hover, .iwf-modal__close:focus-visible { border-color: var(--iwf-ink); background: rgba(43, 43, 43, .05); outline: none; transform: rotate(3deg) scale(1.04); }
 	.iwf-modal__close svg { width: 15px; height: 15px; }
 
 	.iwf-modal__body {
@@ -483,11 +502,17 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		overflow-y: auto;
 		overscroll-behavior: contain;
 		-webkit-overflow-scrolling: touch;
-		padding: .5rem var(--iwf-gutter) 1.5rem;
+		scrollbar-gutter: stable;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(43, 43, 43, .22) transparent;
+		padding: .75rem var(--iwf-gutter) 2rem;
 	}
+	.iwf-modal__body::-webkit-scrollbar { width: 5px; }
+	.iwf-modal__body::-webkit-scrollbar-track { background: transparent; }
+	.iwf-modal__body::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(43, 43, 43, .22); }
 
-	.iwf-modal__title { margin: 0; font-size: clamp(1.6rem, 5.5vw, 2.15rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.1; }
-	.iwf-modal__lead { margin: .5rem 0 0; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; }
+	.iwf-modal__title { margin: 0; font-size: clamp(1.85rem, 6.8vw, 2.35rem); font-weight: 500; letter-spacing: -.04em; line-height: 1.08; }
+	.iwf-modal__lead { margin: .65rem 0 0; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; }
 	.iwf-modal__lead[hidden] { display: none; }
 
 	.iwf-step { margin-top: 1.75rem; }
@@ -495,11 +520,11 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* No fill on the animation: the resting state is the visible one, so a step
 	   that never animates is still a step you can read. */
-	.iwf-screen { animation: iwf-screen-in .42s var(--iwf-ease); }
+	.iwf-screen { animation: iwf-screen-in .38s var(--iwf-spring); }
 	.iwf-modal.is-back .iwf-screen { animation-name: iwf-screen-back; }
 
-	@keyframes iwf-screen-in { from { opacity: 0; transform: translateX(16px); } }
-	@keyframes iwf-screen-back { from { opacity: 0; transform: translateX(-16px); } }
+	@keyframes iwf-screen-in { from { opacity: 0; transform: translate3d(18px, 4px, 0); } }
+	@keyframes iwf-screen-back { from { opacity: 0; transform: translate3d(-18px, 4px, 0); } }
 
 	/* One column: the action first, the way back beneath it. Side by side they
 	   compete for the same glance, and on a phone the thumb reaches the bottom
@@ -508,6 +533,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		display: flex;
 		flex-direction: column;
 		gap: .2rem;
+		flex: 0 0 auto;
 		padding: .9rem var(--iwf-gutter) calc(.9rem + env(safe-area-inset-bottom));
 		border-top: 1px solid var(--iwf-line);
 		background: var(--iwf-paper);
@@ -522,33 +548,49 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		min-height: clamp(50px, 1.4vw + 2.8rem, 58px);
 		padding: 0 1.5rem;
 		border: 0;
-		border-radius: 10px;
+		border-radius: var(--iwf-control);
 		background: var(--iwf-ink);
 		color: var(--iwf-paper);
 		font: inherit;
 		font-size: var(--ioulia-small);
 		font-weight: 500;
 		cursor: pointer;
-		transition: opacity .25s ease, transform .25s var(--iwf-ease);
+		transition: opacity .24s ease, transform .24s var(--iwf-spring), box-shadow .24s ease;
 	}
-	.iwf-modal__next:hover:not(:disabled) { transform: translateY(-2px); }
+	.iwf-modal__next:hover:not(:disabled), .iwf-modal__next:focus-visible:not(:disabled) { outline: none; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(43, 43, 43, .16); }
+	.iwf-modal__next:active:not(:disabled) { transform: translateY(0) scale(.99); box-shadow: none; }
 	.iwf-modal__next:disabled { opacity: .3; cursor: default; }
 	.iwf-modal__next[hidden] { display: none; }
 
 	@media (min-width: 700px) {
 		.iwf-modal { align-items: center; padding: 2rem; }
-		.iwf-modal__dialog { max-height: 86vh; border-radius: 24px; box-shadow: 0 24px 70px rgba(43, 43, 43, .2); }
+		.iwf-modal__dialog {
+			height: min(780px, calc(100dvh - 4rem));
+			max-height: calc(100dvh - 4rem);
+			border-radius: var(--iwf-shell-radius);
+			box-shadow: 0 28px 80px rgba(43, 43, 43, .2);
+			transform-origin: 50% 50%;
+		}
+		.iwf-modal.is-open .iwf-modal__dialog { animation-name: iwf-dialog-desktop-in; }
+		.iwf-modal.is-closing .iwf-modal__dialog { animation-name: iwf-dialog-desktop-out; }
 		.iwf-modal__grab { display: none; }
 		.iwf-modal__head { padding-top: 1rem; }
 	}
 
+	@keyframes iwf-dialog-desktop-in {
+		from { opacity: 0; transform: translateY(18px) scale(.965); }
+		70% { opacity: 1; }
+		to { opacity: 1; transform: none; }
+	}
+	@keyframes iwf-dialog-desktop-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(12px) scale(.975); } }
+
 	/* ---- Step 1: programmes ---- */
 
-	.iwf__options { display: grid; gap: .6rem; }
+	.iwf__options { display: grid; gap: .65rem; }
 	.iwf__option {
 		display: block;
 		width: 100%;
-		padding: 1.1rem 1.15rem;
+		padding: 1rem 1.05rem;
 		border: 1px solid var(--iwf-line);
 		border-radius: var(--iwf-card);
 		background: transparent;
@@ -556,14 +598,15 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		font: inherit;
 		text-align: left;
 		cursor: pointer;
-		transition: border-color .22s ease, box-shadow .22s ease, transform .22s var(--iwf-ease);
+		transition: border-color .2s ease, box-shadow .24s ease, background-color .2s ease, transform .24s var(--iwf-spring);
 	}
-	.iwf__option:hover, .iwf__option:focus-visible { border-color: var(--iwf-ink); outline: none; transform: translateY(-2px); }
+	.iwf__option:hover, .iwf__option:focus-visible { border-color: var(--iwf-ink); background: rgba(255, 255, 255, .36); outline: none; transform: translateY(-2px); }
 	/* Two rings rather than a thicker border: the row must not resize when picked. */
-	.iwf__option.is-current { border-color: var(--iwf-ink); box-shadow: inset 0 0 0 1px var(--iwf-ink); }
+	.iwf__option.is-current { border-color: var(--iwf-ink); background: rgba(255, 255, 255, .5); box-shadow: inset 0 0 0 1px var(--iwf-ink); }
 
-	.iwf__option-top { display: flex; align-items: center; gap: .55rem; }
-	.iwf__option-title { font-size: var(--ioulia-body); font-weight: 500; letter-spacing: -.015em; }
+	.iwf__option-top { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+	.iwf__option-title { min-width: 0; font-size: 1rem; font-weight: 500; letter-spacing: -.015em; line-height: 1.3; }
+	.iwf__option-controls { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .45rem; }
 
 	.iwf__option-badge {
 		flex: 0 0 auto;
@@ -584,14 +627,13 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		place-items: center;
 		width: 26px;
 		height: 26px;
-		margin-left: auto;
 		border: 1.5px solid var(--iwf-line);
 		border-radius: 999px;
 		color: transparent;
-		transition: border-color .25s ease, background-color .25s ease, color .25s ease;
+		transition: border-color .24s ease, background-color .24s ease, color .24s ease, transform .3s var(--iwf-spring);
 	}
 	.iwf__option-mark svg { width: 14px; height: 14px; opacity: 0; transform: scale(.5); transition: opacity .2s ease, transform .3s var(--iwf-ease); }
-	.iwf__option.is-current .iwf__option-mark { border-color: var(--iwf-ink); background: var(--iwf-ink); color: var(--iwf-paper); }
+	.iwf__option.is-current .iwf__option-mark { border-color: var(--iwf-ink); background: var(--iwf-ink); color: var(--iwf-paper); transform: scale(1.03); }
 	.iwf__option.is-current .iwf__option-mark svg { opacity: 1; transform: none; }
 
 	.iwf__option-price { display: block; margin-top: .2rem; font-size: var(--ioulia-small); font-weight: 500; }
@@ -599,27 +641,32 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- Step 2: calendar ---- */
 
-	.iwf-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-	.iwf-cal__month { font-size: var(--ioulia-body); font-weight: 500; letter-spacing: -.015em; }
-	.iwf-cal__nav { display: flex; gap: .4rem; }
+	.iwf-cal { padding: .25rem 0 .5rem; }
+	.iwf-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+	.iwf-cal__month { font-size: clamp(1.05rem, 3vw, 1.2rem); font-weight: 600; letter-spacing: -.02em; }
+	.iwf-cal__nav { display: flex; gap: .5rem; }
 	.iwf-cal__nav button {
 		display: grid;
 		place-items: center;
-		width: 40px;
-		height: 40px;
+		width: 44px;
+		height: 44px;
 		border: 1px solid var(--iwf-line);
 		border-radius: 999px;
 		background: transparent;
 		color: inherit;
 		font: inherit;
 		cursor: pointer;
-		transition: border-color .2s ease, opacity .2s ease;
+		transition: border-color .2s ease, background-color .2s ease, opacity .2s ease, transform .24s var(--iwf-spring);
 	}
-	.iwf-cal__nav button:hover:not(:disabled) { border-color: var(--iwf-ink); }
+	.iwf-cal__nav button:hover:not(:disabled), .iwf-cal__nav button:focus-visible:not(:disabled) { border-color: var(--iwf-ink); background: rgba(43, 43, 43, .05); outline: none; transform: scale(1.04); }
 	.iwf-cal__nav button:disabled { opacity: .25; cursor: default; }
 
 	.iwf-cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
-	.iwf-cal__dayname { padding: .3rem 0 .5rem; color: var(--iwf-muted); font-size: var(--ioulia-micro); letter-spacing: .06em; text-align: center; text-transform: uppercase; }
+	.iwf-cal__grid.is-month-next { animation: iwf-month-next .34s var(--iwf-spring) both; }
+	.iwf-cal__grid.is-month-prev { animation: iwf-month-prev .34s var(--iwf-spring) both; }
+	@keyframes iwf-month-next { from { opacity: 0; transform: translateX(12px); } }
+	@keyframes iwf-month-prev { from { opacity: 0; transform: translateX(-12px); } }
+	.iwf-cal__dayname { padding: .35rem 0 .6rem; color: rgba(43, 43, 43, .62); font-size: var(--ioulia-micro); font-weight: 600; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
 
 	.iwf-cal__day {
 		display: grid;
@@ -633,69 +680,75 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		font: inherit;
 		font-size: var(--ioulia-small);
 		font-variant-numeric: tabular-nums;
-		opacity: .3;
+		opacity: .2;
 		cursor: default;
+		transition: border-color .2s ease, background-color .2s ease, color .2s ease, opacity .2s ease, transform .24s var(--iwf-spring);
 	}
 	.iwf-cal__day.is-open {
-		background: var(--iwf-slot-bg);
+		border: 1px solid transparent;
+		background: transparent;
 		color: var(--iwf-slot-ink);
 		font-weight: 500;
 		opacity: 1;
 		cursor: pointer;
-		transition: background-color .2s ease, color .2s ease, transform .2s var(--iwf-ease);
 	}
-	.iwf-cal__day.is-open:hover, .iwf-cal__day.is-open:focus-visible { background: var(--iwf-slot-ink); color: var(--iwf-paper); outline: none; transform: scale(1.06); }
-	.iwf-cal__day.is-current { background: var(--iwf-slot-ink); color: var(--iwf-paper); }
+	.iwf-cal__day.is-open:hover, .iwf-cal__day.is-open:focus-visible { border-color: var(--iwf-ink); background: rgba(43, 43, 43, .04); color: var(--iwf-ink); outline: none; transform: scale(1.04); }
+	.iwf-cal__day.is-current, .iwf-cal__day.is-current:hover, .iwf-cal__day.is-current:focus-visible { border-color: var(--iwf-ink); background: var(--iwf-slot-ink); color: var(--iwf-paper); transform: scale(1.04); }
 
-	.iwf-times { margin-top: 1.6rem; padding-top: 1.3rem; border-top: 1px solid var(--iwf-line); }
+	.iwf-times { margin-top: 1.5rem; padding: 1.2rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .28); animation: iwf-times-in .34s var(--iwf-spring) both; }
+	@keyframes iwf-times-in { from { opacity: 0; transform: translateY(8px) scale(.99); } }
 	.iwf-times[hidden] { display: none; }
-	.iwf-times__label { margin: 0; font-size: var(--ioulia-body); font-weight: 500; letter-spacing: -.01em; }
+	.iwf-times__label { margin: 0; font-size: var(--ioulia-small); font-weight: 600; letter-spacing: -.01em; }
 	.iwf__chips--times { margin-top: .75rem; }
 	.iwf__chips--times .iwf__chip {
 		padding: .6rem 1.05rem;
 		border-radius: 999px;
-		border-color: transparent;
-		background: var(--iwf-slot-bg);
+		border-color: var(--iwf-line);
+		background: transparent;
 		color: var(--iwf-slot-ink);
 		font-size: var(--ioulia-small);
 		font-variant-numeric: tabular-nums;
 	}
 	.iwf__chips--times .iwf__chip:hover,
-	.iwf__chips--times .iwf__chip:focus-visible,
-	.iwf__chips--times .iwf__chip.is-current { background: var(--iwf-slot-ink); color: var(--iwf-paper); }
+	.iwf__chips--times .iwf__chip:focus-visible { border-color: var(--iwf-ink); background: rgba(43, 43, 43, .04); color: var(--iwf-ink); }
+	.iwf__chips--times .iwf__chip.is-current { border-color: var(--iwf-slot-ink); background: var(--iwf-slot-ink); color: var(--iwf-paper); }
 
 	/* ---- Step 3: details ---- */
 
-	.iwf__chosen { margin: 0 0 1.2rem; padding-left: .8rem; border-left: 2px solid var(--iwf-slot-ink); color: var(--iwf-muted); font-size: var(--ioulia-small); }
-	.iwf__error { margin: 1.2rem 0 0; padding: .8rem 1rem; background: var(--iwf-slot-bg); color: var(--iwf-slot-ink); font-size: var(--ioulia-small); }
+	.iwf__chosen { margin: 0 0 1.25rem; padding: 1rem 1.1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .3); color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; }
+	.iwf__error { margin: 1.2rem 0 0; padding: .9rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-control); background: var(--iwf-slot-bg); color: var(--iwf-slot-ink); font-size: var(--ioulia-small); }
 	.iwf__error[hidden] { display: none; }
 
-	.iwf__people { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1.2rem; }
-	.iwf__stepper { display: flex; align-items: center; gap: .4rem; }
-	.iwf__stepper button { width: 44px; height: 44px; border: 1px solid var(--iwf-line); border-radius: var(--ioulia-radius, 5px); background: transparent; color: inherit; font: inherit; font-size: var(--ioulia-body); cursor: pointer; transition: border-color .2s ease; }
-	.iwf__stepper button:hover { border-color: currentColor; }
+	.iwf__people { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.15rem; padding: .9rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .18); }
+	.iwf__stepper { display: flex; align-items: center; gap: .55rem; }
+	.iwf__stepper button { width: 44px; height: 44px; border: 1px solid var(--iwf-line); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: var(--ioulia-body); cursor: pointer; transition: border-color .2s ease, background-color .2s ease, transform .24s var(--iwf-spring); }
+	.iwf__stepper button:hover, .iwf__stepper button:focus-visible { border-color: currentColor; background: rgba(43, 43, 43, .05); outline: none; transform: scale(1.04); }
+	.iwf__stepper button:active { transform: scale(.97); }
 	.iwf__stepper output { min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
 
-	.iwf__fields { display: grid; gap: 1rem; }
-	.iwf__field > span { display: block; margin-bottom: .35rem; color: var(--iwf-muted); font-size: var(--ioulia-micro); }
+	.iwf__fields { display: grid; gap: 1.05rem; }
+	.iwf__field > span { display: block; margin-bottom: .45rem; color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 600; }
 	.iwf__field em { font-style: normal; opacity: .7; }
 	.iwf__field input, .iwf__field textarea {
 		display: block;
 		width: 100%;
-		padding: .75rem .85rem;
+		min-height: 52px;
+		padding: .8rem .95rem;
 		border: 1px solid var(--iwf-line);
-		border-radius: var(--ioulia-radius, 5px);
-		background: #fff;
+		border-radius: var(--iwf-control);
+		background: rgba(255, 255, 255, .66);
 		color: inherit;
 		font: inherit;
 		/* 16px keeps iOS from zooming the page when a field takes focus. */
 		font-size: 16px;
 		resize: vertical;
-		transition: border-color .2s ease;
+		transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
 	}
-	.iwf__field input:focus, .iwf__field textarea:focus { border-color: currentColor; outline: none; }
+	.iwf__field textarea { min-height: 96px; }
+	.iwf__field input:hover, .iwf__field textarea:hover { border-color: rgba(43, 43, 43, .34); }
+	.iwf__field input:focus, .iwf__field textarea:focus { border-color: currentColor; background: #fff; box-shadow: 0 0 0 3px rgba(43, 43, 43, .08); outline: none; }
 
-	.iwf__consent { display: flex; gap: .7rem; margin-top: 1.3rem; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; }
+	.iwf__consent { display: flex; gap: .75rem; margin-top: 1.4rem; padding: .95rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-control); color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; cursor: pointer; }
 	.iwf__consent input { width: 22px; height: 22px; margin: 0; flex: 0 0 auto; accent-color: var(--iwf-slot-ink); }
 	.iwf__consent a { color: inherit; }
 
@@ -711,7 +764,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	@media (prefers-reduced-motion: reduce) {
 		[data-iwf-reveal], .iwf__visual img, .iwf__slot, .iwf-modal__dialog, .iwf-modal__backdrop,
-		.iwf-screen, .iwf__option-mark svg, .iwf-progress__bar {
+		.iwf-screen, .iwf__option-mark svg, .iwf-progress__bar, .iwf-cal__grid, .iwf-times,
+		.iwf__option, .iwf-modal__next, .iwf-modal__close, .iwf__stepper button {
 			transition: none;
 			animation: none;
 			opacity: 1;
@@ -760,6 +814,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	var month = null;
 	var step = 1;
 	var lastFocused = null;
+	var closeTimer = null;
 
 	var el = {
 		chips: root.querySelector('[data-iwf-programmes]'),
@@ -877,20 +932,25 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			var node = document.createElement('button');
 			node.type = 'button';
 			node.className = 'iwf__option' + (programme === picked.programme ? ' is-current' : '');
+			node.setAttribute('aria-pressed', programme === picked.programme ? 'true' : 'false');
 
 			var top = document.createElement('span');
 			top.className = 'iwf__option-top';
 			top.appendChild(span('iwf__option-title', programme.title));
 
+			var controls = document.createElement('span');
+			controls.className = 'iwf__option-controls';
+
 			if (programme.popular) {
-				top.appendChild(span('iwf__option-badge', 'Δημοφιλές'));
+				controls.appendChild(span('iwf__option-badge', 'Δημοφιλές'));
 			}
 
 			var mark = document.createElement('span');
 			mark.className = 'iwf__option-mark';
 			mark.innerHTML = '<svg viewBox="0 0 14 14" aria-hidden="true" focusable="false">' +
 				'<path d="M2.5 7.4 L5.6 10.4 L11.5 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-			top.appendChild(mark);
+			controls.appendChild(mark);
+			top.appendChild(controls);
 
 			node.appendChild(top);
 			node.appendChild(span('iwf__option-price', programme.price + ' €'));
@@ -924,7 +984,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		return months;
 	}
 
-	function renderCalendar() {
+	function renderCalendar(direction) {
 		var months = availableMonths();
 		if (!months.length) { return; }
 
@@ -959,7 +1019,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			button.setAttribute('aria-label', spec[1] < 0 ? 'Προηγούμενος μήνας' : 'Επόμενος μήνας');
 			button.addEventListener('click', function () {
 				month = months[position + spec[1]];
-				renderCalendar();
+				renderCalendar(spec[1]);
 			});
 			nav.appendChild(button);
 		});
@@ -969,7 +1029,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		el.calendar.appendChild(head);
 
 		var grid = document.createElement('div');
-		grid.className = 'iwf-cal__grid';
+		grid.className = 'iwf-cal__grid' +
+			(direction > 0 ? ' is-month-next' : '') +
+			(direction < 0 ? ' is-month-prev' : '');
 
 		words.weekdays.forEach(function (name) {
 			var cell = document.createElement('span');
@@ -997,6 +1059,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			if (date) {
 				cell.type = 'button';
 				cell.setAttribute('aria-label', date.full);
+				cell.setAttribute('aria-pressed', picked.date && picked.date.date === key ? 'true' : 'false');
 				cell.addEventListener('click', function (chosen) {
 					return function () { chooseDate(chosen); renderCalendar(); };
 				}(date));
@@ -1018,6 +1081,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			node.className = 'iwf__chip' + (picked.time && picked.time.starts === time.starts ? ' is-current' : '');
 			node.textContent = time.label;
 			node.title = time.left === 1 ? '1 θέση' : time.left + ' θέσεις';
+			node.setAttribute('aria-pressed', picked.time && picked.time.starts === time.starts ? 'true' : 'false');
 			node.style.animationDelay = position * 40 + 'ms';
 			node.addEventListener('click', function () {
 				chooseTime(time);
@@ -1126,8 +1190,18 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 
 	function openModal(at) {
+		if (closeTimer) {
+			window.clearTimeout(closeTimer);
+			closeTimer = null;
+		}
+
 		lastFocused = document.activeElement;
 		modal.hidden = false;
+		modal.classList.remove('is-open', 'is-closing', 'is-drag-closing');
+		modal.style.removeProperty('--iwf-drag-y');
+		modal.style.removeProperty('--iwf-drag-alpha');
+		modal.querySelector('.iwf-modal__dialog').style.animation = '';
+		modal.querySelector('.iwf-modal__backdrop').style.animation = '';
 		lockPage();
 		renderOptions();
 		goTo(at || (picked.time ? 3 : 1));
@@ -1143,14 +1217,34 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		if (close) { close.focus(); }
 	}
 
-	function closeModal() {
-		modal.classList.remove('is-open');
-		unlockPage();
+	function closeModal(drag) {
+		if (modal.hidden || modal.classList.contains('is-closing')) { return; }
+		var dialog = modal.querySelector('.iwf-modal__dialog');
+		var backdrop = modal.querySelector('.iwf-modal__backdrop');
+		dialog.style.animation = '';
+		dialog.style.transition = '';
+		dialog.style.transform = '';
+		backdrop.style.animation = '';
+		backdrop.style.opacity = '';
 
-		window.setTimeout(function () {
+		if (drag) {
+			modal.style.setProperty('--iwf-drag-y', drag.offset + 'px');
+			modal.style.setProperty('--iwf-drag-alpha', String(drag.alpha));
+			modal.classList.add('is-drag-closing');
+		}
+
+		modal.classList.add('is-closing');
+		var wait = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 340;
+
+		closeTimer = window.setTimeout(function () {
 			modal.hidden = true;
+			modal.classList.remove('is-open', 'is-closing', 'is-drag-closing');
+			modal.style.removeProperty('--iwf-drag-y');
+			modal.style.removeProperty('--iwf-drag-alpha');
+			unlockPage();
+			closeTimer = null;
 			if (lastFocused) { lastFocused.focus(); }
-		}, 320);
+		}, wait);
 	}
 
 	/* The handle promises a sheet you can push away, so it has to be one. Drag
@@ -1159,8 +1253,12 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	   desktop it is a centred card and nothing about it invites a drag. */
 	(function () {
 		var dialog = modal.querySelector('.iwf-modal__dialog');
+		var backdrop = modal.querySelector('.iwf-modal__backdrop');
 		var startY = 0;
 		var offset = 0;
+		var velocity = 0;
+		var lastY = 0;
+		var lastAt = 0;
 		var dragging = false;
 
 		function isSheet() {
@@ -1175,7 +1273,12 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 			dragging = true;
 			startY = event.clientY;
+			lastY = event.clientY;
+			lastAt = event.timeStamp;
 			offset = 0;
+			velocity = 0;
+			dialog.style.animation = 'none';
+			backdrop.style.animation = 'none';
 			dialog.style.transition = 'none';
 			dialog.setPointerCapture && dialog.setPointerCapture(event.pointerId);
 		}
@@ -1183,23 +1286,37 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		function move(event) {
 			if (!dragging) { return; }
 
+			var elapsed = Math.max(1, event.timeStamp - lastAt);
+			velocity = (event.clientY - lastY) / elapsed;
+			lastY = event.clientY;
+			lastAt = event.timeStamp;
 			offset = Math.max(0, event.clientY - startY);
 			dialog.style.transform = 'translateY(' + offset + 'px)';
-			modal.querySelector('.iwf-modal__backdrop').style.opacity =
-				String(Math.max(0, 1 - (offset / dialog.offsetHeight) * 1.6));
+			backdrop.style.opacity = String(Math.max(0, 1 - (offset / dialog.offsetHeight) * 1.5));
 		}
 
 		function end() {
 			if (!dragging) { return; }
 
 			dragging = false;
-			dialog.style.transition = '';
-			dialog.style.transform = '';
-			modal.querySelector('.iwf-modal__backdrop').style.opacity = '';
+			var alpha = Math.max(0, 1 - (offset / dialog.offsetHeight) * 1.5);
+			var dismiss = offset > dialog.offsetHeight * .22 || (velocity > .65 && offset > 40);
 
-			if (offset > dialog.offsetHeight * 0.25) {
-				closeModal();
+			if (dismiss) {
+				closeModal({ offset: offset, alpha: alpha });
+				return;
 			}
+
+			dialog.style.transition = 'transform .44s var(--iwf-spring)';
+			backdrop.style.transition = 'opacity .34s ease-out';
+			window.requestAnimationFrame(function () {
+				dialog.style.transform = '';
+				backdrop.style.opacity = '';
+			});
+			window.setTimeout(function () {
+				dialog.style.transition = '';
+				backdrop.style.transition = '';
+			}, 460);
 		}
 
 		dialog.addEventListener('pointerdown', begin);
@@ -1211,7 +1328,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	root.querySelector('[data-iwf-open]').addEventListener('click', function () { openModal(1); });
 
 	modal.querySelectorAll('[data-iwf-close]').forEach(function (node) {
-		node.addEventListener('click', closeModal);
+		node.addEventListener('click', function () { closeModal(); });
 	});
 
 	el.back.addEventListener('click', function () { goTo(Math.max(1, Number(step) - 1)); });
