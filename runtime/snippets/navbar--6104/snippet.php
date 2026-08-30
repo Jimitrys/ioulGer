@@ -20,7 +20,7 @@ if ( ! function_exists( 'ioulia_mini_cart_shell' ) ) {
     function ioulia_mini_cart_shell() {
         ob_start();
         ?>
-        <div class="ioulia-mini-cart-shell" aria-live="polite">
+        <div class="ioulia-mini-cart-shell" aria-live="polite" data-ioulia-cart-nonce="<?php echo esc_attr( wp_create_nonce( 'ioulia_mini_cart' ) ); ?>">
             <?php if ( function_exists( 'WC' ) && WC()->cart && ! WC()->cart->is_empty() ) : ?>
                 <div class="ioulia-mini-cart-items">
                     <?php foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) :
@@ -723,6 +723,26 @@ function ioulia_custom_navbar_shortcode() {
             min-width: 0;
         }
 
+        @media (min-width: 700px) {
+            .ioulia-mini-cart-subtotal {
+                font-size: 16px;
+            }
+
+            .ioulia-mini-cart-subtotal strong {
+                font-size: 21px;
+            }
+
+            .ioulia-mini-cart-note {
+                margin-top: 8px !important;
+                font-size: 13px !important;
+                line-height: 1.5 !important;
+            }
+
+            .ioulia-mini-cart-checkout {
+                font-size: 14px !important;
+            }
+        }
+
         body.ioulia-cart-locked {
             overflow: hidden !important;
         }
@@ -1201,7 +1221,7 @@ function ioulia_custom_navbar_shortcode() {
             const cartBackdrop = document.querySelector(".ioulia-mini-cart-backdrop");
             const cartCloseButtons = document.querySelectorAll("[data-ioulia-cart-close]");
             const cartAjaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
-            const cartNonce = <?php echo wp_json_encode( wp_create_nonce( 'ioulia_mini_cart' ) ); ?>;
+            const cartNonceFallback = <?php echo wp_json_encode( wp_create_nonce( 'ioulia_mini_cart' ) ); ?>;
             let cartPreviousFocus = null;
             let cartCloseTimer = null;
 
@@ -1377,6 +1397,8 @@ function ioulia_custom_navbar_shortcode() {
                 cartPanel.setAttribute("aria-busy", "true");
 
                 const formData = new FormData();
+                const currentShell = cartPanel.querySelector(".ioulia-mini-cart-shell");
+                const cartNonce = currentShell?.dataset.iouliaCartNonce || cartNonceFallback;
                 formData.append("action", "ioulia_mini_cart");
                 formData.append("nonce", cartNonce);
                 formData.append("cart_item_key", item.dataset.cartKey || "");
@@ -1405,6 +1427,7 @@ function ioulia_custom_navbar_shortcode() {
                     item.classList.remove("is-updating");
                     console.error(error);
                 } finally {
+                    if (item.isConnected) item.classList.remove("is-updating");
                     cartPanel.removeAttribute("aria-busy");
                 }
             };
