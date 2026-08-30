@@ -55,7 +55,9 @@ if ( ! function_exists( 'ioulia_mini_cart_shell' ) ) {
                                         <?php endif; ?>
                                         <div class="ioulia-mini-cart-meta"><?php echo wp_kses_post( wc_get_formatted_cart_item_data( $cart_item ) ); ?></div>
                                     </div>
-                                    <button class="ioulia-mini-cart-remove" type="button" data-ioulia-remove aria-label="<?php echo esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ); ?>">αφαίρεση</button>
+                                    <button class="ioulia-mini-cart-remove" type="button" data-ioulia-remove aria-label="<?php echo esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ); ?>">
+                                        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4 L12 12 M12 4 L4 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                    </button>
                                 </div>
 
                                 <div class="ioulia-mini-cart-product-bottom">
@@ -304,12 +306,12 @@ function ioulia_custom_navbar_shortcode() {
             position: fixed;
             inset: 0;
             z-index: 100000;
-            background: rgba(24, 24, 22, .14);
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
+            background: rgba(24, 24, 22, .3);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
             opacity: 0;
             visibility: hidden;
-            transition: opacity .28s ease, visibility .28s ease;
+            transition: opacity .34s ease, visibility .34s ease;
         }
 
         .ioulia-mini-cart-backdrop.is-open {
@@ -319,42 +321,51 @@ function ioulia_custom_navbar_shortcode() {
 
         .ioulia-mini-cart-panel {
             position: fixed;
-            top: 0;
-            right: 0;
+            top: 12px;
+            right: 12px;
+            bottom: 12px;
             z-index: 100001;
             display: flex;
-            width: min(520px, 100%);
-            height: 100vh;
-            height: 100dvh;
-            padding: clamp(118px, 14vh, 154px) clamp(26px, 3vw, 46px) 30px;
+            width: min(480px, calc(100% - 24px));
+            height: auto;
+            padding: 0;
             flex-direction: column;
             overflow-x: hidden !important;
-            overflow-y: auto !important;
+            overflow-y: hidden !important;
             overscroll-behavior-y: contain;
             -webkit-overflow-scrolling: touch;
             touch-action: pan-y;
             background: var(--ioulia-cream);
             color: var(--ioulia-dark);
-            box-shadow: -24px 0 80px rgba(20, 20, 18, .08);
-            transform: translateX(102%);
+            border: 1px solid rgba(43, 43, 43, .1);
+            border-radius: 24px;
+            box-shadow: -20px 18px 80px rgba(20, 20, 18, .16);
+            transform: translate3d(calc(100% + 24px), 0, 0);
             transition: none;
             box-sizing: border-box;
+            contain: layout paint;
         }
 
         .ioulia-mini-cart-panel.is-ready {
-            transition: transform .48s var(--ioulia-snappy-ease);
+            transition: transform .52s cubic-bezier(.16, 1, .3, 1);
         }
 
         .ioulia-mini-cart-panel.is-open {
-            transform: translateX(0);
+            transform: translate3d(0, 0, 0);
         }
+
+        .ioulia-mini-cart-panel.is-closing { pointer-events: none; }
+
+        .ioulia-mini-cart-grab { display: none; }
 
         .ioulia-mini-cart-header {
             display: flex;
-            padding-bottom: 22px;
-            align-items: baseline;
+            padding: 22px 24px 18px;
+            flex: 0 0 auto;
+            align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid rgba(43, 43, 43, .16);
+            background: var(--ioulia-cream);
         }
 
         .ioulia-mini-cart-header,
@@ -392,8 +403,8 @@ function ioulia_custom_navbar_shortcode() {
             margin: 0 !important;
             color: var(--ioulia-dark) !important;
             font-family: var(--ioulia-font) !important;
-            font-size: clamp(30px, 3vw, 44px) !important;
-            font-weight: 400 !important;
+            font-size: clamp(28px, 2.6vw, 38px) !important;
+            font-weight: 500 !important;
             line-height: 1 !important;
             letter-spacing: -.045em !important;
             text-transform: lowercase;
@@ -444,31 +455,56 @@ function ioulia_custom_navbar_shortcode() {
         }
 
         .ioulia-mini-cart-close {
-            font-size: 13px !important;
-            letter-spacing: .01em !important;
+            display: grid !important;
+            width: 44px !important;
+            height: 44px !important;
+            place-items: center;
+            border: 1px solid rgba(43, 43, 43, .16) !important;
+            border-radius: 999px !important;
+            transition: border-color .22s ease, background-color .22s ease, transform .28s cubic-bezier(.16, 1, .3, 1) !important;
         }
+
+        .ioulia-mini-cart-close:hover,
+        .ioulia-mini-cart-close:focus-visible {
+            border-color: var(--ioulia-dark) !important;
+            background: rgba(43, 43, 43, .05) !important;
+            transform: rotate(3deg) scale(1.04);
+        }
+
+        .ioulia-mini-cart-close svg { width: 15px; height: 15px; }
 
         .ioulia-mini-cart-shell {
             display: flex;
             min-height: 0;
             flex: 1;
             flex-direction: column;
-            overflow: visible !important;
+            overflow: hidden !important;
         }
 
         .ioulia-mini-cart-items {
             min-height: 0;
-            padding-right: 4px;
-            flex: 0 0 auto;
-            overflow: visible !important;
+            padding: 12px 16px 16px;
+            flex: 1 1 0;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(43, 43, 43, .2) transparent;
         }
+
+        .ioulia-mini-cart-items::-webkit-scrollbar { width: 5px; }
+        .ioulia-mini-cart-items::-webkit-scrollbar-track { background: transparent; }
+        .ioulia-mini-cart-items::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(43, 43, 43, .2); }
 
         .ioulia-mini-cart-item {
             display: grid;
-            grid-template-columns: 108px minmax(0, 1fr);
-            gap: 18px;
-            padding: 22px 0;
-            border-bottom: 1px solid rgba(43, 43, 43, .13);
+            grid-template-columns: 96px minmax(0, 1fr);
+            gap: 14px;
+            margin-bottom: 10px;
+            padding: 12px;
+            border: 1px solid rgba(43, 43, 43, .12);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, .38);
         }
 
         .ioulia-mini-cart-item.is-updating {
@@ -479,6 +515,7 @@ function ioulia_custom_navbar_shortcode() {
         .ioulia-mini-cart-thumb {
             aspect-ratio: 4 / 5;
             overflow: hidden;
+            border-radius: 13px;
             background: #f1efe8;
         }
 
@@ -539,15 +576,25 @@ function ioulia_custom_navbar_shortcode() {
         }
 
         .ioulia-mini-cart-remove {
-            padding-top: 2px !important;
+            display: grid !important;
+            width: 32px !important;
+            height: 32px !important;
+            flex: 0 0 auto;
+            place-items: center;
+            border: 1px solid rgba(43, 43, 43, .12) !important;
+            border-radius: 999px !important;
             color: rgba(43, 43, 43, .48) !important;
-            font-size: 10px !important;
-            line-height: 1 !important;
+            transition: color .2s ease, border-color .2s ease, background-color .2s ease, transform .24s cubic-bezier(.16, 1, .3, 1) !important;
         }
 
         .ioulia-mini-cart-remove:hover {
             color: var(--ioulia-dark) !important;
+            border-color: var(--ioulia-dark) !important;
+            background: rgba(43, 43, 43, .05) !important;
+            transform: scale(1.04);
         }
+
+        .ioulia-mini-cart-remove svg { width: 13px; height: 13px; }
 
         .ioulia-mini-cart-product-bottom {
             align-items: center;
@@ -555,16 +602,19 @@ function ioulia_custom_navbar_shortcode() {
 
         .ioulia-mini-cart-quantity {
             display: inline-grid;
-            grid-template-columns: 28px 28px 28px;
-            height: 30px;
+            grid-template-columns: 30px 28px 30px;
+            height: 34px;
+            padding: 1px;
             align-items: center;
-            border: 1px solid rgba(43, 43, 43, .2);
+            border: 1px solid rgba(43, 43, 43, .16);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .5);
         }
 
         .ioulia-mini-cart-quantity button,
         .ioulia-mini-cart-quantity span {
             display: grid !important;
-            height: 28px !important;
+            height: 30px !important;
             place-items: center;
             color: var(--ioulia-dark) !important;
             font-family: var(--ioulia-font) !important;
@@ -586,8 +636,11 @@ function ioulia_custom_navbar_shortcode() {
 
         .ioulia-mini-cart-footer {
             margin-top: auto;
-            padding-top: 22px;
+            padding: 18px 24px max(20px, env(safe-area-inset-bottom));
             flex: 0 0 auto;
+            border-top: 1px solid rgba(43, 43, 43, .12);
+            background: var(--ioulia-cream);
+            box-shadow: 0 -14px 36px rgba(43, 43, 43, .055);
         }
 
         .ioulia-mini-cart-subtotal {
@@ -602,7 +655,7 @@ function ioulia_custom_navbar_shortcode() {
         }
 
         .ioulia-mini-cart-note {
-            margin: 7px 0 20px !important;
+            margin: 6px 0 16px !important;
             color: rgba(43, 43, 43, .52) !important;
             font-size: 10px !important;
             line-height: 1.4 !important;
@@ -617,7 +670,7 @@ function ioulia_custom_navbar_shortcode() {
             align-items: center;
             justify-content: center;
             border: 1px solid var(--ioulia-dark) !important;
-            border-radius: 0 !important;
+            border-radius: 14px !important;
             background: var(--ioulia-dark) !important;
             box-shadow: none !important;
             color: var(--ioulia-cream) !important;
@@ -629,7 +682,7 @@ function ioulia_custom_navbar_shortcode() {
             text-decoration: none !important;
             text-transform: lowercase !important;
             box-sizing: border-box;
-            transition: background-color .3s ease, color .3s ease;
+            transition: background-color .25s ease, color .25s ease, transform .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s ease;
         }
 
         .ioulia-mini-cart-checkout:hover,
@@ -639,17 +692,20 @@ function ioulia_custom_navbar_shortcode() {
         .ioulia-mini-cart-empty a:focus,
         .ioulia-mini-cart-empty a:active {
             border-color: var(--ioulia-dark) !important;
-            background: transparent !important;
-            color: var(--ioulia-dark) !important;
-            box-shadow: none !important;
+            background: var(--ioulia-dark) !important;
+            color: var(--ioulia-cream) !important;
+            box-shadow: 0 9px 22px rgba(43, 43, 43, .16) !important;
+            transform: translateY(-2px);
         }
 
         .ioulia-mini-cart-empty {
             display: flex;
-            padding: 10vh 0 0;
+            padding: clamp(2rem, 8vh, 5rem) 24px 24px;
             flex: 1;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
         .ioulia-mini-cart-empty p {
@@ -663,8 +719,8 @@ function ioulia_custom_navbar_shortcode() {
         }
 
         .ioulia-mini-cart-empty a {
-            width: auto;
-            min-width: 180px;
+            width: min(100%, 260px);
+            min-width: 0;
         }
 
         body.ioulia-cart-locked {
@@ -961,23 +1017,45 @@ function ioulia_custom_navbar_shortcode() {
             .ioulia-nav-right { gap: 1.5em; }
             .ioulia-lang-switcher { font-size: var(--ioulia-small); gap: .35em; }
             .ioulia-mini-cart-panel {
-                width: 100%;
-                padding: 118px 24px max(24px, env(safe-area-inset-bottom));
-                box-shadow: none;
-            }
-            .ioulia-mini-cart-shell {
-                min-height: auto;
-                flex: 0 0 auto;
-                overflow: visible;
-            }
-            .ioulia-mini-cart-items {
-                flex: 0 0 auto;
-                overflow: visible;
+                width: min(460px, calc(100% - 24px));
             }
             .ioulia-mini-cart-item {
                 grid-template-columns: 92px minmax(0, 1fr);
-                gap: 15px;
+                gap: 13px;
             }
+        }
+
+        @media (max-width: 699px) {
+            .ioulia-mini-cart-panel {
+                top: auto;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: min(92vh, 820px);
+                height: min(92dvh, 820px);
+                border-width: 1px 1px 0;
+                border-radius: 24px 24px 0 0;
+                box-shadow: 0 -22px 70px rgba(20, 20, 18, .18);
+                transform: translate3d(0, 102%, 0);
+            }
+            .ioulia-mini-cart-panel.is-open { transform: translate3d(0, 0, 0); }
+            .ioulia-mini-cart-grab {
+                display: block;
+                width: 40px;
+                height: 4px;
+                margin: 10px auto 0;
+                flex: 0 0 auto;
+                border-radius: 999px;
+                background: rgba(43, 43, 43, .16);
+            }
+            .ioulia-mini-cart-grab,
+            .ioulia-mini-cart-header { touch-action: none; }
+            .ioulia-mini-cart-header { padding: 10px 20px 16px; }
+            .ioulia-mini-cart-items { padding: 10px 12px 14px; }
+            .ioulia-mini-cart-footer { padding: 16px 20px max(16px, env(safe-area-inset-bottom)); }
+            .ioulia-mini-cart-item { grid-template-columns: 84px minmax(0, 1fr); padding: 10px; }
+            .ioulia-mini-cart-title { font-size: 28px !important; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -1012,10 +1090,13 @@ function ioulia_custom_navbar_shortcode() {
     </header>
 
     <div class="ioulia-mini-cart-backdrop" data-ioulia-cart-close aria-hidden="true"></div>
-    <aside id="ioulia-mini-cart" class="ioulia-mini-cart-panel" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="ioulia-mini-cart-title">
+    <aside id="ioulia-mini-cart" class="ioulia-mini-cart-panel" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="ioulia-mini-cart-title" data-lenis-prevent inert>
+        <span class="ioulia-mini-cart-grab" aria-hidden="true"></span>
         <div class="ioulia-mini-cart-header">
             <h2 id="ioulia-mini-cart-title" class="ioulia-mini-cart-title">το καλάθι σου</h2>
-            <button type="button" class="ioulia-mini-cart-close" data-ioulia-cart-close aria-label="Κλείσιμο καλαθιού">κλείσιμο</button>
+            <button type="button" class="ioulia-mini-cart-close" data-ioulia-cart-close aria-label="Κλείσιμο καλαθιού">
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 3 L13 13 M13 3 L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </button>
         </div>
         <?php echo ioulia_mini_cart_shell(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
     </aside>
@@ -1122,6 +1203,7 @@ function ioulia_custom_navbar_shortcode() {
             const cartAjaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
             const cartNonce = <?php echo wp_json_encode( wp_create_nonce( 'ioulia_mini_cart' ) ); ?>;
             let cartPreviousFocus = null;
+            let cartCloseTimer = null;
 
             /* Enable transitions only after the hidden initial state has been painted. */
             window.requestAnimationFrame(() => {
@@ -1131,7 +1213,7 @@ function ioulia_custom_navbar_shortcode() {
             });
 
             const syncBodyLock = () => {
-                const shouldLock = overlay.classList.contains("active") || cartPanel.classList.contains("is-open");
+                const shouldLock = overlay.classList.contains("active") || cartPanel.classList.contains("is-open") || cartPanel.classList.contains("is-closing");
                 body.classList.toggle("ioulia-cart-locked", shouldLock);
             };
 
@@ -1144,8 +1226,18 @@ function ioulia_custom_navbar_shortcode() {
 
             const openMiniCart = () => {
                 closeMenu();
+                if (cartCloseTimer) {
+                    window.clearTimeout(cartCloseTimer);
+                    cartCloseTimer = null;
+                }
                 cartPreviousFocus = document.activeElement;
+                cartPanel.style.transform = "";
+                cartPanel.style.transition = "";
+                cartBackdrop.style.opacity = "";
+                cartBackdrop.style.transition = "";
+                cartPanel.classList.remove("is-closing");
                 cartPanel.classList.add("is-open");
+                cartPanel.removeAttribute("inert");
                 cartBackdrop.classList.add("is-open");
                 cartPanel.setAttribute("aria-hidden", "false");
                 cartBackdrop.setAttribute("aria-hidden", "false");
@@ -1159,17 +1251,112 @@ function ioulia_custom_navbar_shortcode() {
             };
 
             const closeMiniCart = (restoreFocus = true) => {
+                const wasOpen = cartPanel.classList.contains("is-open");
+
+                if (cartCloseTimer) {
+                    window.clearTimeout(cartCloseTimer);
+                    cartCloseTimer = null;
+                }
+
                 cartPanel.classList.remove("is-open");
+                cartPanel.classList.toggle("is-closing", wasOpen);
                 cartBackdrop.classList.remove("is-open");
-                cartPanel.setAttribute("aria-hidden", "true");
                 cartBackdrop.setAttribute("aria-hidden", "true");
                 cartOpen.setAttribute("aria-expanded", "false");
                 syncBodyLock();
 
-                if (restoreFocus && cartPreviousFocus && typeof cartPreviousFocus.focus === "function") {
-                    cartPreviousFocus.focus({ preventScroll: true });
+                const finishClose = () => {
+                    cartPanel.style.transform = "";
+                    cartPanel.style.transition = "";
+                    cartBackdrop.style.opacity = "";
+                    cartBackdrop.style.transition = "";
+                    cartPanel.classList.remove("is-closing");
+                    cartPanel.setAttribute("aria-hidden", "true");
+                    cartPanel.setAttribute("inert", "");
+                    syncBodyLock();
+                    cartCloseTimer = null;
+
+                    if (restoreFocus && cartPreviousFocus && typeof cartPreviousFocus.focus === "function") {
+                        cartPreviousFocus.focus({ preventScroll: true });
+                    }
+                };
+
+                if (!wasOpen || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                    finishClose();
+                    return;
                 }
+
+                cartCloseTimer = window.setTimeout(finishClose, 540);
             };
+
+            /* On phones the cart is a physical bottom sheet: the handle and
+               header follow the finger, then dismiss or spring back. */
+            (() => {
+                let dragging = false;
+                let startY = 0;
+                let lastY = 0;
+                let lastAt = 0;
+                let offset = 0;
+                let velocity = 0;
+
+                const isBottomSheet = () => window.matchMedia("(max-width: 699px)").matches;
+
+                const start = (event) => {
+                    if (!isBottomSheet() || event.button || !cartPanel.classList.contains("is-open")) return;
+                    if (!event.target.closest(".ioulia-mini-cart-grab, .ioulia-mini-cart-header") || event.target.closest("button, a")) return;
+
+                    dragging = true;
+                    startY = event.clientY;
+                    lastY = event.clientY;
+                    lastAt = event.timeStamp;
+                    offset = 0;
+                    velocity = 0;
+                    cartPanel.style.transition = "none";
+                    cartBackdrop.style.transition = "none";
+                    if (cartPanel.setPointerCapture) cartPanel.setPointerCapture(event.pointerId);
+                };
+
+                const move = (event) => {
+                    if (!dragging) return;
+                    const elapsed = Math.max(1, event.timeStamp - lastAt);
+                    velocity = (event.clientY - lastY) / elapsed;
+                    lastY = event.clientY;
+                    lastAt = event.timeStamp;
+                    offset = Math.max(0, event.clientY - startY);
+                    cartPanel.style.transform = `translate3d(0, ${offset}px, 0)`;
+                    cartBackdrop.style.opacity = String(Math.max(0, 1 - (offset / cartPanel.offsetHeight) * 1.6));
+                };
+
+                const end = () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    const dismiss = offset > cartPanel.offsetHeight * .2 || (velocity > .65 && offset > 36);
+
+                    cartPanel.style.transition = "transform .38s cubic-bezier(.16, 1, .3, 1)";
+                    cartBackdrop.style.transition = "opacity .3s ease";
+
+                    if (dismiss) {
+                        cartPanel.style.transform = "translate3d(0, 102%, 0)";
+                        cartBackdrop.style.opacity = "0";
+                        closeMiniCart();
+                        return;
+                    }
+
+                    cartPanel.style.transform = "";
+                    cartBackdrop.style.opacity = "";
+                    window.setTimeout(() => {
+                        if (!cartPanel.classList.contains("is-closing")) {
+                            cartPanel.style.transition = "";
+                            cartBackdrop.style.transition = "";
+                        }
+                    }, 400);
+                };
+
+                cartPanel.addEventListener("pointerdown", start);
+                cartPanel.addEventListener("pointermove", move);
+                cartPanel.addEventListener("pointerup", end);
+                cartPanel.addEventListener("pointercancel", end);
+            })();
 
             const updateCartCount = (count) => {
                 const badge = document.querySelector(".ioulia-cart-count");
