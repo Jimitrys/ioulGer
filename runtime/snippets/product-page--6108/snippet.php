@@ -102,6 +102,7 @@ function igsp_render_single_product( $atts = array() ) {
 
 	$short_description = $product->get_short_description();
 	$full_description  = $product->get_description();
+	$stock_html        = wc_get_stock_html( $product );
 	$materials_care    = get_post_meta( $product_id, '_igsp_materials_care', true );
 	$shipping_returns  = get_post_meta( $product_id, '_igsp_shipping_returns', true );
 
@@ -228,7 +229,11 @@ function igsp_render_single_product( $atts = array() ) {
 				--igsp-line: rgba(43, 43, 43, .2);
 				--igsp-soft: #f2efe7;
 				--igsp-x: var(--ioulia-page-x, clamp(18px, 2.8vw, 38px));
-				--igsp-nav-bottom: 170px;
+				--igsp-nav-bottom: clamp(112px, 15vh, 150px);
+				--igsp-card: 18px;
+				--igsp-control: 14px;
+				--igsp-ease: cubic-bezier(.16, 1, .3, 1);
+				--igsp-spring: cubic-bezier(.2, 1.08, .32, 1);
 				position: relative;
 				width: 100%;
 				background: var(--igsp-paper);
@@ -250,29 +255,63 @@ function igsp_render_single_product( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__layout {
 				display: grid;
-				grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+				grid-template-columns: repeat(2, minmax(0, 1fr));
 				align-items: start;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery {
 				position: relative;
 				min-width: 0;
+				height: var(--igsp-gallery-height, 100vh);
+				background: var(--igsp-soft);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-list {
-				display: grid;
+				position: sticky;
+				top: 0;
+				display: block;
+				width: 100%;
+				height: 100vh;
 				margin: 0;
 				padding: 0;
+				overflow: hidden;
 				list-style: none;
+				isolation: isolate;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item {
-				position: relative;
-				width: 100%;
-				height: 100vh;
-				min-height: 650px;
-				overflow: hidden;
-				background: var(--igsp-soft);
+				position: absolute;
+				inset: clamp(24px, 4.2vw, 68px);
+				z-index: 1;
+				min-width: 0;
+				min-height: 0;
+				opacity: 0;
+				transform: translate3d(0, 22%, 0) scale(.82);
+				transform-origin: 50% 50%;
+				pointer-events: none;
+				will-change: transform, opacity;
+				transition:
+					opacity 460ms ease,
+					transform 780ms cubic-bezier(.16, 1, .3, 1);
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-active {
+				z-index: 3;
+				opacity: 1;
+				transform: translate3d(0, 0, 0) scale(1);
+				pointer-events: auto;
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-before {
+				z-index: 2;
+				opacity: 0;
+				transform: translate3d(0, -22%, 0) scale(.82);
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-after {
+				z-index: 1;
+				opacity: 0;
+				transform: translate3d(0, 22%, 0) scale(.82);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-button {
@@ -284,10 +323,10 @@ function igsp_render_single_product( $atts = array() ) {
 				margin: 0;
 				padding: 0;
 				overflow: hidden;
-				border: 0;
-				border-radius: 0;
-				background: transparent;
-				box-shadow: none;
+				border: 1px solid rgba(43, 43, 43, .1);
+				border-radius: 24px;
+				background: rgba(255, 255, 255, .42);
+				box-shadow: 0 24px 68px rgba(43, 43, 43, .09);
 				cursor: pointer;
 			}
 
@@ -297,20 +336,14 @@ function igsp_render_single_product( $atts = array() ) {
 				width: 100%;
 				height: 100%;
 				object-fit: cover;
-				opacity: 0;
-				transform: scale(1.025);
-				transition:
-					opacity 680ms ease,
-					transform 1100ms cubic-bezier(.16, 1, .3, 1);
-			}
-
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-visible .igsp__image {
 				opacity: 1;
-				transform: scale(1.001);
+				transform: scale(1.018);
+				transition:
+					transform 1000ms cubic-bezier(.16, 1, .3, 1);
 			}
 
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item:first-child.is-visible .igsp__image {
-				transition-delay: 80ms;
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-active .igsp__image {
+				transform: scale(1.001);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery-ui {
@@ -342,25 +375,35 @@ function igsp_render_single_product( $atts = array() ) {
 				min-height: 650px;
 				padding:
 					var(--igsp-nav-bottom)
-					var(--igsp-x)
-					clamp(26px, 3vw, 46px);
+					clamp(22px, 3vw, 48px)
+					clamp(28px, 4vw, 54px);
 				overflow-y: auto;
+				overscroll-behavior-y: contain;
 				background: var(--igsp-paper);
-				scrollbar-width: none;
+				scrollbar-width: thin;
+				scrollbar-color: rgba(43, 43, 43, .18) transparent;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__product-panel::-webkit-scrollbar {
-				display: none;
+				width: 5px;
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__product-panel::-webkit-scrollbar-thumb {
+				border-radius: 999px;
+				background: rgba(43, 43, 43, .18);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__product-panel-inner {
 				display: flex;
 				width: 100%;
-				height: 100%;
-				max-width: 520px;
+				max-width: 600px;
 				margin: 0 auto;
+				padding: clamp(24px, 3vw, 42px);
 				flex-direction: column;
-				justify-content: center;
+				justify-content: flex-start;
+				border: 1px solid rgba(43, 43, 43, .12);
+				border-radius: 24px;
+				background: rgba(255, 255, 255, .42);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__product-panel-inner > * {
@@ -400,6 +443,32 @@ function igsp_render_single_product( $atts = array() ) {
 				display: block;
 			}
 
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__badges {
+				display: flex;
+				margin-bottom: 18px;
+				align-items: center;
+				flex-wrap: wrap;
+				gap: 8px;
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__badge,
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__stock {
+				display: inline-flex;
+				width: fit-content;
+				min-height: 28px;
+				margin: 0;
+				padding: 5px 10px;
+				align-items: center;
+				border: 1px solid rgba(43, 43, 43, .12);
+				border-radius: 999px;
+				background: rgba(43, 43, 43, .06);
+				color: var(--igsp-ink);
+				font-size: var(--ioulia-micro);
+				font-weight: 500;
+				line-height: 1;
+				text-transform: lowercase;
+			}
+
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__title,
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__price {
 				margin: 0;
@@ -408,17 +477,23 @@ function igsp_render_single_product( $atts = array() ) {
 				text-transform: lowercase;
 			}
 
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__price .amount {
+				font: inherit !important;
+			}
+
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__title {
-				max-width: 15ch;
-				font-size: clamp(29px, 2.25vw, 40px);
-				line-height: .98;
+				max-width: 16ch;
+				font-size: clamp(36px, 3vw, 52px);
+				font-weight: 500;
+				line-height: 1.02;
 				letter-spacing: -.045em;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__price {
-				margin-top: 13px;
-				font-size: var(--ioulia-small);
-				line-height: 1.35;
+				margin-top: 16px;
+				font-size: clamp(18px, 1.45vw, 22px);
+				font-weight: 500;
+				line-height: 1.2;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__price del {
@@ -430,24 +505,16 @@ function igsp_render_single_product( $atts = array() ) {
 				text-decoration: none;
 			}
 
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__stock {
-				margin-top: 8px;
-				color: var(--igsp-muted);
-				font-size: var(--ioulia-micro);
-				font-weight: 400;
-				text-transform: lowercase;
-			}
-
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__stock .stock {
 				margin: 0;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__intro {
 				max-width: 44ch;
-				margin-top: clamp(25px, 2.3vw, 34px);
-				color: var(--igsp-ink);
-				font-size: var(--ioulia-small);
-				font-weight: 400;
+				margin-top: clamp(24px, 2.3vw, 34px);
+				color: var(--igsp-muted);
+				font-size: clamp(15px, .5vw + 12px, 17px);
+				font-weight: 500;
 				line-height: 1.58;
 			}
 
@@ -460,7 +527,11 @@ function igsp_render_single_product( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase {
-				margin-top: clamp(26px, 2.5vw, 38px);
+				margin-top: clamp(26px, 2.5vw, 36px);
+				padding: 14px;
+				border: 1px solid rgba(43, 43, 43, .12);
+				border-radius: var(--igsp-card);
+				background: rgba(255, 255, 255, .5);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase form.cart {
@@ -471,7 +542,7 @@ function igsp_render_single_product( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .woocommerce-variation-add-to-cart {
 				display: grid !important;
 				width: 100% !important;
-				grid-template-columns: 96px minmax(0, 1fr) !important;
+				grid-template-columns: 104px minmax(0, 1fr) !important;
 				gap: 10px !important;
 				align-items: stretch !important;
 			}
@@ -486,12 +557,13 @@ function igsp_render_single_product( $atts = array() ) {
 				display: grid;
 				float: none !important;
 				min-width: 0;
-				width: 96px !important;
-				height: 52px;
+				width: 104px !important;
+				height: 56px;
 				margin: 0 !important;
-				border: 0;
-				background: var(--igsp-soft);
-				grid-template-columns: 29px minmax(30px, 1fr) 29px;
+				border: 1px solid rgba(43, 43, 43, .14);
+				border-radius: var(--igsp-control);
+				background: var(--igsp-paper);
+				grid-template-columns: 32px minmax(34px, 1fr) 32px;
 				align-items: center;
 			}
 
@@ -516,11 +588,11 @@ function igsp_render_single_product( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .qty {
 				appearance: textfield;
 				width: 100%;
-				height: 52px;
+				height: 54px;
 				margin: 0;
 				padding: 0;
 				border: 0;
-				border-radius: 0;
+				border-radius: var(--igsp-control);
 				background: transparent;
 				color: var(--igsp-ink);
 				box-shadow: none;
@@ -538,12 +610,12 @@ function igsp_render_single_product( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__qty-button {
 				appearance: none;
 				display: grid;
-				width: 29px;
-				height: 52px;
+				width: 32px;
+				height: 54px;
 				margin: 0;
 				padding: 0;
 				border: 0;
-				border-radius: 0;
+				border-radius: 12px;
 				background: transparent;
 				color: var(--igsp-ink);
 				box-shadow: none;
@@ -551,6 +623,14 @@ function igsp_render_single_product( $atts = array() ) {
 				font-size: 16px;
 				font-weight: 300;
 				place-items: center;
+				transition: background-color 180ms ease, transform 220ms var(--igsp-spring);
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__qty-button:hover,
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__qty-button:focus-visible {
+				background: rgba(43, 43, 43, .06);
+				outline: none;
+				transform: scale(1.04);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .single_add_to_cart_button,
@@ -559,26 +639,28 @@ function igsp_render_single_product( $atts = array() ) {
 				float: none !important;
 				display: flex !important;
 				width: 100% !important;
-				min-height: 52px;
+				min-height: 56px;
 				margin: 0 !important;
 				padding: 8px 18px !important;
 				border: 1px solid var(--igsp-ink) !important;
-				border-radius: 0 !important;
+				border-radius: var(--igsp-control) !important;
 				background: var(--igsp-ink) !important;
 				color: var(--igsp-paper) !important;
 				box-shadow: none !important;
 				cursor: pointer;
 				align-items: center;
 				justify-content: center;
-				font-size: 12px !important;
-				font-weight: 400 !important;
+				font-size: 14px !important;
+				font-weight: 500 !important;
 				line-height: 1 !important;
 				letter-spacing: .025em;
 				text-align: center;
 				text-transform: lowercase;
 				transition:
-					color 260ms ease,
-					background 260ms ease;
+					color 240ms ease,
+					background 240ms ease,
+					transform 240ms var(--igsp-spring),
+					box-shadow 240ms ease;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase form.cart:not(.variations_form) > .single_add_to_cart_button,
@@ -590,6 +672,14 @@ function igsp_render_single_product( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .single_add_to_cart_button:hover,
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .button:hover {
 				background: #111 !important;
+				box-shadow: 0 9px 22px rgba(43, 43, 43, .16) !important;
+				transform: translateY(-2px);
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .single_add_to_cart_button:active,
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .button:active {
+				box-shadow: none !important;
+				transform: scale(.99);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .single_add_to_cart_button.disabled,
@@ -636,7 +726,7 @@ function igsp_render_single_product( $atts = array() ) {
 				margin: 0;
 				padding: 0 34px 0 12px;
 				border: 1px solid var(--igsp-line);
-				border-radius: 0;
+				border-radius: var(--igsp-control);
 				background:
 					linear-gradient(45deg, transparent 50%, currentColor 50%)
 					calc(100% - 16px) 50% / 4px 4px no-repeat,
@@ -674,11 +764,11 @@ function igsp_render_single_product( $atts = array() ) {
 				position: relative;
 				display: flex;
 				width: 100%;
-				height: 48px;
+				height: 54px;
 				margin: 0;
 				padding: 0 36px 0 12px;
 				border: 1px solid var(--igsp-line);
-				border-radius: 0;
+				border-radius: var(--igsp-control);
 				background: var(--igsp-paper);
 				color: var(--igsp-ink);
 				box-shadow: none;
@@ -721,7 +811,8 @@ function igsp_render_single_product( $atts = array() ) {
 				overflow-y: auto;
 				border: 1px solid var(--igsp-line);
 				background: var(--igsp-paper);
-				box-shadow: 0 14px 30px rgba(43, 43, 43, .07);
+				border-radius: 0 0 var(--igsp-control) var(--igsp-control);
+				box-shadow: 0 18px 36px rgba(43, 43, 43, .1);
 				opacity: 0;
 				visibility: hidden;
 				transform: translateY(-4px);
@@ -745,7 +836,7 @@ function igsp_render_single_product( $atts = array() ) {
 				margin: 0;
 				padding: 8px 30px 8px 12px;
 				border: 0;
-				border-radius: 0;
+				border-radius: 10px;
 				background: transparent;
 				color: var(--igsp-muted);
 				box-shadow: none;
@@ -849,31 +940,35 @@ function igsp_render_single_product( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordions {
-				margin-top: clamp(30px, 3vw, 44px);
-				counter-reset: igsp-accordion;
+				display: grid;
+				margin-top: clamp(28px, 3vw, 40px);
+				gap: 9px;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion {
-				margin: 2px 0;
-				border: 0;
-				counter-increment: igsp-accordion;
+				margin: 0;
+				border: 1px solid rgba(43, 43, 43, .12);
+				border-radius: var(--igsp-card);
+				background: rgba(255, 255, 255, .42);
+				overflow: hidden;
+				transition: border-color 220ms ease, background-color 220ms ease, transform 240ms var(--igsp-spring);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion[open] {
-				margin: 2px 0;
-				padding: 0;
-				background: transparent;
+				margin: 0;
+				border-color: rgba(43, 43, 43, .26);
+				background: rgba(255, 255, 255, .66);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion summary {
 				display: grid;
-				min-height: 48px;
-				padding: 8px 0;
+				min-height: 58px;
+				padding: 12px 16px 12px 18px;
 				color: var(--igsp-ink);
 				cursor: pointer;
 				align-items: center;
-				grid-template-columns: 30px minmax(0, 1fr) 30px;
-				gap: 10px;
+				grid-template-columns: minmax(0, 1fr) 30px;
+				gap: 12px;
 				font-size: var(--ioulia-small);
 				font-weight: 400;
 				line-height: 1.35;
@@ -886,19 +981,12 @@ function igsp_render_single_product( $atts = array() ) {
 				display: none;
 			}
 
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion summary::before {
-				content: counter(igsp-accordion, decimal-leading-zero);
-				color: var(--igsp-muted);
-				font-size: var(--ioulia-micro);
-				letter-spacing: .04em;
-			}
-
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion summary::after {
 				content: "+";
 				display: grid;
 				width: 28px;
 				height: 28px;
-				border: 1px solid var(--igsp-line);
+				border: 1px solid rgba(43, 43, 43, .14);
 				border-radius: 50%;
 				color: var(--igsp-muted);
 				font-size: 16px;
@@ -909,7 +997,7 @@ function igsp_render_single_product( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion summary:hover {
-				color: var(--igsp-accent);
+				color: var(--igsp-ink);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion[open] summary::after {
@@ -918,8 +1006,8 @@ function igsp_render_single_product( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__accordion-content {
 				max-width: 48ch;
-				margin: 3px 0 18px 40px;
-				padding: 0;
+				margin: 0;
+				padding: 0 18px 18px;
 				color: var(--igsp-muted);
 				font-size: var(--ioulia-small);
 				font-weight: 400;
@@ -1037,12 +1125,17 @@ function igsp_render_single_product( $atts = array() ) {
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery {
+					height: auto;
 					padding-top: var(--igsp-nav-bottom);
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-list {
+					position: relative;
+					top: auto;
 					display: flex;
 					width: 100%;
+					height: auto;
+					padding: 0;
 					overflow-x: auto;
 					overflow-y: hidden;
 					scroll-behavior: smooth;
@@ -1055,13 +1148,33 @@ function igsp_render_single_product( $atts = array() ) {
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item {
+					position: relative;
+					inset: auto;
+					z-index: 1;
 					width: 100%;
 					height: auto;
 					min-width: 100%;
 					min-height: 0;
 					aspect-ratio: 4 / 5;
 					flex: 0 0 100%;
+					opacity: 1;
+					transform: none;
+					pointer-events: auto;
 					scroll-snap-align: start;
+				}
+
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-active,
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-before,
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-after {
+					opacity: 1;
+					transform: none;
+					pointer-events: auto;
+				}
+
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-button {
+					border-width: 0;
+					border-radius: 0;
+					box-shadow: none;
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery-ui {
@@ -1155,7 +1268,7 @@ function igsp_render_single_product( $atts = array() ) {
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase form.cart:not(.variations_form),
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .woocommerce-variation-add-to-cart {
-					grid-template-columns: 96px minmax(0, 1fr) !important;
+					grid-template-columns: 104px minmax(0, 1fr) !important;
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__accordions {
@@ -1184,11 +1297,12 @@ function igsp_render_single_product( $atts = array() ) {
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase form.cart:not(.variations_form),
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .woocommerce-variation-add-to-cart {
-					grid-template-columns: 88px minmax(0, 1fr) !important;
+					grid-template-columns: 96px minmax(0, 1fr) !important;
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .quantity {
-					width: 88px !important;
+					width: 96px !important;
+					grid-template-columns: 30px minmax(34px, 1fr) 30px;
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__lightbox-arrow {
@@ -1199,6 +1313,7 @@ function igsp_render_single_product( $atts = array() ) {
 			}
 
 			@media (prefers-reduced-motion: reduce) {
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item,
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__image,
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__lightbox {
 					transition: none;
@@ -1220,7 +1335,7 @@ function igsp_render_single_product( $atts = array() ) {
 		</style>
 
 		<div class="igsp__layout">
-			<div class="igsp__gallery">
+			<div class="igsp__gallery" style="--igsp-gallery-height: <?php echo esc_attr( count( $image_ids ) * 100 ); ?>vh;">
 				<ol class="igsp__media-list" data-gallery>
 					<?php foreach ( $image_ids as $image_index => $image_id ) : ?>
 						<?php
@@ -1296,12 +1411,16 @@ function igsp_render_single_product( $atts = array() ) {
 			<aside class="igsp__product-panel">
 				<div class="igsp__product-panel-inner">
 					<div class="igsp__heading-row">
+						<div class="igsp__badges">
+							<?php if ( ! empty( $category_names ) ) : ?>
+								<span class="igsp__badge"><?php echo esc_html( $category_names[0] ); ?></span>
+							<?php endif; ?>
+							<?php if ( $stock_html ) : ?>
+								<div class="igsp__stock"><?php echo wp_kses_post( $stock_html ); ?></div>
+							<?php endif; ?>
+						</div>
 						<h1 class="igsp__title"><?php echo esc_html( $product_name ); ?></h1>
 						<p class="igsp__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></p>
-					</div>
-
-					<div class="igsp__stock">
-						<?php echo wp_kses_post( wc_get_stock_html( $product ) ); ?>
 					</div>
 
 					<?php if ( $short_description ) : ?>
@@ -1422,31 +1541,96 @@ function igsp_render_single_product( $atts = array() ) {
 			var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 			var currentSlide = 0;
 			var scrollFrame = 0;
+			var galleryAnimating = false;
+			var galleryAnimationFrame = 0;
+			var galleryDelayTimer = 0;
+			var galleryUnlockTimer = 0;
+
+			function isDesktopGallery() {
+				return window.innerWidth > 900;
+			}
+
+			function galleryStartY() {
+				var galleryColumn = gallery ? gallery.parentElement : null;
+				return galleryColumn
+					? window.scrollY + galleryColumn.getBoundingClientRect().top
+					: window.scrollY;
+			}
 
 			function setCurrentSlide(index) {
 				if (!slides.length) return;
 
 				currentSlide = (index + slides.length) % slides.length;
+				slides.forEach(function (slide, slideIndex) {
+					slide.classList.toggle("is-active", slideIndex === currentSlide);
+					slide.classList.toggle("is-before", slideIndex < currentSlide);
+					slide.classList.toggle("is-after", slideIndex > currentSlide);
+				});
 
 				if (currentCounter) {
 					currentCounter.textContent = String(currentSlide + 1);
 				}
 			}
 
+			function animatePageTo(targetY, done) {
+				if (galleryAnimationFrame) {
+					window.cancelAnimationFrame(galleryAnimationFrame);
+					galleryAnimationFrame = 0;
+				}
+
+				if (reduceMotion) {
+					window.scrollTo(0, targetY);
+					done();
+					return;
+				}
+
+				var startY = window.scrollY;
+				var distance = targetY - startY;
+				var duration = 720;
+				var startedAt = performance.now();
+
+				function frame(now) {
+					var progress = Math.min(1, (now - startedAt) / duration);
+					var eased = 1 - Math.pow(1 - progress, 4);
+					window.scrollTo(0, startY + (distance * eased));
+
+					if (progress < 1) {
+						galleryAnimationFrame = window.requestAnimationFrame(frame);
+						return;
+					}
+
+					galleryAnimationFrame = 0;
+					done();
+				}
+
+				galleryAnimationFrame = window.requestAnimationFrame(frame);
+			}
+
 			function goToSlide(index) {
 				if (!slides.length || !gallery) return;
-				setCurrentSlide(index);
+				var targetIndex = (index + slides.length) % slides.length;
 
-				if (window.innerWidth <= 900) {
+				if (!isDesktopGallery()) {
+					setCurrentSlide(targetIndex);
 					gallery.scrollTo({
 						left: currentSlide * gallery.clientWidth,
 						behavior: reduceMotion ? "auto" : "smooth"
 					});
 				} else {
-					slides[currentSlide].scrollIntoView({
-						behavior: reduceMotion ? "auto" : "smooth",
-						block: "start"
-					});
+					galleryAnimating = true;
+					setCurrentSlide(targetIndex);
+					window.clearTimeout(galleryDelayTimer);
+					window.clearTimeout(galleryUnlockTimer);
+					galleryDelayTimer = window.setTimeout(function () {
+						animatePageTo(
+							galleryStartY() + (targetIndex * window.innerHeight),
+							function () {
+								galleryUnlockTimer = window.setTimeout(function () {
+									galleryAnimating = false;
+								}, reduceMotion ? 0 : 140);
+							}
+						);
+					}, reduceMotion ? 0 : 55);
 				}
 			}
 
@@ -1464,7 +1648,7 @@ function igsp_render_single_product( $atts = array() ) {
 
 			if (gallery) {
 				gallery.addEventListener("scroll", function () {
-					if (window.innerWidth > 900 || scrollFrame) return;
+					if (isDesktopGallery() || scrollFrame) return;
 
 					scrollFrame = window.requestAnimationFrame(function () {
 						scrollFrame = 0;
@@ -1472,51 +1656,54 @@ function igsp_render_single_product( $atts = array() ) {
 						setCurrentSlide(Math.round(gallery.scrollLeft / width));
 					});
 				}, { passive: true });
-			}
 
-			if ("IntersectionObserver" in window) {
-				var revealObserver = new IntersectionObserver(function (entries) {
-					entries.forEach(function (entry) {
-						if (!entry.isIntersecting) return;
-						entry.target.classList.add("is-visible");
-					});
-				}, {
-					rootMargin: "0px 0px -5% 0px",
-					threshold: 0.08
-				});
+				gallery.addEventListener("wheel", function (event) {
+					if (!isDesktopGallery() || slides.length < 2 || Math.abs(event.deltaY) < 6) return;
 
-				slides.forEach(function (slide) {
-					revealObserver.observe(slide);
-				});
-
-				var desktopCounterObserver = new IntersectionObserver(function (entries) {
-					if (window.innerWidth <= 900) return;
-
-					var visibleEntries = entries
-						.filter(function (entry) {
-							return entry.isIntersecting;
-						})
-						.sort(function (a, b) {
-							return b.intersectionRatio - a.intersectionRatio;
-						});
-
-					if (visibleEntries.length) {
-						setCurrentSlide(
-							Number(visibleEntries[0].target.dataset.slideIndex || 0)
-						);
+					if (galleryAnimating) {
+						event.preventDefault();
+						return;
 					}
-				}, {
-					threshold: [0.25, 0.5, 0.75]
-				});
 
-				slides.forEach(function (slide) {
-					desktopCounterObserver.observe(slide);
-				});
-			} else {
-				slides.forEach(function (slide) {
-					slide.classList.add("is-visible");
-				});
+					var direction = event.deltaY > 0 ? 1 : -1;
+					var targetIndex = currentSlide + direction;
+
+					/* At either end the next wheel gesture belongs to the page, so the
+					   gallery never traps the visitor inside the product images. */
+					if (targetIndex < 0 || targetIndex >= slides.length) return;
+
+					event.preventDefault();
+					goToSlide(targetIndex);
+				}, { passive: false });
 			}
+
+			function syncDesktopSlideToPage() {
+				if (!isDesktopGallery() || galleryAnimating || !slides.length) return;
+
+				var progress = (window.scrollY - galleryStartY()) / Math.max(1, window.innerHeight);
+				var index = Math.max(0, Math.min(slides.length - 1, Math.round(progress)));
+				if (index !== currentSlide) setCurrentSlide(index);
+			}
+
+			window.addEventListener("scroll", function () {
+				if (scrollFrame || !isDesktopGallery()) return;
+				scrollFrame = window.requestAnimationFrame(function () {
+					scrollFrame = 0;
+					syncDesktopSlideToPage();
+				});
+			}, { passive: true });
+
+			window.addEventListener("resize", function () {
+				window.clearTimeout(galleryDelayTimer);
+				window.clearTimeout(galleryUnlockTimer);
+				if (galleryAnimationFrame) window.cancelAnimationFrame(galleryAnimationFrame);
+				galleryAnimationFrame = 0;
+				galleryAnimating = false;
+				syncDesktopSlideToPage();
+			});
+
+			setCurrentSlide(0);
+			syncDesktopSlideToPage();
 
 			/**
 			 * Quantity controls are added around WooCommerce's real input,
