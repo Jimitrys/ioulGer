@@ -348,14 +348,7 @@ function igsp_render_single_product( $atts = array() ) {
 				pointer-events: none;
 			}
 
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__count {
-				font-size: var(--ioulia-micro);
-				font-weight: 400;
-				line-height: 1;
-				letter-spacing: .035em;
-			}
-
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__mobile-arrows {
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__image-progress {
 				display: none;
 			}
 
@@ -1192,66 +1185,29 @@ function igsp_render_single_product( $atts = array() ) {
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery-ui {
 					display: flex;
 					height: auto;
-					padding: 12px var(--igsp-x) 0;
+					padding: 16px var(--igsp-x) 0;
 					opacity: 0;
 					transform: translateY(8px);
+					justify-content: center;
 					animation: igsp-element-in 680ms 420ms cubic-bezier(.16, 1, .3, 1) forwards;
 				}
 
-				#<?php echo esc_attr( $instance_id ); ?> .igsp__mobile-arrows {
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__image-progress {
 					display: flex;
-					align-items: center;
-					gap: 14px;
-					pointer-events: auto;
+					width: min(44vw, 180px);
+					gap: 5px;
 				}
 
-				#<?php echo esc_attr( $instance_id ); ?> .igsp__arrow {
-					appearance: none;
-					position: relative;
-					width: 36px;
-					height: 24px;
-					margin: 0;
-					padding: 0;
-					border: 0;
-					background: transparent;
-					color: var(--igsp-ink);
-					box-shadow: none;
-					cursor: pointer;
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__image-progress-bar {
+					height: 3px;
+					border-radius: 999px;
+					background: var(--igsp-line);
+					flex: 1 1 0;
+					transition: background-color 340ms cubic-bezier(.16, 1, .3, 1);
 				}
 
-				#<?php echo esc_attr( $instance_id ); ?> .igsp__arrow::before {
-					content: "";
-					position: absolute;
-					top: 50%;
-					right: 0;
-					left: 0;
-					height: 1px;
-					background: currentColor;
-				}
-
-				#<?php echo esc_attr( $instance_id ); ?> .igsp__arrow::after {
-					content: "";
-					position: absolute;
-					top: 50%;
-					width: 7px;
-					height: 7px;
-					border-top: 1px solid currentColor;
-					border-left: 1px solid currentColor;
-				}
-
-				#<?php echo esc_attr( $instance_id ); ?> .igsp__arrow:disabled {
-					opacity: .28;
-					cursor: not-allowed;
-				}
-
-				#<?php echo esc_attr( $instance_id ); ?> .igsp__arrow--prev::after {
-					left: 0;
-					transform: translateY(-50%) rotate(-45deg);
-				}
-
-				#<?php echo esc_attr( $instance_id ); ?> .igsp__arrow--next::after {
-					right: 0;
-					transform: translateY(-50%) rotate(135deg);
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__image-progress-bar.is-done {
+					background: var(--igsp-ink);
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__product-panel {
@@ -1400,26 +1356,19 @@ function igsp_render_single_product( $atts = array() ) {
 				</div>
 
 				<div class="igsp__gallery-ui">
-					<span class="igsp__count" aria-live="polite">
-						<span data-current-slide>1</span>/<span><?php echo esc_html( count( $image_ids ) ); ?></span>
+					<span
+						class="igsp__image-progress"
+						data-image-progress
+						role="progressbar"
+						aria-label="product images"
+						aria-valuemin="1"
+						aria-valuemax="<?php echo esc_attr( count( $image_ids ) ); ?>"
+						aria-valuenow="1"
+					>
+						<?php foreach ( $image_ids as $image_index => $image_id ) : ?>
+							<span class="igsp__image-progress-bar" data-image-progress-step="<?php echo esc_attr( $image_index ); ?>" aria-hidden="true"></span>
+						<?php endforeach; ?>
 					</span>
-
-					<?php if ( count( $image_ids ) > 1 ) : ?>
-						<div class="igsp__mobile-arrows">
-							<button
-								class="igsp__arrow igsp__arrow--prev"
-								type="button"
-								data-gallery-prev
-								aria-label="previous image"
-							></button>
-							<button
-								class="igsp__arrow igsp__arrow--next"
-								type="button"
-								data-gallery-next
-								aria-label="next image"
-							></button>
-						</div>
-					<?php endif; ?>
 				</div>
 			</div>
 
@@ -1551,9 +1500,8 @@ function igsp_render_single_product( $atts = array() ) {
 			var gallery = root.querySelector("[data-gallery]");
 			var galleryStage = root.querySelector("[data-gallery-stage]");
 			var slides = Array.prototype.slice.call(root.querySelectorAll("[data-slide]"));
-			var currentCounter = root.querySelector("[data-current-slide]");
-			var galleryPrev = root.querySelector("[data-gallery-prev]");
-			var galleryNext = root.querySelector("[data-gallery-next]");
+			var imageProgress = root.querySelector("[data-image-progress]");
+			var imageProgressSteps = Array.prototype.slice.call(root.querySelectorAll("[data-image-progress-step]"));
 			var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 			var currentSlide = 0;
 			var scrollFrame = 0;
@@ -1585,12 +1533,10 @@ function igsp_render_single_product( $atts = array() ) {
 					slide.classList.toggle("is-after", slideIndex > currentSlide);
 				});
 
-				if (currentCounter) {
-					currentCounter.textContent = String(currentSlide + 1);
-				}
-
-				if (galleryPrev) galleryPrev.disabled = currentSlide === 0;
-				if (galleryNext) galleryNext.disabled = currentSlide === slides.length - 1;
+				imageProgressSteps.forEach(function (step, stepIndex) {
+					step.classList.toggle("is-done", stepIndex <= currentSlide);
+				});
+				if (imageProgress) imageProgress.setAttribute("aria-valuenow", String(currentSlide + 1));
 			}
 
 			function updateTrackPosition(animate) {
@@ -1641,23 +1587,6 @@ function igsp_render_single_product( $atts = array() ) {
 				galleryAnimationFrame = window.requestAnimationFrame(frame);
 			}
 
-			function goToSlide(index) {
-				if (!slides.length || !gallery) return;
-				if (index < 0 || index >= slides.length) return;
-				var targetIndex = index;
-
-				if (!isDesktopGallery()) {
-					setCurrentSlide(targetIndex);
-					gallery.scrollTo({
-						left: currentSlide * gallery.clientWidth,
-						behavior: reduceMotion ? "auto" : "smooth"
-					});
-				} else {
-					setCurrentSlide(targetIndex);
-					updateTrackPosition(true);
-				}
-			}
-
 			function moveDesktopGallery(direction) {
 				if (!isDesktopGallery() || galleryInputThrottle || !slides.length) return false;
 
@@ -1702,18 +1631,6 @@ function igsp_render_single_product( $atts = array() ) {
 				}
 
 				return true;
-			}
-
-			if (galleryPrev) {
-				galleryPrev.addEventListener("click", function () {
-					goToSlide(currentSlide - 1);
-				});
-			}
-
-			if (galleryNext) {
-				galleryNext.addEventListener("click", function () {
-					goToSlide(currentSlide + 1);
-				});
 			}
 
 			if (gallery) {
