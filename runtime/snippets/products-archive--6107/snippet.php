@@ -229,26 +229,11 @@ function igpa_render_product_archive( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__trigger {
-				appearance: none;
-				display: inline-flex;
-				margin: 0;
-				padding: 5px 0;
-				border: 0;
-				border-bottom: 1px solid transparent;
-				border-radius: 0;
-				background: transparent;
-				color: var(--igpa-ink);
-				box-shadow: none;
-				cursor: pointer;
-				align-items: center;
-				gap: 8px;
-				font-size: var(--ioulia-micro);
-				font-weight: 400;
-				line-height: 1;
-				letter-spacing: .025em;
+				/* Skin comes from the global button system. What is left is what
+				   makes this a filter rather than a button: its own wording case and
+				   the room its caret needs. */
 				text-transform: lowercase;
-				white-space: nowrap;
-				transition: border-color 180ms ease, color 180ms ease;
+				gap: 8px;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__trigger::after {
@@ -262,9 +247,9 @@ function igpa_render_product_archive( $atts = array() ) {
 				transition: transform 260ms cubic-bezier(.16, 1, .3, 1);
 			}
 
-			#<?php echo esc_attr( $instance_id ); ?> .igpa__picker.is-open .igpa__trigger,
-			#<?php echo esc_attr( $instance_id ); ?> .igpa__trigger:hover {
-				border-bottom-color: currentColor;
+			#<?php echo esc_attr( $instance_id ); ?> .igpa__picker.is-open .igpa__trigger {
+				border-color: var(--igpa-ink);
+				background: var(--ioulia-ink-07, rgba(43, 43, 43, .07));
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__picker.is-open .igpa__trigger::after {
@@ -515,9 +500,6 @@ function igpa_render_product_archive( $atts = array() ) {
 					justify-content: space-between;
 				}
 
-				#<?php echo esc_attr( $instance_id ); ?> .igpa__trigger {
-					font-size: var(--ioulia-micro);
-				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__picker:first-child .igpa__menu {
 					right: auto;

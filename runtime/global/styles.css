@@ -472,7 +472,7 @@ a {
    the buttons that existed before this system and keep their own class names. */
 
 :is(.ioulia-btn, .icph__button, .iznE-parallax__button, .igw-btn--hero,
-    .igw-location__gmaps-btn, .igc-btn) {
+    .igw-location__gmaps-btn, .igc-btn, .igpa__trigger) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -503,7 +503,7 @@ a {
 }
 
 :is(.ioulia-btn, .icph__button, .iznE-parallax__button, .igw-btn--hero,
-    .igw-location__gmaps-btn, .igc-btn):is(:hover, :focus-visible) {
+    .igw-location__gmaps-btn, .igc-btn, .igpa__trigger):is(:hover, :focus-visible) {
   transform: translateY(-3px);
   outline: none;
 }
@@ -523,14 +523,14 @@ a {
 }
 
 /* Outlined */
-:is(.ioulia-btn--outline, .icph__button--outline, .igc-btn--ghost) {
+:is(.ioulia-btn--outline, .icph__button--outline, .igc-btn--ghost, .igpa__trigger) {
   border-color: var(--ioulia-ink-22);
   background: transparent !important;
   color: var(--ioulia-ink) !important;
 }
 
 :is(.ioulia-btn--outline, .icph__button--outline,
-    .igc-btn--ghost):is(:hover, :focus-visible) {
+    .igc-btn--ghost, .igpa__trigger):is(:hover, :focus-visible) {
   border-color: var(--ioulia-ink);
   background: var(--ioulia-ink-07) !important;
 }
