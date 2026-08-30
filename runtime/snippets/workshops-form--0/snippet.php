@@ -162,12 +162,10 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 			<div class="iwf-modal" data-iwf-modal hidden>
 				<div class="iwf-modal__backdrop" data-iwf-close></div>
 
-				<div class="iwf-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="iwf-modal-title">
+				<div class="iwf-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="iwf-modal-title" data-lenis-prevent>
 					<span class="iwf-modal__grab" aria-hidden="true"></span>
 
 					<header class="iwf-modal__head">
-						<p class="iwf-modal__step" data-iwf-steplabel></p>
-
 						<span class="iwf-progress" aria-hidden="true">
 							<span class="iwf-progress__bar" data-iwf-progress="1"></span>
 							<span class="iwf-progress__bar" data-iwf-progress="2"></span>
@@ -179,7 +177,7 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 						</button>
 					</header>
 
-					<div class="iwf-modal__body" data-iwf-scroll>
+					<div class="iwf-modal__body" data-iwf-scroll data-lenis-prevent data-lenis-prevent-wheel data-lenis-prevent-touch>
 						<h3 class="iwf-modal__title" id="iwf-modal-title" data-iwf-modal-title>Κλείσε τη θέση σου</h3>
 						<p class="iwf-modal__lead" data-iwf-lead></p>
 
@@ -190,14 +188,17 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 						<div class="iwf-step" data-iwf-step="2" hidden>
 							<div class="iwf-cal" data-iwf-calendar></div>
 							<div class="iwf-times" data-iwf-times hidden>
-								<p class="iwf-times__label" data-iwf-times-label></p>
+								<div class="iwf-times__label" data-iwf-times-label></div>
 								<div class="iwf__chips iwf__chips--times" data-iwf-times-list role="group" aria-label="Ώρα"></div>
 							</div>
 						</div>
 
 						<div class="iwf-step" data-iwf-step="3" hidden>
 							<form class="iwf__form" data-iwf-form novalidate>
-								<p class="iwf__chosen" data-iwf-chosen></p>
+								<div class="iwf__chosen">
+									<span class="iwf__chosen-label">Η επιλογή σου</span>
+									<strong data-iwf-chosen></strong>
+								</div>
 
 								<div class="iwf__people">
 									<span id="iwf-people-label">Άτομα</span>
@@ -392,9 +393,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 
 	/* ---- Dialog ----
-	   A sheet on a phone and a card on a desktop, from one set of rules. The
-	   step's own title carries the hierarchy rather than a bar across the top,
-	   which is what makes it read as a screen instead of a window. */
+	   One bottom drawer at every viewport. The consistent spatial model makes
+	   opening and closing feel like the same physical object on phone and
+	   desktop, while the step title carries app-like hierarchy. */
 
 	.iwf-modal {
 		--iwf-ink: var(--ioulia-ink, #2B2B2B);
@@ -423,6 +424,9 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 	.iwf-modal[hidden] { display: none; }
 	.iwf-modal *, .iwf-modal *::before, .iwf-modal *::after { box-sizing: border-box; }
+	/* WordPress themes often decorate prose with an accent rule. Inside this app
+	   surface paragraphs are interface copy, never pull quotes. */
+	.iwf-modal p { border-inline-start: 0 !important; padding-inline-start: 0 !important; }
 
 	/* Entrance is an animation from a hidden state, not a transition towards a
 	   visible one. A transition needs the browser to have resolved the starting
@@ -439,15 +443,18 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		width: min(600px, 100%);
-		/* svh, so mobile browser chrome cannot clip the footer. */
+		width: min(680px, 100%);
+		/* svh fallback plus dvh, so browser chrome cannot clip the footer. */
 		height: min(92svh, 860px);
+		height: min(92dvh, 860px);
 		max-height: 92svh;
+		max-height: 92dvh;
 		border-radius: var(--iwf-shell-radius) var(--iwf-shell-radius) 0 0;
 		background: var(--iwf-paper);
 		box-shadow: 0 -16px 52px rgba(43, 43, 43, .16);
 		overflow: hidden;
 		transform-origin: 50% 100%;
+		contain: layout paint;
 	}
 	.iwf-modal.is-open .iwf-modal__dialog { animation: iwf-dialog-in .5s var(--iwf-spring) both; }
 	.iwf-modal.is-closing .iwf-modal__dialog { animation: iwf-dialog-out .32s var(--iwf-exit) both; }
@@ -457,22 +464,21 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	@keyframes iwf-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
 	@keyframes iwf-backdrop-drag-out { from { opacity: var(--iwf-drag-alpha, 1); } to { opacity: 0; } }
 	@keyframes iwf-dialog-in {
-		from { opacity: 0; transform: translateY(52px) scale(.985); }
-		72% { opacity: 1; }
+		from { opacity: .92; transform: translate3d(0, 100%, 0); }
+		72% { opacity: 1; transform: translate3d(0, -5px, 0); }
 		to { opacity: 1; transform: none; }
 	}
-	@keyframes iwf-dialog-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(36px) scale(.99); } }
+	@keyframes iwf-dialog-out { from { opacity: 1; transform: none; } to { opacity: .94; transform: translate3d(0, 100%, 0); } }
 	@keyframes iwf-dialog-drag-out { from { opacity: 1; transform: translateY(var(--iwf-drag-y, 0)); } to { opacity: 0; transform: translateY(100%); } }
 
 	.iwf-modal__grab { display: block; width: 40px; height: 4px; margin: 10px auto 0; border-radius: 999px; background: var(--iwf-line); }
 	.iwf-modal__grab, .iwf-modal__head { touch-action: none; }
-	@media (min-width: 700px) { .iwf-modal__head { touch-action: auto; } }
 
-	.iwf-modal__head { display: flex; flex: 0 0 auto; align-items: center; gap: 1rem; padding: .9rem var(--iwf-gutter) 0; }
-	.iwf-modal__step { margin: 0; color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 500; letter-spacing: .14em; font-variant-numeric: tabular-nums; }
+	.iwf-modal__head { display: grid; grid-template-columns: 44px minmax(0, 150px) 44px; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem var(--iwf-gutter) 0; }
+	.iwf-modal__head::before { content: ''; width: 44px; height: 44px; }
 
 	/* Where you are, as three marks rather than a sentence. */
-	.iwf-progress { display: flex; flex: 0 1 150px; gap: 5px; margin-inline: auto; }
+	.iwf-progress { display: flex; width: 100%; gap: 5px; }
 	.iwf-progress__bar { flex: 1 1 0; height: 3px; border-radius: 999px; background: var(--iwf-line); transform: scaleX(1); transform-origin: left; transition: background-color .34s var(--iwf-ease), transform .34s var(--iwf-spring); }
 	.iwf-progress__bar.is-done { background: var(--iwf-ink); }
 
@@ -495,17 +501,20 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-modal__close svg { width: 15px; height: 15px; }
 
 	.iwf-modal__body {
-		flex: 1 1 auto;
+		flex: 1 1 0;
 		/* Without this a flex child refuses to shrink, the body grows to its
 		   content, the dialog overflows, and the page behind scrolls instead. */
 		min-height: 0;
-		overflow-y: auto;
+		max-height: 100%;
+		overflow-y: scroll;
 		overscroll-behavior: contain;
 		-webkit-overflow-scrolling: touch;
 		scrollbar-gutter: stable;
 		scrollbar-width: thin;
 		scrollbar-color: rgba(43, 43, 43, .22) transparent;
 		padding: .75rem var(--iwf-gutter) 2rem;
+		touch-action: pan-y;
+		isolation: isolate;
 	}
 	.iwf-modal__body::-webkit-scrollbar { width: 5px; }
 	.iwf-modal__body::-webkit-scrollbar-track { background: transparent; }
@@ -563,26 +572,25 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-modal__next[hidden] { display: none; }
 
 	@media (min-width: 700px) {
-		.iwf-modal { align-items: center; padding: 2rem; }
+		.iwf-modal { align-items: flex-end; padding: 0 clamp(1.5rem, 4vw, 4rem); }
 		.iwf-modal__dialog {
-			height: min(780px, calc(100dvh - 4rem));
-			max-height: calc(100dvh - 4rem);
-			border-radius: var(--iwf-shell-radius);
-			box-shadow: 0 28px 80px rgba(43, 43, 43, .2);
-			transform-origin: 50% 50%;
+			width: min(720px, calc(100vw - 3rem));
+			height: min(86vh, 820px);
+			height: min(86dvh, 820px);
+			max-height: min(86vh, 820px);
+			max-height: min(86dvh, 820px);
+			border-radius: var(--iwf-shell-radius) var(--iwf-shell-radius) 0 0;
+			box-shadow: 0 -24px 80px rgba(43, 43, 43, .22);
+			transform-origin: 50% 100%;
 		}
-		.iwf-modal.is-open .iwf-modal__dialog { animation-name: iwf-dialog-desktop-in; }
-		.iwf-modal.is-closing .iwf-modal__dialog { animation-name: iwf-dialog-desktop-out; }
-		.iwf-modal__grab { display: none; }
-		.iwf-modal__head { padding-top: 1rem; }
+		.iwf-modal__grab { margin-top: 12px; }
+		.iwf-modal__head { padding-top: .85rem; }
+		.iwf-modal__body { padding-bottom: 2.5rem; }
 	}
 
-	@keyframes iwf-dialog-desktop-in {
-		from { opacity: 0; transform: translateY(18px) scale(.965); }
-		70% { opacity: 1; }
-		to { opacity: 1; transform: none; }
+	@media (min-width: 1100px) {
+		.iwf-modal__dialog { width: min(760px, calc(100vw - 5rem)); }
 	}
-	@keyframes iwf-dialog-desktop-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(12px) scale(.975); } }
 
 	/* ---- Step 1: programmes ---- */
 
@@ -641,8 +649,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- Step 2: calendar ---- */
 
-	.iwf-cal { padding: .25rem 0 .5rem; }
-	.iwf-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+	.iwf-cal { padding: 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .38); }
+	.iwf-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .8rem; }
 	.iwf-cal__month { font-size: clamp(1.05rem, 3vw, 1.2rem); font-weight: 600; letter-spacing: -.02em; }
 	.iwf-cal__nav { display: flex; gap: .5rem; }
 	.iwf-cal__nav button {
@@ -661,7 +669,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-cal__nav button:hover:not(:disabled), .iwf-cal__nav button:focus-visible:not(:disabled) { border-color: var(--iwf-ink); background: rgba(43, 43, 43, .05); outline: none; transform: scale(1.04); }
 	.iwf-cal__nav button:disabled { opacity: .25; cursor: default; }
 
-	.iwf-cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+	.iwf-cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, .8vw, 6px); }
 	.iwf-cal__grid.is-month-next { animation: iwf-month-next .34s var(--iwf-spring) both; }
 	.iwf-cal__grid.is-month-prev { animation: iwf-month-prev .34s var(--iwf-spring) both; }
 	@keyframes iwf-month-next { from { opacity: 0; transform: translateX(12px); } }
@@ -686,7 +694,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 	.iwf-cal__day.is-open {
 		border: 1px solid transparent;
-		background: transparent;
+		background: rgba(43, 43, 43, .055);
 		color: var(--iwf-slot-ink);
 		font-weight: 500;
 		opacity: 1;
@@ -695,10 +703,10 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-cal__day.is-open:hover, .iwf-cal__day.is-open:focus-visible { border-color: var(--iwf-ink); background: rgba(43, 43, 43, .04); color: var(--iwf-ink); outline: none; transform: scale(1.04); }
 	.iwf-cal__day.is-current, .iwf-cal__day.is-current:hover, .iwf-cal__day.is-current:focus-visible { border-color: var(--iwf-ink); background: var(--iwf-slot-ink); color: var(--iwf-paper); transform: scale(1.04); }
 
-	.iwf-times { margin-top: 1.5rem; padding: 1.2rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .28); animation: iwf-times-in .34s var(--iwf-spring) both; }
+	.iwf-times { margin-top: .8rem; padding: 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .38); animation: iwf-times-in .34s var(--iwf-spring) both; }
 	@keyframes iwf-times-in { from { opacity: 0; transform: translateY(8px) scale(.99); } }
 	.iwf-times[hidden] { display: none; }
-	.iwf-times__label { margin: 0; font-size: var(--ioulia-small); font-weight: 600; letter-spacing: -.01em; }
+	.iwf-times__label { margin: 0; border: 0; padding: 0; font-size: var(--ioulia-small); font-weight: 600; letter-spacing: -.01em; }
 	.iwf__chips--times { margin-top: .75rem; }
 	.iwf__chips--times .iwf__chip {
 		padding: .6rem 1.05rem;
@@ -715,28 +723,30 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- Step 3: details ---- */
 
-	.iwf__chosen { margin: 0 0 1.25rem; padding: 1rem 1.1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .3); color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; }
+	.iwf__chosen { display: grid; gap: .3rem; margin: 0 0 .8rem; padding: 1rem 1.1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.45; }
+	.iwf__chosen-label { color: rgba(43, 43, 43, .58); font-size: var(--ioulia-micro); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+	.iwf__chosen strong { color: var(--iwf-ink); font-size: var(--ioulia-small); font-weight: 500; }
 	.iwf__error { margin: 1.2rem 0 0; padding: .9rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-control); background: var(--iwf-slot-bg); color: var(--iwf-slot-ink); font-size: var(--ioulia-small); }
 	.iwf__error[hidden] { display: none; }
 
-	.iwf__people { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.15rem; padding: .9rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .18); }
+	.iwf__people { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding: .8rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); }
 	.iwf__stepper { display: flex; align-items: center; gap: .55rem; }
 	.iwf__stepper button { width: 44px; height: 44px; border: 1px solid var(--iwf-line); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: var(--ioulia-body); cursor: pointer; transition: border-color .2s ease, background-color .2s ease, transform .24s var(--iwf-spring); }
 	.iwf__stepper button:hover, .iwf__stepper button:focus-visible { border-color: currentColor; background: rgba(43, 43, 43, .05); outline: none; transform: scale(1.04); }
 	.iwf__stepper button:active { transform: scale(.97); }
 	.iwf__stepper output { min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
 
-	.iwf__fields { display: grid; gap: 1.05rem; }
-	.iwf__field > span { display: block; margin-bottom: .45rem; color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 600; }
+	.iwf__fields { display: grid; gap: .8rem; padding: 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); }
+	.iwf__field > span { display: block; margin: 0 0 .4rem .15rem; color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 600; }
 	.iwf__field em { font-style: normal; opacity: .7; }
 	.iwf__field input, .iwf__field textarea {
 		display: block;
 		width: 100%;
-		min-height: 52px;
+		min-height: 54px;
 		padding: .8rem .95rem;
 		border: 1px solid var(--iwf-line);
-		border-radius: var(--iwf-control);
-		background: rgba(255, 255, 255, .66);
+		border-radius: 14px;
+		background: rgba(255, 255, 255, .82);
 		color: inherit;
 		font: inherit;
 		/* 16px keeps iOS from zooming the page when a field takes focus. */
@@ -748,7 +758,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf__field input:hover, .iwf__field textarea:hover { border-color: rgba(43, 43, 43, .34); }
 	.iwf__field input:focus, .iwf__field textarea:focus { border-color: currentColor; background: #fff; box-shadow: 0 0 0 3px rgba(43, 43, 43, .08); outline: none; }
 
-	.iwf__consent { display: flex; gap: .75rem; margin-top: 1.4rem; padding: .95rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-control); color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; cursor: pointer; }
+	.iwf__consent { display: flex; gap: .75rem; margin-top: .8rem; padding: 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; cursor: pointer; }
 	.iwf__consent input { width: 22px; height: 22px; margin: 0; flex: 0 0 auto; accent-color: var(--iwf-slot-ink); }
 	.iwf__consent a { color: inherit; }
 
@@ -760,6 +770,13 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	@media (min-width: 560px) {
 		.iwf__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 		.iwf__field--wide { grid-column: 1 / -1; }
+	}
+
+	@media (max-height: 760px) and (min-width: 700px) {
+		.iwf-modal__dialog { height: 90vh; height: 90dvh; max-height: 90vh; max-height: 90dvh; }
+		.iwf-modal__body { padding-top: .55rem; padding-bottom: 1.5rem; }
+		.iwf-modal__title { font-size: 1.8rem; }
+		.iwf-step { margin-top: 1.2rem; }
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -776,7 +793,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	/* Muted tone always comes with more weight. Lower contrast must not also
 	   mean lighter strokes, or the text pays for the quietness twice. */
 	.iwf__eyebrow, .iwf__intro, .iwf__row-day, .iwf__chip,
-	.iwf-modal__step, .iwf-modal__lead, .iwf-modal__note,
+	.iwf-modal__lead, .iwf-modal__note,
 	.iwf__option-summary, .iwf__field > span, .iwf__consent,
 	.iwf-cal__dayname, .iwf__error, .iwf__chosen { font-weight: 500; }
 </style>
@@ -824,7 +841,6 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		times: root.querySelector('[data-iwf-times]'),
 		timesLabel: root.querySelector('[data-iwf-times-label]'),
 		timesList: root.querySelector('[data-iwf-times-list]'),
-		stepLabel: root.querySelector('[data-iwf-steplabel]'),
 		title: root.querySelector('[data-iwf-modal-title]'),
 		lead: root.querySelector('[data-iwf-lead]'),
 		back: root.querySelector('[data-iwf-back]'),
@@ -1146,8 +1162,6 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 		if (next === 2) { renderCalendar(); }
 
-		el.stepLabel.textContent = STEPS[next] ? '0' + next + ' / 03' : '';
-
 		modal.querySelectorAll('[data-iwf-progress]').forEach(function (bar) {
 			bar.classList.toggle('is-done', Number(bar.getAttribute('data-iwf-progress')) <= Number(next));
 		});
@@ -1233,8 +1247,12 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			modal.classList.add('is-drag-closing');
 		}
 
+		/* The entrance and exit classes must never compete for the animation
+		   shorthand. Some theme optimizers reorder equivalent rules, which made
+		   the sheet disappear as soon as hidden was applied. */
+		modal.classList.remove('is-open');
 		modal.classList.add('is-closing');
-		var wait = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 340;
+		var wait = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 380;
 
 		closeTimer = window.setTimeout(function () {
 			modal.hidden = true;
@@ -1261,9 +1279,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		var lastAt = 0;
 		var dragging = false;
 
-		function isSheet() {
-			return window.matchMedia('(max-width: 699px)').matches;
-		}
+		function isSheet() { return true; }
 
 		function begin(event) {
 			if (!isSheet() || event.button) { return; }
@@ -1324,6 +1340,13 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		dialog.addEventListener('pointerup', end);
 		dialog.addEventListener('pointercancel', end);
 	}());
+
+	/* Keep wheel and touch scrolling inside the drawer. This complements the
+	   data-lenis-prevent attributes for the site's bundled smooth-scroll layer
+	   and also protects against generic document-level wheel handlers. */
+	[ 'wheel', 'touchmove' ].forEach(function (type) {
+		el.scroll.addEventListener(type, function (event) { event.stopPropagation(); }, { passive: true });
+	});
 
 	root.querySelector('[data-iwf-open]').addEventListener('click', function () { openModal(1); });
 
