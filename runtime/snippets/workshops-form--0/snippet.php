@@ -71,13 +71,15 @@ if ( ! function_exists( 'ioulia_workshops_form_copy' ) ) {
 		$sources = array(
 			'heading_programme' => 'Τι θέλεις να κάνεις;',
 			'lead_programme'    => 'Πέντε εργαστήρια, όλα ανοιχτά και σε αρχάριους.',
-			'lead_date'         => 'Διάλεξε ημέρα και ώρα.',
+			'lead_date'         => 'Διάλεξε ημέρα.',
+			'heading_time'      => 'Διάλεξε ώρα',
 			'heading_details'   => 'Τα στοιχεία σου',
 			'lead_details'      => 'Θα λάβεις email με την επιβεβαίωση.',
 			'heading_done'      => 'Η θέση σου κρατήθηκε.',
 			'popular'           => 'Δημοφιλές',
 			'previous_month'    => 'Προηγούμενος μήνας',
 			'next_month'        => 'Επόμενος μήνας',
+			'available_times'   => 'Διαθέσιμες ώρες',
 			'one_place'         => '1 θέση',
 			'many_places'       => '%d θέσεις',
 			'next'              => 'Επόμενο',
@@ -208,6 +210,7 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 							<span class="iwf-progress__bar" data-iwf-progress="1"></span>
 							<span class="iwf-progress__bar" data-iwf-progress="2"></span>
 							<span class="iwf-progress__bar" data-iwf-progress="3"></span>
+							<span class="iwf-progress__bar" data-iwf-progress="4"></span>
 						</span>
 
 						<button type="button" class="iwf-modal__close" data-iwf-close aria-label="Κλείσιμο">
@@ -216,8 +219,16 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 					</header>
 
 					<div class="iwf-modal__body" data-iwf-scroll data-lenis-prevent data-lenis-prevent-wheel data-lenis-prevent-touch>
-						<h3 class="iwf-modal__title" id="iwf-modal-title" data-iwf-modal-title>Κλείσε τη θέση σου</h3>
+						<div class="iwf-modal__title-row">
+							<h3 class="iwf-modal__title" id="iwf-modal-title" data-iwf-modal-title>Κλείσε τη θέση σου</h3>
+							<span class="iwf__chosen-label" data-iwf-chosen-label hidden>Η επιλογή σου</span>
+						</div>
 						<p class="iwf-modal__lead" data-iwf-lead></p>
+						<div class="iwf__chosen" data-iwf-chosen-wrap hidden>
+							<strong data-iwf-chosen-programme></strong>
+							<span data-iwf-chosen-date></span>
+							<span data-iwf-chosen-time></span>
+						</div>
 
 						<div class="iwf-step" data-iwf-step="1">
 							<div class="iwf__options" data-iwf-options></div>
@@ -225,19 +236,17 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 
 						<div class="iwf-step" data-iwf-step="2" hidden>
 							<div class="iwf-cal" data-iwf-calendar></div>
+						</div>
+
+						<div class="iwf-step" data-iwf-step="3" hidden>
 							<div class="iwf-times" data-iwf-times hidden>
 								<div class="iwf-times__label" data-iwf-times-label></div>
 								<div class="iwf__chips iwf__chips--times" data-iwf-times-list role="group" aria-label="Ώρα"></div>
 							</div>
 						</div>
 
-						<div class="iwf-step" data-iwf-step="3" hidden>
+						<div class="iwf-step" data-iwf-step="4" hidden>
 							<form class="iwf__form" data-iwf-form novalidate>
-								<div class="iwf__chosen">
-									<span class="iwf__chosen-label">Η επιλογή σου</span>
-									<strong data-iwf-chosen></strong>
-								</div>
-
 								<div class="iwf__people">
 									<span id="iwf-people-label">Άτομα</span>
 									<div class="iwf__stepper" role="group" aria-labelledby="iwf-people-label">
@@ -294,7 +303,7 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 						<p class="iwf__error" data-iwf-error hidden role="alert"></p>
 					</div>
 
-					<footer class="iwf-modal__foot">
+					<footer class="iwf-modal__foot" data-iwf-foot hidden>
 						<button type="button" class="iwf-modal__back" data-iwf-back hidden>Πίσω</button>
 						<button type="button" class="iwf-modal__next" data-iwf-next>Επόμενο</button>
 					</footer>
@@ -558,6 +567,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf-modal__body::-webkit-scrollbar-track { background: transparent; }
 	.iwf-modal__body::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(43, 43, 43, .22); }
 
+	.iwf-modal__title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 	.iwf-modal__title { margin: 0; font-size: clamp(1.85rem, 6.8vw, 2.35rem); font-weight: 500; letter-spacing: -.04em; line-height: 1.08; }
 	.iwf-modal__lead { margin: .65rem 0 0; color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.5; }
 	.iwf-modal__lead[hidden] { display: none; }
@@ -578,20 +588,23 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	   edge first, which is where the least reversible thing should not be. */
 	.iwf-modal__foot {
 		display: flex;
-		flex-direction: column;
-		gap: .2rem;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
 		flex: 0 0 auto;
 		padding: .9rem var(--iwf-gutter) calc(.9rem + env(safe-area-inset-bottom));
 		border-top: 1px solid var(--iwf-line);
 		background: var(--iwf-paper);
 	}
-	.iwf-modal__back { order: 2; width: 100%; min-height: 44px; padding: .5rem; border: 0; background: none; color: var(--iwf-muted); font: inherit; font-size: var(--ioulia-small); font-weight: 500; cursor: pointer; transition: color .2s ease; }
+	.iwf-modal__foot[hidden] { display: none; }
+	.iwf-modal__back { order: 1; width: auto; min-height: 44px; padding: .5rem 0; border: 0; background: none; color: var(--iwf-muted); font: inherit; font-size: var(--ioulia-small); font-weight: 500; cursor: pointer; transition: color .2s ease; }
 	.iwf-modal__back:hover { color: var(--iwf-ink); }
 	.iwf-modal__back[hidden] { display: none; }
 
 	.iwf-modal__next {
-		order: 1;
-		width: 100%;
+		order: 2;
+		width: auto;
+		min-width: min(240px, 68vw);
 		min-height: clamp(50px, 1.4vw + 2.8rem, 58px);
 		padding: 0 1.5rem;
 		border: 0;
@@ -761,9 +774,10 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- Step 3: details ---- */
 
-	.iwf__chosen { display: grid; gap: .3rem; margin: 0 0 .8rem; padding: 1rem 1.1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.45; }
-	.iwf__chosen-label { color: rgba(43, 43, 43, .58); font-size: var(--ioulia-micro); font-weight: 600; letter-spacing: .01em; }
-	.iwf__chosen strong { color: var(--iwf-ink); font-size: var(--ioulia-small); font-weight: 500; }
+	.iwf__chosen { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .35rem 1rem; margin: .7rem 0 0; padding: .65rem 0 .85rem; border: 0; border-bottom: 1px solid var(--iwf-line); background: transparent; color: var(--iwf-muted); font-size: var(--ioulia-micro); line-height: 1.4; }
+	.iwf__chosen[hidden], .iwf__chosen-label[hidden] { display: none; }
+	.iwf__chosen-label { flex: 0 0 auto; padding: .2em .65em; border-radius: 999px; background: var(--iwf-ink); color: var(--iwf-paper); font-size: var(--ioulia-micro); font-weight: 500; letter-spacing: 0; white-space: nowrap; }
+	.iwf__chosen strong { color: var(--iwf-ink); font-size: var(--ioulia-micro); font-weight: 600; }
 	.iwf__error { margin: 1.2rem 0 0; padding: .9rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-control); background: var(--iwf-slot-bg); color: var(--iwf-slot-ink); font-size: var(--ioulia-small); }
 	.iwf__error[hidden] { display: none; }
 
@@ -808,6 +822,15 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	@media (min-width: 560px) {
 		.iwf__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 		.iwf__field--wide { grid-column: 1 / -1; }
+	}
+
+	@media (min-width: 700px) {
+		.iwf-step[data-iwf-step="4"] { margin-top: .85rem; }
+		.iwf__people { margin-bottom: .7rem; padding-block: .55rem; }
+		.iwf__fields { gap: .65rem .8rem; padding: .8rem; }
+		.iwf__field input, .iwf__field textarea { min-height: 48px; padding-block: .65rem; }
+		.iwf__field textarea { min-height: 64px; }
+		.iwf__consent { margin-top: .65rem; padding: .75rem .85rem; line-height: 1.35; }
 	}
 
 	@media (max-height: 760px) and (min-width: 700px) {
@@ -882,22 +905,28 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		timesList: root.querySelector('[data-iwf-times-list]'),
 		title: root.querySelector('[data-iwf-modal-title]'),
 		lead: root.querySelector('[data-iwf-lead]'),
+		foot: root.querySelector('[data-iwf-foot]'),
 		back: root.querySelector('[data-iwf-back]'),
 		next: root.querySelector('[data-iwf-next]'),
 		form: root.querySelector('[data-iwf-form]'),
-		chosen: root.querySelector('[data-iwf-chosen]'),
+		chosenWrap: root.querySelector('[data-iwf-chosen-wrap]'),
+		chosenLabel: root.querySelector('[data-iwf-chosen-label]'),
+		chosenProgramme: root.querySelector('[data-iwf-chosen-programme]'),
+		chosenDate: root.querySelector('[data-iwf-chosen-date]'),
+		chosenTime: root.querySelector('[data-iwf-chosen-time]'),
 		error: root.querySelector('[data-iwf-error]'),
 		summary: root.querySelector('[data-iwf-summary]'),
 		people: root.querySelector('[data-iwf-people-value]'),
 		scroll: root.querySelector('[data-iwf-scroll]')
 	};
 
-	var STEPS = { 1: true, 2: true, 3: true };
+	var STEPS = { 1: true, 2: true, 3: true, 4: true };
 
 	var HEADINGS = {
 		1: [copy.heading_programme, copy.lead_programme],
 		2: ['', copy.lead_date],
-		3: [copy.heading_details, copy.lead_details],
+		3: [copy.heading_time, ''],
+		4: [copy.heading_details, copy.lead_details],
 		done: [copy.heading_done, '']
 	};
 
@@ -967,7 +996,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 				slot.addEventListener('click', function () {
 					chooseDate(date);
 					chooseTime(time);
-					openModal(3);
+					openModal(4);
 				});
 				times.appendChild(slot);
 			});
@@ -1019,7 +1048,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 				renderChips();
 				renderSchedule();
 				renderOptions();
-				updateFoot();
+				goTo(2);
 			});
 
 			el.options.appendChild(node);
@@ -1116,7 +1145,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 				cell.setAttribute('aria-label', date.full);
 				cell.setAttribute('aria-pressed', picked.date && picked.date.date === key ? 'true' : 'false');
 				cell.addEventListener('click', function (chosen) {
-					return function () { chooseDate(chosen); renderCalendar(); };
+					return function () { chooseDate(chosen); goTo(3); };
 				}(date));
 			}
 
@@ -1127,7 +1156,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 
 	function renderTimesFor(date) {
-		el.timesLabel.textContent = date.full;
+		el.timesLabel.textContent = copy.available_times;
 		el.timesList.textContent = '';
 
 		date.times.forEach(function (time, position) {
@@ -1140,7 +1169,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			node.style.animationDelay = position * 40 + 'ms';
 			node.addEventListener('click', function () {
 				chooseTime(time);
-				renderTimesFor(date);
+				goTo(4);
 			});
 			el.timesList.appendChild(node);
 		});
@@ -1153,27 +1182,15 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		picked.time = null;
 		month = monthKey(date.date);
 		renderTimesFor(date);
-		updateFoot();
 	}
 
 	function chooseTime(time) {
 		picked.time = time;
 		picked.people = 1;
 		el.people.textContent = '1';
-		el.chosen.textContent = [picked.programme.title, picked.date.full, time.label].join('  ·  ');
-		updateFoot();
-	}
-
-	/* The action is only offered once the step it belongs to is answered, which
-	   is clearer than letting it be pressed and then explaining why not. */
-	function updateFoot() {
-		var ready = true;
-
-		if (2 === Number(step)) {
-			ready = !!picked.time;
-		}
-
-		el.next.disabled = !ready;
+		el.chosenProgramme.textContent = picked.programme.title;
+		el.chosenDate.textContent = picked.date.full;
+		el.chosenTime.textContent = time.label;
 	}
 
 	/* ---- Steps ---- */
@@ -1200,6 +1217,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		});
 
 		if (next === 2) { renderCalendar(); }
+		if (next === 3 && picked.date) { renderTimesFor(picked.date); }
 
 		modal.querySelectorAll('[data-iwf-progress]').forEach(function (bar) {
 			bar.classList.toggle('is-done', Number(bar.getAttribute('data-iwf-progress')) <= Number(next));
@@ -1209,12 +1227,15 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		el.lead.hidden = !el.lead.textContent;
 
 		if (next === 2) { el.title.textContent = picked.programme.title; }
+		if (next === 3 && picked.date) { el.lead.textContent = picked.date.full; el.lead.hidden = false; }
 
 		el.back.hidden = next === 1 || next === 'done';
-		el.next.hidden = next === 'done';
-		el.next.textContent = 3 === Number(next) ? copy.complete : copy.next;
+		el.next.hidden = 4 !== Number(next);
+		el.next.textContent = copy.complete;
+		el.foot.hidden = next === 1 || next === 'done';
+		el.chosenLabel.hidden = 4 !== Number(next);
+		el.chosenWrap.hidden = 4 !== Number(next);
 		showError('');
-		updateFoot();
 
 		/* Each step starts at the top of the dialog, never of the page. */
 		el.scroll.scrollTop = 0;
@@ -1257,7 +1278,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		modal.querySelector('.iwf-modal__backdrop').style.animation = '';
 		lockPage();
 		renderOptions();
-		goTo(at || (picked.time ? 3 : 1));
+		goTo(at || (picked.time ? 4 : 1));
 
 		/* Force layout with the dialog still at opacity 0, then reveal in the same
 		   task. requestAnimationFrame would read better, but a browser stops
@@ -1420,7 +1441,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		}
 	});
 
-	/* ---- Step 3 ---- */
+	/* ---- Step 4: booking details ---- */
 
 	root.querySelectorAll('[data-iwf-people]').forEach(function (control) {
 		control.addEventListener('click', function () {
@@ -1473,21 +1494,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	el.next.addEventListener('click', function () {
 		var current = Number(step);
 
-		if (1 === current) {
-			goTo(2);
-			return;
-		}
-
-		if (2 === current) {
-			if (!picked.time) {
-				return;
-			}
-
-			goTo(3);
-			return;
-		}
-
-		if (3 === current) {
+		if (4 === current) {
 			/* Ask the browser to check the fields first, so a missing email is a
 			   native message beside the field rather than a sentence at the top. */
 			if (el.form.reportValidity && !el.form.reportValidity()) {
