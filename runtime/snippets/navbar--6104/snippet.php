@@ -20,7 +20,7 @@ if ( ! function_exists( 'ioulia_mini_cart_shell' ) ) {
     function ioulia_mini_cart_shell() {
         ob_start();
         ?>
-        <div class="ioulia-mini-cart-shell" aria-live="polite" data-ioulia-cart-nonce="<?php echo esc_attr( wp_create_nonce( 'ioulia_mini_cart' ) ); ?>">
+        <div class="ioulia-mini-cart-shell" aria-live="polite">
             <?php if ( function_exists( 'WC' ) && WC()->cart && ! WC()->cart->is_empty() ) : ?>
                 <div class="ioulia-mini-cart-items">
                     <?php foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) :
@@ -403,8 +403,8 @@ function ioulia_custom_navbar_shortcode() {
             margin: 0 !important;
             color: var(--ioulia-dark) !important;
             font-family: var(--ioulia-font) !important;
-            font-size: clamp(28px, 2.6vw, 38px) !important;
-            font-weight: 500 !important;
+            font-size: clamp(34px, 3vw, 44px) !important;
+            font-weight: 400 !important;
             line-height: 1 !important;
             letter-spacing: -.045em !important;
             text-transform: lowercase;
@@ -734,7 +734,7 @@ function ioulia_custom_navbar_shortcode() {
 
             .ioulia-mini-cart-note {
                 margin-top: 8px !important;
-                font-size: 13px !important;
+                font-size: 14px !important;
                 line-height: 1.5 !important;
             }
 
@@ -1046,6 +1046,17 @@ function ioulia_custom_navbar_shortcode() {
         }
 
         @media (max-width: 699px) {
+            html.ioulia-cart-root-locked,
+            html.ioulia-cart-root-locked body {
+                overflow: hidden !important;
+                overscroll-behavior: none;
+            }
+            body.ioulia-cart-locked {
+                position: fixed !important;
+                right: 0;
+                left: 0;
+                width: 100%;
+            }
             .ioulia-mini-cart-panel {
                 top: auto;
                 right: 0;
@@ -1072,10 +1083,15 @@ function ioulia_custom_navbar_shortcode() {
             .ioulia-mini-cart-grab,
             .ioulia-mini-cart-header { touch-action: none; }
             .ioulia-mini-cart-header { padding: 10px 20px 16px; }
-            .ioulia-mini-cart-items { padding: 10px 12px 14px; }
+            .ioulia-mini-cart-items {
+                padding: 10px 12px 14px;
+                overscroll-behavior-y: contain;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-y;
+            }
             .ioulia-mini-cart-footer { padding: 16px 20px max(16px, env(safe-area-inset-bottom)); }
             .ioulia-mini-cart-item { grid-template-columns: 84px minmax(0, 1fr); padding: 10px; }
-            .ioulia-mini-cart-title { font-size: 28px !important; }
+            .ioulia-mini-cart-title { font-size: 32px !important; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -1220,10 +1236,11 @@ function ioulia_custom_navbar_shortcode() {
             const cartOpen = document.querySelector("[data-ioulia-cart-open]");
             const cartBackdrop = document.querySelector(".ioulia-mini-cart-backdrop");
             const cartCloseButtons = document.querySelectorAll("[data-ioulia-cart-close]");
-            const cartAjaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
-            const cartNonceFallback = <?php echo wp_json_encode( wp_create_nonce( 'ioulia_mini_cart' ) ); ?>;
+            const cartStoreApiUrl = <?php echo wp_json_encode( untrailingslashit( rest_url( 'wc/store/v1/cart' ) ) ); ?>;
+            const cartFragmentsUrl = <?php echo wp_json_encode( add_query_arg( 'wc-ajax', 'get_refreshed_fragments', home_url( '/' ) ) ); ?>;
             let cartPreviousFocus = null;
             let cartCloseTimer = null;
+            let lockedScrollY = 0;
 
             /* Enable transitions only after the hidden initial state has been painted. */
             window.requestAnimationFrame(() => {
@@ -1234,7 +1251,18 @@ function ioulia_custom_navbar_shortcode() {
 
             const syncBodyLock = () => {
                 const shouldLock = overlay.classList.contains("active") || cartPanel.classList.contains("is-open") || cartPanel.classList.contains("is-closing");
-                body.classList.toggle("ioulia-cart-locked", shouldLock);
+
+                if (shouldLock && !body.classList.contains("ioulia-cart-locked")) {
+                    lockedScrollY = window.scrollY;
+                    body.style.top = `-${lockedScrollY}px`;
+                    body.classList.add("ioulia-cart-locked");
+                    document.documentElement.classList.add("ioulia-cart-root-locked");
+                } else if (!shouldLock && body.classList.contains("ioulia-cart-locked")) {
+                    body.classList.remove("ioulia-cart-locked");
+                    document.documentElement.classList.remove("ioulia-cart-root-locked");
+                    body.style.top = "";
+                    window.scrollTo(0, lockedScrollY);
+                }
             };
 
             const closeMenu = () => {
@@ -1390,39 +1418,87 @@ function ioulia_custom_navbar_shortcode() {
                 if (shell && html) shell.outerHTML = html;
             };
 
+            const refreshMiniCartFragments = async () => {
+                const response = await fetch(cartFragmentsUrl, {
+                    method: "POST",
+                    credentials: "same-origin",
+                    cache: "no-store",
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+                const result = await response.json();
+
+                if (!response.ok || !result?.fragments) {
+                    throw new Error("Cart fragments could not be refreshed.");
+                }
+
+                replaceMiniCart(result.fragments[".ioulia-mini-cart-shell"]);
+
+                const countMarkup = result.fragments[".ioulia-cart-count"];
+                const currentCount = document.querySelector(".ioulia-cart-count");
+                if (currentCount && countMarkup) currentCount.outerHTML = countMarkup;
+
+                if (window.jQuery) {
+                    window.jQuery(document.body).trigger("wc_fragments_refreshed");
+                }
+            };
+
+            const changeCartItemViaStoreApi = async (cartItemKey, operation, quantity) => {
+                const cartResponse = await fetch(cartStoreApiUrl, {
+                    method: "GET",
+                    credentials: "same-origin",
+                    cache: "no-store",
+                    headers: { "Accept": "application/json" }
+                });
+
+                if (!cartResponse.ok) {
+                    throw new Error("The WooCommerce cart session is unavailable.");
+                }
+
+                const cartToken = cartResponse.headers.get("Cart-Token");
+                const storeNonce = cartResponse.headers.get("Nonce");
+                const effectiveOperation = operation === "quantity" && quantity < 1 ? "remove" : operation;
+                const endpoint = effectiveOperation === "remove" ? "remove-item" : "update-item";
+                const headers = {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                };
+
+                if (storeNonce) {
+                    headers.Nonce = storeNonce;
+                } else if (cartToken) {
+                    headers["Cart-Token"] = cartToken;
+                } else {
+                    throw new Error("The WooCommerce cart session could not be verified.");
+                }
+
+                const payload = effectiveOperation === "remove"
+                    ? { key: cartItemKey }
+                    : { key: cartItemKey, quantity };
+                const updateResponse = await fetch(`${cartStoreApiUrl}/${endpoint}`, {
+                    method: "POST",
+                    credentials: "same-origin",
+                    cache: "no-store",
+                    headers,
+                    body: JSON.stringify(payload)
+                });
+                const result = await updateResponse.json();
+
+                if (!updateResponse.ok) {
+                    throw new Error(result?.message || "Cart update failed.");
+                }
+
+                updateCartCount(result.items_count || 0);
+                await refreshMiniCartFragments();
+            };
+
             const changeCartItem = async (item, operation, quantity = 0) => {
                 if (!item || item.classList.contains("is-updating")) return;
 
                 item.classList.add("is-updating");
                 cartPanel.setAttribute("aria-busy", "true");
 
-                const formData = new FormData();
-                const currentShell = cartPanel.querySelector(".ioulia-mini-cart-shell");
-                const cartNonce = currentShell?.dataset.iouliaCartNonce || cartNonceFallback;
-                formData.append("action", "ioulia_mini_cart");
-                formData.append("nonce", cartNonce);
-                formData.append("cart_item_key", item.dataset.cartKey || "");
-                formData.append("operation", operation);
-                if (operation === "quantity") formData.append("quantity", String(quantity));
-
                 try {
-                    const response = await fetch(cartAjaxUrl, {
-                        method: "POST",
-                        credentials: "same-origin",
-                        body: formData
-                    });
-                    const result = await response.json();
-
-                    if (!response.ok || !result.success) {
-                        throw new Error(result?.data?.message || "Cart update failed.");
-                    }
-
-                    replaceMiniCart(result.data.html);
-                    updateCartCount(result.data.count);
-
-                    if (window.jQuery) {
-                        window.jQuery(document.body).trigger("wc_fragment_refresh");
-                    }
+                    await changeCartItemViaStoreApi(item.dataset.cartKey || "", operation, quantity);
                 } catch (error) {
                     item.classList.remove("is-updating");
                     console.error(error);
@@ -1441,8 +1517,10 @@ function ioulia_custom_navbar_shortcode() {
                 const item = event.target.closest(".ioulia-mini-cart-item");
 
                 if (removeButton && item) {
+                    event.preventDefault();
                     changeCartItem(item, "remove");
                 } else if (quantityButton && item && !quantityButton.disabled) {
+                    event.preventDefault();
                     changeCartItem(item, "quantity", Number(quantityButton.dataset.iouliaQuantity));
                 }
             });
