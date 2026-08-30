@@ -277,16 +277,18 @@ function igsp_render_single_product( $atts = array() ) {
 				width: 100%;
 				height: 100vh;
 				overflow: hidden;
-				align-items: center;
+				align-items: flex-start;
+				justify-content: center;
 				isolation: isolate;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-list {
 				display: flex;
-				width: max-content;
-				height: calc(100vh - var(--igsp-gallery-pad) - var(--igsp-gallery-pad));
+				width: calc(100% - var(--igsp-gallery-pad) - var(--igsp-gallery-pad));
+				height: max-content;
 				margin: 0;
 				padding: 0;
+				flex-direction: column;
 				flex-wrap: nowrap;
 				gap: var(--igsp-slide-gap);
 				list-style: none;
@@ -296,8 +298,8 @@ function igsp_render_single_product( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item {
 				position: relative;
-				width: calc(50vw - var(--igsp-gallery-pad) - var(--igsp-gallery-pad));
-				height: 100%;
+				width: 100%;
+				height: calc(100vh - var(--igsp-gallery-pad) - var(--igsp-gallery-pad));
 				flex: 0 0 auto;
 				overflow: hidden;
 				transform: scale(1);
@@ -1137,6 +1139,7 @@ function igsp_render_single_product( $atts = array() ) {
 					scroll-behavior: smooth;
 					scroll-snap-type: x mandatory;
 					scrollbar-width: none;
+					flex-direction: row;
 					gap: 0;
 					transform: none !important;
 				}
@@ -1593,15 +1596,15 @@ function igsp_render_single_product( $atts = array() ) {
 			function updateTrackPosition(animate) {
 				if (!gallery || !galleryStage || !slides.length || !isDesktopGallery()) return;
 
-				var slideWidth = slides[0].offsetWidth;
+				var slideHeight = slides[0].offsetHeight;
 				var gap = parseFloat(window.getComputedStyle(gallery).gap) || 0;
-				var centerOffset = (galleryStage.clientWidth - slideWidth) / 2;
-				var xPosition = centerOffset - (currentSlide * (slideWidth + gap));
+				var centerOffset = (galleryStage.clientHeight - slideHeight) / 2;
+				var yPosition = centerOffset - (currentSlide * (slideHeight + gap));
 
 				gallery.style.transition = animate && !reduceMotion
 					? "transform 900ms cubic-bezier(.25, 1, .3, 1)"
 					: "none";
-				gallery.style.transform = "translate3d(" + String(xPosition) + "px, 0, 0)";
+				gallery.style.transform = "translate3d(0, " + String(yPosition) + "px, 0)";
 			}
 
 			function animatePageTo(targetY, done) {
@@ -1694,7 +1697,8 @@ function igsp_render_single_product( $atts = array() ) {
 				if (reduceMotion || alreadySqueezed) {
 					doSlide();
 				} else {
-					galleryDelayTimer = window.setTimeout(doSlide, 150);
+					/* Let the compression register before the vertical track moves. */
+					galleryDelayTimer = window.setTimeout(doSlide, 220);
 				}
 
 				return true;
