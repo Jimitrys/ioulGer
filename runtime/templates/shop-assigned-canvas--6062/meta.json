@@ -4,7 +4,7 @@
     "post_type": "igc_theme_template",
     "title": "Shop — Assigned Canvas",
     "slug": "shop-assigned-canvas",
-    "status": "publish",
+    "status": "draft",
     "menu_order": 0,
     "properties": {
         "location": "product_archive",
