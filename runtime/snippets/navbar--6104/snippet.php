@@ -743,7 +743,10 @@ function ioulia_custom_navbar_shortcode() {
             }
         }
 
-        body.ioulia-cart-locked {
+        /* Hold the page still while an overlay is open.
+           The root is the scroller, so this is where the lock belongs: an
+           overflow on body alone leaves the page scrolling behind the menu. */
+        html.ioulia-cart-root-locked {
             overflow: hidden !important;
         }
 
@@ -1249,19 +1252,42 @@ function ioulia_custom_navbar_shortcode() {
                 });
             });
 
+            let lockedBodyLift = false;
+
             const syncBodyLock = () => {
                 const shouldLock = overlay.classList.contains("active") || cartPanel.classList.contains("is-open") || cartPanel.classList.contains("is-closing");
 
+                /* Below 700px the body is taken out of flow, so it has to be
+                   pulled up by the scroll position to stay where it was. Above
+                   that it is not, and setting the offset anyway shifted the whole
+                   page upward: body carries a position from the theme, so a
+                   negative top moves it, and with overflow-x clipped the content
+                   that went above the viewport was simply gone. */
+                const liftsBody = () => window.matchMedia("(max-width: 699px)").matches;
+
                 if (shouldLock && !body.classList.contains("ioulia-cart-locked")) {
                     lockedScrollY = window.scrollY;
-                    body.style.top = `-${lockedScrollY}px`;
+                    lockedBodyLift = liftsBody();
+
+                    if (lockedBodyLift) {
+                        body.style.top = `-${lockedScrollY}px`;
+                    } else {
+                        // Hiding the scrollbar would otherwise widen the page.
+                        const bar = window.innerWidth - document.documentElement.clientWidth;
+                        if (bar > 0) document.documentElement.style.paddingRight = `${bar}px`;
+                    }
+
                     body.classList.add("ioulia-cart-locked");
                     document.documentElement.classList.add("ioulia-cart-root-locked");
                 } else if (!shouldLock && body.classList.contains("ioulia-cart-locked")) {
                     body.classList.remove("ioulia-cart-locked");
                     document.documentElement.classList.remove("ioulia-cart-root-locked");
+                    document.documentElement.style.paddingRight = "";
                     body.style.top = "";
-                    window.scrollTo(0, lockedScrollY);
+
+                    if (lockedBodyLift) {
+                        window.scrollTo(0, lockedScrollY);
+                    }
                 }
             };
 
