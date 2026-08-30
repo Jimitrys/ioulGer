@@ -754,9 +754,6 @@ function igpa_render_product_archive( $atts = array() ) {
 				<article
 					class="igpa__card<?php echo $is_pair ? ' igpa__card--pair' : ''; ?>"
 					data-card
-					data-product="<?php echo esc_attr( $product_id ); ?>"
-					data-name="<?php echo esc_attr( $product_name ); ?>"
-					data-url="<?php echo esc_url( $product_url ); ?>"
 					data-order="<?php echo esc_attr( $order_index ); ?>"
 					data-date="<?php echo esc_attr( $date_value ); ?>"
 					data-price="<?php echo esc_attr( $price_value ); ?>"

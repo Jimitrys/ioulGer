@@ -4,10 +4,10 @@
     "post_type": "igc_php_snippet",
     "title": "product quick view",
     "slug": "product-quickview",
-    "status": "publish",
+    "status": "draft",
     "menu_order": 14,
     "properties": {
         "scope": "everywhere",
-        "enabled": true
+        "enabled": false
     }
 }
