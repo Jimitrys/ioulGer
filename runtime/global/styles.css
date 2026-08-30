@@ -87,6 +87,12 @@ body, .igw-page, .igw-page * {
   --ioulia-page-x: clamp(1rem, 2.35vw, 2.4rem);
   --ioulia-section-y: clamp(4.5rem, 9vw, 9.5rem);
 
+  /* Height of the fixed header, measured unscrolled. The navbar snippet
+     overwrites this on the root element as soon as it runs; the value here is
+     the pre-script fallback and matches the logo plus its top padding, so a
+     page that reserves room for the header never starts out underneath it. */
+  --ioulia-header-h: 176px;
+
   --ioulia-space-1: .5rem;
   --ioulia-space-2: .75rem;
   --ioulia-space-3: 1rem;
@@ -104,6 +110,12 @@ body, .igw-page, .igw-page * {
   --ioulia-fast: 180ms;
   --ioulia-medium: 360ms;
   --ioulia-slow: 700ms;
+}
+
+/* The header sits closer to the top edge below 992px, so the pre-script
+   fallback shrinks with it. */
+@media (max-width:991px) {
+  :root { --ioulia-header-h: 139px; }
 }
 
 /* FOUNDATION */

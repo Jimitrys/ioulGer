@@ -1640,6 +1640,50 @@ function ioulia_custom_navbar_shortcode() {
                 }
             });
 
+            /* --- 1b. Publish the header height for the rest of the site ---
+               The header is fixed and shrinks once the page is scrolled, so a
+               page that reserves room for it has to know its *unscrolled*
+               height or the reserved band would move while reading. The class
+               is lifted for the measurement and put straight back, before the
+               browser paints, so nothing is visible and the transition is
+               suppressed for that single frame. */
+            const measureHeader = () => {
+                const wasScrolled = header.classList.contains("scrolled");
+                if (wasScrolled) {
+                    header.style.transition = "none";
+                    header.classList.remove("scrolled");
+                }
+
+                const full = Math.ceil(header.getBoundingClientRect().height);
+
+                if (wasScrolled) {
+                    header.classList.add("scrolled");
+                    header.getBoundingClientRect();
+                    header.style.transition = "";
+                }
+
+                document.documentElement.style.setProperty("--ioulia-header-h", full + "px");
+            };
+
+            let headerFrame = 0;
+            const requestHeaderMeasure = () => {
+                if (headerFrame) return;
+                headerFrame = window.requestAnimationFrame(() => {
+                    headerFrame = 0;
+                    measureHeader();
+                });
+            };
+
+            measureHeader();
+            window.addEventListener("resize", requestHeaderMeasure, { passive: true });
+            window.addEventListener("load", requestHeaderMeasure);
+            if ("ResizeObserver" in window) {
+                new ResizeObserver(requestHeaderMeasure).observe(header);
+            }
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(requestHeaderMeasure);
+            }
+
             /* --- 2. Menu Open / Close Logic --- */
             burger.addEventListener("click", () => {
                 if (!overlay.classList.contains("active")) {

@@ -121,7 +121,8 @@ add_action( 'wp_head', function () {
 
 		body.woocommerce-checkout:not(.woocommerce-order-received) .page-content,
 		body.woocommerce-checkout:not(.woocommerce-order-received) .entry-content,
-		body.woocommerce-checkout:not(.woocommerce-order-received) main.site-main {
+		body.woocommerce-checkout:not(.woocommerce-order-received) main.site-main,
+		body.woocommerce-checkout:not(.woocommerce-order-received) main.site-studio__main {
 			width: 100% !important;
 			max-width: var(--ioulia-shell) !important;
 			margin-right: auto !important;
@@ -411,7 +412,8 @@ add_action( 'wp_head', function () {
 			box-shadow: none !important;
 			color: var(--igc-ink) !important;
 			font-family: inherit !important;
-			font-size: 14px !important;
+			/* 16px keeps iOS from zooming the page when a field takes focus. */
+			font-size: 16px !important;
 			font-weight: 400 !important;
 			line-height: 1.3 !important;
 			transition: border-color 300ms var(--igc-ease-out), background-color 300ms var(--igc-ease-out), transform 300ms var(--igc-ease-out), box-shadow 300ms var(--igc-ease-out) !important;
@@ -910,7 +912,8 @@ add_action( 'wp_head', function () {
 		/* Responsive Breakdown */
 		@media (max-width: 900px) {
 			.ig-checkout-app {
-				padding-top: 110px !important;
+				/* Clear the fixed header instead of starting behind it. */
+				padding-top: calc(var(--ioulia-header-h, 139px) + 28px) !important;
 			}
 
 			.ig-checkout-app form.checkout {

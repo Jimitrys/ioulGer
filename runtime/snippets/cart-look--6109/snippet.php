@@ -28,10 +28,14 @@ if ( ! function_exists( 'ioulia_cart_visual_layer' ) ) {
 				color: var(--ig-cart-ink);
 			}
 
-			body.woocommerce-cart main.site-main {
+			body.woocommerce-cart main.site-main,
+			body.woocommerce-cart main.site-studio__main {
 				width: 100%;
 				max-width: none;
 				padding: clamp(154px, 19vh, 230px) var(--ig-cart-x) clamp(90px, 12vh, 150px);
+				/* On a short viewport the vh part of the clamp lands under the
+				   fixed header, so the header height is the floor. */
+				padding-top: max(clamp(154px, 19vh, 230px), calc(var(--ioulia-header-h, 176px) + 24px));
 				background: var(--ig-cart-paper);
 			}
 
@@ -510,8 +514,10 @@ if ( ! function_exists( 'ioulia_cart_visual_layer' ) ) {
 			html.ig-cart-motion body.woocommerce-cart.ig-cart-ready .wp-block-woocommerce-empty-cart-block { transition-delay: 120ms; }
 
 			@media (max-width: 900px) {
-				body.woocommerce-cart main.site-main {
+				body.woocommerce-cart main.site-main,
+				body.woocommerce-cart main.site-studio__main {
 					padding: 124px var(--ig-cart-x) 90px;
+					padding-top: calc(var(--ioulia-header-h, 139px) + 28px);
 				}
 
 				body.woocommerce-cart .page-header {

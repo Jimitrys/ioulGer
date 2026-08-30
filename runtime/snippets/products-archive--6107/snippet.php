@@ -60,13 +60,20 @@ function igpa_render_product_archive( $atts = array() ) {
 	$atts = shortcode_atts(
 		array(
 			'title' => 'shop',
-			'limit' => '60',
+			'limit' => 'all',
 		),
 		$atts,
 		'ioulia_product_archive'
 	);
 
-	$limit = max( 1, min( 120, absint( $atts['limit'] ) ) );
+	/*
+	 * The shop shows the whole catalogue by default. A numeric limit still
+	 * works for embeds that only want a taste of it.
+	 */
+	$requested = strtolower( trim( (string) $atts['limit'] ) );
+	$limit     = ( '' === $requested || 'all' === $requested || '-1' === $requested || '0' === $requested )
+		? -1
+		: max( 1, min( 500, absint( $requested ) ) );
 
 	$query = new WP_Query(
 		array(
@@ -859,7 +866,7 @@ function igpa_render_product_archive( $atts = array() ) {
 			}
 
 			function words(value) {
-				return (value || "").split(/s+/).filter(Boolean);
+				return (value || "").split(" ").filter(Boolean);
 			}
 
 			function matches(card) {

@@ -7,10 +7,16 @@
     --igc-x: var(--ioulia-page-x, clamp(28px, 3.05vw, 46px));
 
     width: 100%;
+    /* The page fills the screen, so the footer never rides up under a short
+       step, and it clears the fixed header rather than starting behind it. */
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     background: var(--igc-paper);
     color: var(--igc-ink);
     font-family: var(--ioulia-font, "Montserrat", Arial, sans-serif);
-    padding-top: clamp(120px, 16vh, 190px);
+    padding-top: calc(var(--ioulia-header-h, 176px) + clamp(20px, 4vh, 56px));
     padding-bottom: clamp(60px, 10vh, 120px);
   }
 
@@ -323,7 +329,8 @@
   .igc-textarea {
     width: 100%;
     font-family: inherit;
-    font-size: 14px;
+    /* 16px is the floor: iOS Safari zooms into any smaller focused field. */
+    font-size: 16px;
     color: var(--igc-ink);
     background: transparent !important;
     border: 1.5px solid var(--igc-ink);
@@ -353,7 +360,7 @@
 
   .igc-select option:not([disabled]) {
     color: var(--igc-ink);
-    font-size: 14px;
+    font-size: 16px;
     text-transform: none;
   }
 
@@ -514,6 +521,18 @@
   @media (max-width: 480px) {
     .igc-cat-grid {
       grid-template-columns: 1fr;
+    }
+    .igc-step__actions {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      gap: 12px;
+    }
+    .igc-btn--primary {
+      margin-left: 0;
+      justify-content: center;
+    }
+    .igc-success__actions {
+      max-width: 100%;
     }
     .igc-size-slider__ticks {
       grid-template-columns: 1fr;

@@ -357,6 +357,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		max-width: var(--ioulia-shell, 100%);
 		margin-inline: auto;
 		padding: clamp(4rem, 10vw, 9rem) var(--ioulia-page-x, 1.25rem);
+		/* The header is fixed, so its height is the floor for the top inset. */
+		padding-top: max(clamp(4rem, 10vw, 9rem), calc(var(--ioulia-header-h, 176px) + 1.5rem));
 		background: var(--iwf-paper);
 		color: var(--iwf-ink);
 		font-family: var(--ioulia-font, sans-serif);

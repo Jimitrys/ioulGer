@@ -3,21 +3,14 @@
   if (!page || page.dataset.initialized === 'true') return;
   page.dataset.initialized = 'true';
 
-  const hero = page.querySelector('.ig-about');
-  const syncNavbarHeight = () => {
-    const navbar = document.getElementById('ioulia-header');
-    const bottom = navbar ? Math.max(0, Math.ceil(navbar.getBoundingClientRect().bottom)) : 82;
-    page.style.setProperty('--about-nav', `${bottom}px`);
-  };
-  syncNavbarHeight();
-  window.addEventListener('resize', syncNavbarHeight, { passive: true });
-  const navbar = document.getElementById('ioulia-header');
-  if (navbar && 'ResizeObserver' in window) new ResizeObserver(syncNavbarHeight).observe(navbar);
+  /* The room kept for the fixed header comes from --ioulia-header-h, which the
+     navbar publishes on the root element. Measuring it here as well followed
+     the header as it shrank on scroll and moved the hero while reading. */
 
   const manifesto = page.querySelector('.ig-manifesto');
   if (!manifesto) return;
   manifesto.querySelectorAll('[data-reveal-text]').forEach((node) => {
-    const words = node.textContent.trim().split(/s+/);
+    const words = node.textContent.trim().split(" ").filter(Boolean);
     node.textContent = '';
     words.forEach((word, index) => {
       const span = document.createElement('span');
