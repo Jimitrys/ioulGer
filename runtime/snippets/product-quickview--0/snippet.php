@@ -50,9 +50,23 @@ if ( ! function_exists( 'ioulia_quickview_ajax' ) ) {
 			wp_send_json_error( array( 'message' => 'Δεν βρήκαμε αυτό το προϊόν.' ), 404 );
 		}
 
-		// The same shortcode the product page itself renders, so the sheet cannot
-		// drift away from the page it stands in for.
-		$html = do_shortcode( '[ioulia_single_product id="' . $product_id . '"]' );
+		/* The same shortcode the product page itself renders, so the sheet cannot
+		   drift away from the page it stands in for.
+
+		   Wrapped, because this markup runs whatever any plugin has hooked around
+		   a product, and one of those failing here would otherwise send an HTML
+		   error page down a channel the browser is parsing as JSON. */
+		try {
+			$html = do_shortcode( '[ioulia_single_product id="' . $product_id . '"]' );
+		} catch ( Throwable $error ) {
+			wp_send_json_error(
+				array(
+					'message' => 'Δεν μπορέσαμε να δείξουμε αυτό το προϊόν εδώ.',
+					'fallback' => get_permalink( $product_id ),
+				),
+				500
+			);
+		}
 
 		if ( '' === trim( $html ) ) {
 			wp_send_json_error( array( 'message' => 'Δεν βρήκαμε αυτό το προϊόν.' ), 404 );
@@ -292,10 +306,22 @@ if ( ! function_exists( 'ioulia_quickview_assets' ) ) {
 		body.append('product', productId);
 
 		return fetch(root.dataset.ajax, { method: 'POST', body: body, credentials: 'same-origin' })
-			.then(function (response) { return response.json(); })
-			.then(function (result) {
+			.then(function (response) { return response.text(); })
+			.then(function (text) {
+				var result;
+
+				/* A fatal anywhere in the product markup arrives as an HTML error
+				   page. Reading it as JSON turns a server problem into a parse
+				   error in the visitor's face, so it is treated as what it is: a
+				   sign that this product needs its own page. */
+				try {
+					result = JSON.parse(text);
+				} catch (error) {
+					throw new Error('__fallback__');
+				}
+
 				if (!result || !result.success) {
-					throw new Error((result && result.data && result.data.message) || 'Κάτι πήγε στραβά.');
+					throw new Error((result && result.data && result.data.message) || '__fallback__');
 				}
 
 				cache.set(productId, result.data);
@@ -353,8 +379,18 @@ if ( ! function_exists( 'ioulia_quickview_assets' ) ) {
 			})
 			.catch(function (error) {
 				root.classList.remove('is-busy');
+
+				/* If the sheet cannot show it, the product page still can. Sending
+				   the visitor there is a better answer than an apology. */
+				var url = cards[index] && cards[index].getAttribute('data-url');
+
+				if (url) {
+					window.location.href = url;
+					return;
+				}
+
 				slot.textContent = '';
-				errorEl.textContent = error.message;
+				errorEl.textContent = '__fallback__' === error.message ? 'Δεν μπορέσαμε να το ανοίξουμε εδώ.' : error.message;
 				errorEl.hidden = false;
 			});
 	}

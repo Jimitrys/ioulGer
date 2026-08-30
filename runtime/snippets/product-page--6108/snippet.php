@@ -177,12 +177,32 @@ function igsp_render_single_product( $atts = array() ) {
 	 */
 	wp_enqueue_script( 'wc-add-to-cart-variation' );
 
-	$previous_product    = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
+	/* Everything hooked around the add to cart form was written for a product
+	   page, so it expects the loop to be standing: the product in one global and
+	   the post in the other. On a product page both are already there and only
+	   the product needs restating. Rendered anywhere else — a shortcode on a
+	   page, or the quick view answering over AJAX — the post is missing, and a
+	   hook that reaches for it gets null. */
+	$previous_product   = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
+	$previous_post      = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 	$GLOBALS['product'] = $product;
+	$GLOBALS['post']    = get_post( $product_id );
+
+	if ( $GLOBALS['post'] ) {
+		setup_postdata( $GLOBALS['post'] );
+	}
 
 	ob_start();
 	woocommerce_template_single_add_to_cart();
 	$add_to_cart_html = ob_get_clean();
+
+	wp_reset_postdata();
+
+	if ( $previous_post ) {
+		$GLOBALS['post'] = $previous_post;
+	} else {
+		unset( $GLOBALS['post'] );
+	}
 
 	if ( $previous_product ) {
 		$GLOBALS['product'] = $previous_product;
