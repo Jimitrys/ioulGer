@@ -575,10 +575,10 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		.iwf-modal { align-items: flex-end; padding: 0 clamp(1.5rem, 4vw, 4rem); }
 		.iwf-modal__dialog {
 			width: min(720px, calc(100vw - 3rem));
-			height: min(86vh, 820px);
-			height: min(86dvh, 820px);
-			max-height: min(86vh, 820px);
-			max-height: min(86dvh, 820px);
+			height: min(92vh, 860px);
+			height: min(92dvh, 860px);
+			max-height: min(92vh, 860px);
+			max-height: min(92dvh, 860px);
 			border-radius: var(--iwf-shell-radius) var(--iwf-shell-radius) 0 0;
 			box-shadow: 0 -24px 80px rgba(43, 43, 43, .22);
 			transform-origin: 50% 100%;
@@ -724,7 +724,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	/* ---- Step 3: details ---- */
 
 	.iwf__chosen { display: grid; gap: .3rem; margin: 0 0 .8rem; padding: 1rem 1.1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); color: var(--iwf-muted); font-size: var(--ioulia-small); line-height: 1.45; }
-	.iwf__chosen-label { color: rgba(43, 43, 43, .58); font-size: var(--ioulia-micro); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+	.iwf__chosen-label { color: rgba(43, 43, 43, .58); font-size: var(--ioulia-micro); font-weight: 600; letter-spacing: .01em; }
 	.iwf__chosen strong { color: var(--iwf-ink); font-size: var(--ioulia-small); font-weight: 500; }
 	.iwf__error { margin: 1.2rem 0 0; padding: .9rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-control); background: var(--iwf-slot-bg); color: var(--iwf-slot-ink); font-size: var(--ioulia-small); }
 	.iwf__error[hidden] { display: none; }
@@ -773,7 +773,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	}
 
 	@media (max-height: 760px) and (min-width: 700px) {
-		.iwf-modal__dialog { height: 90vh; height: 90dvh; max-height: 90vh; max-height: 90dvh; }
+		.iwf-modal__dialog { height: 94vh; height: 94dvh; max-height: 94vh; max-height: 94dvh; }
 		.iwf-modal__body { padding-top: .55rem; padding-bottom: 1.5rem; }
 		.iwf-modal__title { font-size: 1.8rem; }
 		.iwf-step { margin-top: 1.2rem; }
