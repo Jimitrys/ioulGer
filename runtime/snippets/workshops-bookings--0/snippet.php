@@ -208,6 +208,16 @@ if ( ! function_exists( 'ioulia_seats_left' ) ) {
  * Creating a booking
  * ---------------------------------------------------------------------- */
 
+if ( ! function_exists( 'ioulia_booking_public_message' ) ) {
+	/**
+	 * Validation can answer a public AJAX request, so it follows the language of
+	 * the page that submitted it. Internal dashboard and email copy stays Greek.
+	 */
+	function ioulia_booking_public_message( $source ) {
+		return function_exists( 'ioulia_maybe_translate' ) ? ioulia_maybe_translate( $source ) : $source;
+	}
+}
+
 if ( ! function_exists( 'ioulia_create_booking' ) ) {
 	/**
 	 * Validate and store a booking, then email the studio and the visitor.
@@ -222,14 +232,14 @@ if ( ! function_exists( 'ioulia_create_booking' ) ) {
 		$programme = ioulia_workshop_programme( $slug );
 
 		if ( ! $programme || empty( $programme['active'] ) ) {
-			return new WP_Error( 'ioulia_programme', 'Δεν βρήκαμε αυτό το πρόγραμμα.' );
+			return new WP_Error( 'ioulia_programme', ioulia_booking_public_message( 'Δεν βρήκαμε αυτό το πρόγραμμα.' ) );
 		}
 
 		$starts = isset( $input['starts'] ) ? trim( (string) $input['starts'] ) : '';
 		$slot   = ioulia_match_session( $programme, $starts );
 
 		if ( ! $slot ) {
-			return new WP_Error( 'ioulia_session', 'Αυτή η ώρα δεν είναι διαθέσιμη για το συγκεκριμένο πρόγραμμα.' );
+			return new WP_Error( 'ioulia_session', ioulia_booking_public_message( 'Αυτή η ώρα δεν είναι διαθέσιμη για το συγκεκριμένο πρόγραμμα.' ) );
 		}
 
 		$earliest = ioulia_booking_earliest_start();
@@ -237,7 +247,7 @@ if ( ! function_exists( 'ioulia_create_booking' ) ) {
 		if ( strtotime( $starts ) < strtotime( $earliest ) ) {
 			return new WP_Error(
 				'ioulia_lead_time',
-				sprintf( 'Οι κρατήσεις γίνονται τουλάχιστον %d ημέρες πριν τη συνάντηση.', (int) $settings['lead_days'] )
+				sprintf( ioulia_booking_public_message( 'Οι κρατήσεις γίνονται τουλάχιστον %d ημέρες πριν τη συνάντηση.' ), (int) $settings['lead_days'] )
 			);
 		}
 
@@ -248,8 +258,8 @@ if ( ! function_exists( 'ioulia_create_booking' ) ) {
 			return new WP_Error(
 				'ioulia_capacity',
 				0 === $left
-					? 'Αυτή η συνάντηση είναι πλήρης. Διάλεξε άλλη ημέρα ή ώρα.'
-					: sprintf( 'Έμειναν %d θέσεις σε αυτή τη συνάντηση.', $left )
+					? ioulia_booking_public_message( 'Αυτή η συνάντηση είναι πλήρης. Διάλεξε άλλη ημέρα ή ώρα.' )
+					: sprintf( ioulia_booking_public_message( 'Έμειναν %d θέσεις σε αυτή τη συνάντηση.' ), $left )
 			);
 		}
 
@@ -259,15 +269,15 @@ if ( ! function_exists( 'ioulia_create_booking' ) ) {
 		$note  = sanitize_textarea_field( isset( $input['note'] ) ? $input['note'] : '' );
 
 		if ( '' === $name ) {
-			return new WP_Error( 'ioulia_name', 'Γράψε το ονοματεπώνυμό σου.' );
+			return new WP_Error( 'ioulia_name', ioulia_booking_public_message( 'Γράψε το ονοματεπώνυμό σου.' ) );
 		}
 
 		if ( ! is_email( $email ) ) {
-			return new WP_Error( 'ioulia_email', 'Γράψε ένα έγκυρο email.' );
+			return new WP_Error( 'ioulia_email', ioulia_booking_public_message( 'Γράψε ένα έγκυρο email.' ) );
 		}
 
 		if ( empty( $input['consent'] ) ) {
-			return new WP_Error( 'ioulia_consent', 'Χρειαζόμαστε τη συγκατάθεσή σου για να κρατήσουμε τα στοιχεία σου.' );
+			return new WP_Error( 'ioulia_consent', ioulia_booking_public_message( 'Χρειαζόμαστε τη συγκατάθεσή σου για να κρατήσουμε τα στοιχεία σου.' ) );
 		}
 
 		$post_id = wp_insert_post(

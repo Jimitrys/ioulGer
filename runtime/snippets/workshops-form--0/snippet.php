@@ -61,6 +61,42 @@ if ( ! function_exists( 'ioulia_calendar_words' ) ) {
 	}
 }
 
+if ( ! function_exists( 'ioulia_workshops_form_copy' ) ) {
+	/**
+	 * Every string created after page load. The page-wide translation pass skips
+	 * scripts by design, so JavaScript reads this already-localised dictionary
+	 * instead of carrying a second, hardcoded language inside the script.
+	 */
+	function ioulia_workshops_form_copy() {
+		$sources = array(
+			'heading_programme' => 'Τι θέλεις να κάνεις;',
+			'lead_programme'    => 'Πέντε εργαστήρια, όλα ανοιχτά και σε αρχάριους.',
+			'lead_date'         => 'Διάλεξε ημέρα και ώρα.',
+			'heading_details'   => 'Τα στοιχεία σου',
+			'lead_details'      => 'Θα λάβεις email με την επιβεβαίωση.',
+			'heading_done'      => 'Η θέση σου κρατήθηκε.',
+			'popular'           => 'Δημοφιλές',
+			'previous_month'    => 'Προηγούμενος μήνας',
+			'next_month'        => 'Επόμενος μήνας',
+			'one_place'         => '1 θέση',
+			'many_places'       => '%d θέσεις',
+			'next'              => 'Επόμενο',
+			'complete'          => 'Ολοκλήρωση κράτησης',
+			'maximum'           => 'Αυτές είναι οι διαθέσιμες θέσεις.',
+			'sending'           => 'Στέλνουμε...',
+			'generic_error'     => 'Κάτι πήγε στραβά.',
+			'network_error'     => 'Δεν υπάρχει σύνδεση. Δοκίμασε ξανά.',
+		);
+		$copy    = array();
+
+		foreach ( $sources as $key => $source ) {
+			$copy[ $key ] = function_exists( 'ioulia_maybe_translate' ) ? ioulia_maybe_translate( $source ) : $source;
+		}
+
+		return $copy;
+	}
+}
+
 /* -------------------------------------------------------------------------
  * Submission
  * ---------------------------------------------------------------------- */
@@ -72,13 +108,13 @@ if ( ! function_exists( 'ioulia_book_ajax' ) ) {
 		// Two quiet bot checks: a field no human sees, and a form that came back
 		// impossibly fast. Neither stores anything about the visitor.
 		if ( ! empty( $_POST['website'] ) ) {
-			wp_send_json_success( array( 'message' => 'Ευχαριστούμε.' ) );
+			wp_send_json_success( array( 'message' => ioulia_maybe_translate( 'Ευχαριστούμε.' ) ) );
 		}
 
 		$opened = isset( $_POST['opened'] ) ? absint( $_POST['opened'] ) : 0;
 
 		if ( $opened && ( time() - $opened ) < 3 ) {
-			wp_send_json_error( array( 'message' => 'Δοκίμασε ξανά σε λίγο.' ), 400 );
+			wp_send_json_error( array( 'message' => ioulia_maybe_translate( 'Δοκίμασε ξανά σε λίγο.' ) ), 400 );
 		}
 
 		$booking = ioulia_create_booking(
@@ -95,7 +131,7 @@ if ( ! function_exists( 'ioulia_book_ajax' ) ) {
 		);
 
 		if ( is_wp_error( $booking ) ) {
-			wp_send_json_error( array( 'message' => $booking->get_error_message() ), 400 );
+			wp_send_json_error( array( 'message' => ioulia_maybe_translate( $booking->get_error_message() ) ), 400 );
 		}
 
 		wp_send_json_success(
@@ -118,20 +154,22 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 		$availability = ioulia_availability();
 		$privacy      = get_privacy_policy_url();
 		$visuals      = ioulia_workshops_visuals();
+		$copy         = ioulia_workshops_form_copy();
 
 		ob_start();
 		?>
 		<section class="iwf" data-iwf
 			data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"
 			data-nonce="<?php echo esc_attr( wp_create_nonce( 'ioulia_book' ) ); ?>"
-			data-words="<?php echo esc_attr( wp_json_encode( ioulia_calendar_words() ) ); ?>">
+			data-words="<?php echo esc_attr( wp_json_encode( ioulia_calendar_words() ) ); ?>"
+			data-copy="<?php echo esc_attr( wp_json_encode( $copy ) ); ?>">
 
 			<div class="iwf__grid">
 
 				<div class="iwf__visuals" aria-hidden="true">
 					<?php foreach ( array_slice( $visuals, 0, 2 ) as $index => $visual ) : ?>
 						<figure class="iwf__visual iwf__visual--<?php echo 0 === $index ? 'a' : 'b'; ?>" data-iwf-reveal>
-							<img src="<?php echo esc_url( $visual['src'] ); ?>" alt="<?php echo esc_attr( $visual['alt'] ); ?>" loading="lazy" decoding="async">
+							<img src="<?php echo esc_url( $visual['src'] ); ?>" alt="<?php echo esc_attr( ioulia_maybe_translate( $visual['alt'] ) ); ?>" loading="lazy" decoding="async">
 						</figure>
 					<?php endforeach; ?>
 				</div>
@@ -807,6 +845,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	var payload = root.querySelector('[data-iwf-availability]');
 	var programmes = payload ? JSON.parse(payload.textContent || '[]') : [];
 	var words = JSON.parse(root.dataset.words || '{}');
+	var copy = JSON.parse(root.dataset.copy || '{}');
 
 	/* Blocks settle in as they come into view, staggered by order of arrival. */
 	var reveals = root.querySelectorAll('[data-iwf-reveal]');
@@ -853,13 +892,13 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		scroll: root.querySelector('[data-iwf-scroll]')
 	};
 
-	var STEPS = { 1: 'πρόγραμμα', 2: 'ημερομηνία', 3: 'στοιχεία' };
+	var STEPS = { 1: true, 2: true, 3: true };
 
 	var HEADINGS = {
-		1: ['Τι θέλεις να κάνεις;', 'Πέντε εργαστήρια, όλα ανοιχτά και σε αρχάριους.'],
-		2: ['', 'Διάλεξε ημέρα και ώρα.'],
-		3: ['Τα στοιχεία σου', 'Θα λάβεις email με την επιβεβαίωση.'],
-		done: ['Η θέση σου κρατήθηκε.', '']
+		1: [copy.heading_programme, copy.lead_programme],
+		2: ['', copy.lead_date],
+		3: [copy.heading_details, copy.lead_details],
+		done: [copy.heading_done, '']
 	};
 
 	function showError(message) {
@@ -958,7 +997,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			controls.className = 'iwf__option-controls';
 
 			if (programme.popular) {
-				controls.appendChild(span('iwf__option-badge', 'Δημοφιλές'));
+				controls.appendChild(span('iwf__option-badge', copy.popular));
 			}
 
 			var mark = document.createElement('span');
@@ -1032,7 +1071,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			button.type = 'button';
 			button.textContent = spec[0];
 			button.disabled = spec[2];
-			button.setAttribute('aria-label', spec[1] < 0 ? 'Προηγούμενος μήνας' : 'Επόμενος μήνας');
+			button.setAttribute('aria-label', spec[1] < 0 ? copy.previous_month : copy.next_month);
 			button.addEventListener('click', function () {
 				month = months[position + spec[1]];
 				renderCalendar(spec[1]);
@@ -1096,7 +1135,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			node.type = 'button';
 			node.className = 'iwf__chip' + (picked.time && picked.time.starts === time.starts ? ' is-current' : '');
 			node.textContent = time.label;
-			node.title = time.left === 1 ? '1 θέση' : time.left + ' θέσεις';
+			node.title = time.left === 1 ? copy.one_place : copy.many_places.replace('%d', time.left);
 			node.setAttribute('aria-pressed', picked.time && picked.time.starts === time.starts ? 'true' : 'false');
 			node.style.animationDelay = position * 40 + 'ms';
 			node.addEventListener('click', function () {
@@ -1173,7 +1212,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 		el.back.hidden = next === 1 || next === 'done';
 		el.next.hidden = next === 'done';
-		el.next.textContent = 3 === Number(next) ? 'Ολοκλήρωση κράτησης' : 'Επόμενο';
+		el.next.textContent = 3 === Number(next) ? copy.complete : copy.next;
 		showError('');
 		updateFoot();
 
@@ -1390,7 +1429,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 			picked.people = Math.min(most, Math.max(1, picked.people + change));
 			el.people.textContent = String(picked.people);
-			showError(picked.people === most && change > 0 ? 'Αυτές είναι οι διαθέσιμες θέσεις.' : '');
+			showError(picked.people === most && change > 0 ? copy.maximum : '');
 		});
 	});
 
@@ -1406,26 +1445,28 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 		var submit = el.next;
 		submit.disabled = true;
-		submit.textContent = 'Στέλνουμε...';
+		submit.textContent = copy.sending;
 
 		fetch(root.dataset.ajax, { method: 'POST', body: data, credentials: 'same-origin' })
 			.then(function (response) { return response.json(); })
 			.then(function (result) {
 				submit.disabled = false;
-				submit.textContent = 'Ολοκλήρωση κράτησης';
+				submit.textContent = copy.complete;
 
 				if (!result || !result.success) {
-					showError((result && result.data && result.data.message) || 'Κάτι πήγε στραβά.');
+					showError((result && result.data && result.data.message) || copy.generic_error);
 					return;
 				}
 
-				el.summary.textContent = result.data.programme + '  ·  ' + result.data.when;
+				/* The server keeps booking records and emails in Greek. The public
+				   confirmation reuses the already-localised selection on screen. */
+				el.summary.textContent = picked.programme.title + '  ·  ' + picked.date.full + ', ' + picked.time.label;
 				goTo('done');
 			})
 			.catch(function () {
 				submit.disabled = false;
-				submit.textContent = 'Ολοκλήρωση κράτησης';
-				showError('Δεν υπάρχει σύνδεση. Δοκίμασε ξανά.');
+				submit.textContent = copy.complete;
+				showError(copy.network_error);
 			});
 	});
 
