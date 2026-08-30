@@ -1419,11 +1419,19 @@ function ioulia_custom_navbar_shortcode() {
             };
 
             const refreshMiniCartFragments = async () => {
-                const response = await fetch(cartFragmentsUrl, {
+                /* cache: no-store only speaks to the browser. A page cache in front
+                   of WordPress keys on the URL, so the fragments request needs a
+                   URL nothing has seen before, or it is answered with the cart as
+                   it stood the first time anyone asked. */
+                const bustedUrl = cartFragmentsUrl
+                    + (cartFragmentsUrl.indexOf("?") > -1 ? "&" : "?")
+                    + "_igc=" + Date.now();
+
+                const response = await fetch(bustedUrl, {
                     method: "POST",
                     credentials: "same-origin",
                     cache: "no-store",
-                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                    headers: { "X-Requested-With": "XMLHttpRequest", "Cache-Control": "no-cache" }
                 });
                 const result = await response.json();
 
@@ -1439,6 +1447,40 @@ function ioulia_custom_navbar_shortcode() {
 
                 if (window.jQuery) {
                     window.jQuery(document.body).trigger("wc_fragments_refreshed");
+                }
+            };
+
+            /* The Store API answers every write with the cart in full, so the row
+               can be brought in line from the reply rather than from a second
+               request that a cache may or may not answer honestly. */
+            const applyCartToMarkup = (cart, cartItemKey, operation) => {
+                const row = cartPanel.querySelector('.ioulia-mini-cart-item[data-cart-key="' + cartItemKey + '"]');
+                if (!row) return;
+
+                if (operation === "remove") {
+                    row.remove();
+
+                    if (!cartPanel.querySelector(".ioulia-mini-cart-item")) {
+                        const shell = cartPanel.querySelector(".ioulia-mini-cart-shell");
+                        if (shell) shell.classList.add("is-emptying");
+                    }
+
+                    return;
+                }
+
+                const item = (cart.items || []).find(entry => entry.key === cartItemKey);
+                if (!item) return;
+
+                const readout = row.querySelector(".ioulia-mini-cart-quantity span");
+                if (readout) readout.textContent = String(item.quantity);
+
+                const most = item.quantity_limits && item.quantity_limits.maximum;
+                const steppers = row.querySelectorAll("[data-ioulia-quantity]");
+
+                if (steppers.length === 2) {
+                    steppers[0].dataset.iouliaQuantity = String(Math.max(0, item.quantity - 1));
+                    steppers[1].dataset.iouliaQuantity = String(item.quantity + 1);
+                    steppers[1].disabled = !!most && item.quantity >= most;
                 }
             };
 
@@ -1488,7 +1530,16 @@ function ioulia_custom_navbar_shortcode() {
                 }
 
                 updateCartCount(result.items_count || 0);
-                await refreshMiniCartFragments();
+                applyCartToMarkup(result, cartItemKey, effectiveOperation);
+
+                /* Fragments still run, for the prices and the subtotal, but the
+                   quantity the visitor just changed is already correct. If this
+                   request is stale or fails, the panel is not left lying. */
+                try {
+                    await refreshMiniCartFragments();
+                } catch (error) {
+                    console.error(error);
+                }
             };
 
             const changeCartItem = async (item, operation, quantity = 0) => {
