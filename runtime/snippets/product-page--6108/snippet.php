@@ -260,58 +260,54 @@ function igsp_render_single_product( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery {
+				--igsp-gallery-pad: clamp(24px, 4.2vw, 68px);
+				--igsp-slide-gap: clamp(16px, 2vw, 32px);
+				--igsp-slide-motion: cubic-bezier(.25, 1, .3, 1);
+				--igsp-squeeze-motion: cubic-bezier(.4, 0, .2, 1);
 				position: relative;
 				min-width: 0;
 				height: var(--igsp-gallery-height, 100vh);
-				background: var(--igsp-soft);
+				background: var(--igsp-paper);
 			}
 
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-list {
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery-stage {
 				position: sticky;
 				top: 0;
-				display: block;
+				display: flex;
 				width: 100%;
 				height: 100vh;
-				margin: 0;
-				padding: 0;
 				overflow: hidden;
-				list-style: none;
+				align-items: center;
 				isolation: isolate;
 			}
 
+			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-list {
+				display: flex;
+				width: max-content;
+				height: calc(100vh - var(--igsp-gallery-pad) - var(--igsp-gallery-pad));
+				margin: 0;
+				padding: 0;
+				flex-wrap: nowrap;
+				gap: var(--igsp-slide-gap);
+				list-style: none;
+				transform: translate3d(0, 0, 0);
+				will-change: transform;
+			}
+
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item {
-				position: absolute;
-				inset: clamp(24px, 4.2vw, 68px);
-				z-index: 1;
-				min-width: 0;
-				min-height: 0;
-				opacity: 0;
-				transform: translate3d(0, 22%, 0) scale(.82);
+				position: relative;
+				width: calc(50vw - var(--igsp-gallery-pad) - var(--igsp-gallery-pad));
+				height: 100%;
+				flex: 0 0 auto;
+				overflow: hidden;
+				transform: scale(1);
 				transform-origin: 50% 50%;
-				pointer-events: none;
-				will-change: transform, opacity;
-				transition:
-					opacity 460ms ease,
-					transform 780ms cubic-bezier(.16, 1, .3, 1);
+				will-change: transform;
+				transition: transform 600ms var(--igsp-squeeze-motion);
 			}
 
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-active {
-				z-index: 3;
-				opacity: 1;
-				transform: translate3d(0, 0, 0) scale(1);
-				pointer-events: auto;
-			}
-
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-before {
-				z-index: 2;
-				opacity: 0;
-				transform: translate3d(0, -22%, 0) scale(.82);
-			}
-
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-after {
-				z-index: 1;
-				opacity: 0;
-				transform: translate3d(0, 22%, 0) scale(.82);
+			#<?php echo esc_attr( $instance_id ); ?>.is-gallery-squeezed .igsp__media-item {
+				transform: scale(.88);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-button {
@@ -323,27 +319,20 @@ function igsp_render_single_product( $atts = array() ) {
 				margin: 0;
 				padding: 0;
 				overflow: hidden;
-				border: 1px solid rgba(43, 43, 43, .1);
-				border-radius: 24px;
-				background: rgba(255, 255, 255, .42);
-				box-shadow: 0 24px 68px rgba(43, 43, 43, .09);
+				border: 0;
+				border-radius: 0;
+				background: transparent;
+				box-shadow: none;
 				cursor: pointer;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__image {
-				position: absolute;
-				inset: 0;
+				position: relative;
+				display: block;
 				width: 100%;
 				height: 100%;
-				object-fit: cover;
-				opacity: 1;
-				transform: scale(1.018);
-				transition:
-					transform 1000ms cubic-bezier(.16, 1, .3, 1);
-			}
-
-			#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item.is-active .igsp__image {
-				transform: scale(1.001);
+				object-fit: contain;
+				pointer-events: none;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery-ui {
@@ -371,15 +360,14 @@ function igsp_render_single_product( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__product-panel {
 				position: sticky;
 				top: 0;
+				display: flex;
 				height: 100vh;
 				min-height: 650px;
-				padding:
-					var(--igsp-nav-bottom)
-					clamp(22px, 3vw, 48px)
-					clamp(28px, 4vw, 54px);
+				padding: clamp(96px, 12vh, 128px) clamp(24px, 4vw, 64px);
 				overflow-y: auto;
 				overscroll-behavior-y: contain;
 				background: var(--igsp-paper);
+				align-items: center;
 				scrollbar-width: thin;
 				scrollbar-color: rgba(43, 43, 43, .18) transparent;
 			}
@@ -397,13 +385,13 @@ function igsp_render_single_product( $atts = array() ) {
 				display: flex;
 				width: 100%;
 				max-width: 600px;
-				margin: 0 auto;
-				padding: clamp(24px, 3vw, 42px);
+				margin: auto;
+				padding: 0;
 				flex-direction: column;
 				justify-content: flex-start;
-				border: 1px solid rgba(43, 43, 43, .12);
-				border-radius: 24px;
-				background: rgba(255, 255, 255, .42);
+				border: 0;
+				border-radius: 0;
+				background: transparent;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__product-panel-inner > * {
@@ -1129,6 +1117,14 @@ function igsp_render_single_product( $atts = array() ) {
 					padding-top: var(--igsp-nav-bottom);
 				}
 
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery-stage {
+					position: relative;
+					top: auto;
+					display: block;
+					height: auto;
+					overflow: visible;
+				}
+
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-list {
 					position: relative;
 					top: auto;
@@ -1141,6 +1137,8 @@ function igsp_render_single_product( $atts = array() ) {
 					scroll-behavior: smooth;
 					scroll-snap-type: x mandatory;
 					scrollbar-width: none;
+					gap: 0;
+					transform: none !important;
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-list::-webkit-scrollbar {
@@ -1155,7 +1153,7 @@ function igsp_render_single_product( $atts = array() ) {
 					height: auto;
 					min-width: 100%;
 					min-height: 0;
-					aspect-ratio: 4 / 5;
+					aspect-ratio: auto;
 					flex: 0 0 100%;
 					opacity: 1;
 					transform: none;
@@ -1171,10 +1169,21 @@ function igsp_render_single_product( $atts = array() ) {
 					pointer-events: auto;
 				}
 
+				#<?php echo esc_attr( $instance_id ); ?>.is-gallery-squeezed .igsp__media-item {
+					transform: none;
+				}
+
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-button {
+					height: auto;
 					border-width: 0;
 					border-radius: 0;
 					box-shadow: none;
+				}
+
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__image {
+					height: auto;
+					max-height: calc(100svh - var(--igsp-nav-bottom) - 24px);
+					object-fit: contain;
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__gallery-ui {
@@ -1225,6 +1234,11 @@ function igsp_render_single_product( $atts = array() ) {
 					height: 7px;
 					border-top: 1px solid currentColor;
 					border-left: 1px solid currentColor;
+				}
+
+				#<?php echo esc_attr( $instance_id ); ?> .igsp__arrow:disabled {
+					opacity: .28;
+					cursor: not-allowed;
 				}
 
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__arrow--prev::after {
@@ -1287,10 +1301,6 @@ function igsp_render_single_product( $atts = array() ) {
 			}
 
 			@media (max-width: 520px) {
-				#<?php echo esc_attr( $instance_id ); ?> .igsp__media-item {
-					aspect-ratio: 3 / 4;
-				}
-
 				#<?php echo esc_attr( $instance_id ); ?> .igsp__heading-row {
 					gap: 12px;
 				}
@@ -1336,7 +1346,8 @@ function igsp_render_single_product( $atts = array() ) {
 
 		<div class="igsp__layout">
 			<div class="igsp__gallery" style="--igsp-gallery-height: <?php echo esc_attr( count( $image_ids ) * 100 ); ?>vh;">
-				<ol class="igsp__media-list" data-gallery>
+				<div class="igsp__gallery-stage" data-gallery-stage>
+					<ol class="igsp__media-list" data-gallery>
 					<?php foreach ( $image_ids as $image_index => $image_id ) : ?>
 						<?php
 						$full_image_url = $image_id
@@ -1382,7 +1393,8 @@ function igsp_render_single_product( $atts = array() ) {
 							</button>
 						</li>
 					<?php endforeach; ?>
-				</ol>
+					</ol>
+				</div>
 
 				<div class="igsp__gallery-ui">
 					<span class="igsp__count" aria-live="polite">
@@ -1534,6 +1546,7 @@ function igsp_render_single_product( $atts = array() ) {
 			root.dataset.ready = "true";
 
 			var gallery = root.querySelector("[data-gallery]");
+			var galleryStage = root.querySelector("[data-gallery-stage]");
 			var slides = Array.prototype.slice.call(root.querySelectorAll("[data-slide]"));
 			var currentCounter = root.querySelector("[data-current-slide]");
 			var galleryPrev = root.querySelector("[data-gallery-prev]");
@@ -1545,13 +1558,15 @@ function igsp_render_single_product( $atts = array() ) {
 			var galleryAnimationFrame = 0;
 			var galleryDelayTimer = 0;
 			var galleryUnlockTimer = 0;
+			var galleryReleaseTimer = 0;
+			var galleryInputThrottle = false;
 
 			function isDesktopGallery() {
 				return window.innerWidth > 900;
 			}
 
 			function galleryStartY() {
-				var galleryColumn = gallery ? gallery.parentElement : null;
+				var galleryColumn = galleryStage ? galleryStage.parentElement : null;
 				return galleryColumn
 					? window.scrollY + galleryColumn.getBoundingClientRect().top
 					: window.scrollY;
@@ -1560,7 +1575,7 @@ function igsp_render_single_product( $atts = array() ) {
 			function setCurrentSlide(index) {
 				if (!slides.length) return;
 
-				currentSlide = (index + slides.length) % slides.length;
+				currentSlide = Math.max(0, Math.min(slides.length - 1, index));
 				slides.forEach(function (slide, slideIndex) {
 					slide.classList.toggle("is-active", slideIndex === currentSlide);
 					slide.classList.toggle("is-before", slideIndex < currentSlide);
@@ -1570,6 +1585,23 @@ function igsp_render_single_product( $atts = array() ) {
 				if (currentCounter) {
 					currentCounter.textContent = String(currentSlide + 1);
 				}
+
+				if (galleryPrev) galleryPrev.disabled = currentSlide === 0;
+				if (galleryNext) galleryNext.disabled = currentSlide === slides.length - 1;
+			}
+
+			function updateTrackPosition(animate) {
+				if (!gallery || !galleryStage || !slides.length || !isDesktopGallery()) return;
+
+				var slideWidth = slides[0].offsetWidth;
+				var gap = parseFloat(window.getComputedStyle(gallery).gap) || 0;
+				var centerOffset = (galleryStage.clientWidth - slideWidth) / 2;
+				var xPosition = centerOffset - (currentSlide * (slideWidth + gap));
+
+				gallery.style.transition = animate && !reduceMotion
+					? "transform 900ms cubic-bezier(.25, 1, .3, 1)"
+					: "none";
+				gallery.style.transform = "translate3d(" + String(xPosition) + "px, 0, 0)";
 			}
 
 			function animatePageTo(targetY, done) {
@@ -1586,7 +1618,7 @@ function igsp_render_single_product( $atts = array() ) {
 
 				var startY = window.scrollY;
 				var distance = targetY - startY;
-				var duration = 720;
+				var duration = 900;
 				var startedAt = performance.now();
 
 				function frame(now) {
@@ -1608,7 +1640,8 @@ function igsp_render_single_product( $atts = array() ) {
 
 			function goToSlide(index) {
 				if (!slides.length || !gallery) return;
-				var targetIndex = (index + slides.length) % slides.length;
+				if (index < 0 || index >= slides.length) return;
+				var targetIndex = index;
 
 				if (!isDesktopGallery()) {
 					setCurrentSlide(targetIndex);
@@ -1617,21 +1650,54 @@ function igsp_render_single_product( $atts = array() ) {
 						behavior: reduceMotion ? "auto" : "smooth"
 					});
 				} else {
-					galleryAnimating = true;
 					setCurrentSlide(targetIndex);
-					window.clearTimeout(galleryDelayTimer);
-					window.clearTimeout(galleryUnlockTimer);
-					galleryDelayTimer = window.setTimeout(function () {
-						animatePageTo(
-							galleryStartY() + (targetIndex * window.innerHeight),
-							function () {
-								galleryUnlockTimer = window.setTimeout(function () {
-									galleryAnimating = false;
-								}, reduceMotion ? 0 : 140);
-							}
-						);
-					}, reduceMotion ? 0 : 55);
+					updateTrackPosition(true);
 				}
+			}
+
+			function moveDesktopGallery(direction) {
+				if (!isDesktopGallery() || galleryInputThrottle || !slides.length) return false;
+
+				var targetIndex = currentSlide + direction;
+				if (targetIndex < 0 || targetIndex >= slides.length) return false;
+
+				galleryInputThrottle = true;
+				window.setTimeout(function () {
+					galleryInputThrottle = false;
+				}, 350);
+
+				window.clearTimeout(galleryDelayTimer);
+				window.clearTimeout(galleryUnlockTimer);
+				window.clearTimeout(galleryReleaseTimer);
+				galleryAnimating = true;
+
+				var alreadySqueezed = root.classList.contains("is-gallery-squeezed");
+				if (!reduceMotion) root.classList.add("is-gallery-squeezed");
+
+				function doSlide() {
+					setCurrentSlide(targetIndex);
+					updateTrackPosition(true);
+					animatePageTo(
+						galleryStartY() + (targetIndex * window.innerHeight),
+						function () {}
+					);
+
+					galleryReleaseTimer = window.setTimeout(function () {
+						root.classList.remove("is-gallery-squeezed");
+					}, reduceMotion ? 0 : 850);
+
+					galleryUnlockTimer = window.setTimeout(function () {
+						galleryAnimating = false;
+					}, reduceMotion ? 0 : 940);
+				}
+
+				if (reduceMotion || alreadySqueezed) {
+					doSlide();
+				} else {
+					galleryDelayTimer = window.setTimeout(doSlide, 150);
+				}
+
+				return true;
 			}
 
 			if (galleryPrev) {
@@ -1657,23 +1723,21 @@ function igsp_render_single_product( $atts = array() ) {
 					});
 				}, { passive: true });
 
-				gallery.addEventListener("wheel", function (event) {
-					if (!isDesktopGallery() || slides.length < 2 || Math.abs(event.deltaY) < 6) return;
+			}
 
-					if (galleryAnimating) {
-						event.preventDefault();
-						return;
-					}
+			if (galleryStage) {
+				galleryStage.addEventListener("wheel", function (event) {
+					if (!isDesktopGallery() || slides.length < 2 || Math.abs(event.deltaY) < 6) return;
 
 					var direction = event.deltaY > 0 ? 1 : -1;
 					var targetIndex = currentSlide + direction;
 
-					/* At either end the next wheel gesture belongs to the page, so the
-					   gallery never traps the visitor inside the product images. */
+					/* At either end the next gesture belongs to the page. Between them,
+					   one gesture maps to one finite product image. */
 					if (targetIndex < 0 || targetIndex >= slides.length) return;
 
 					event.preventDefault();
-					goToSlide(targetIndex);
+					moveDesktopGallery(direction);
 				}, { passive: false });
 			}
 
@@ -1682,7 +1746,10 @@ function igsp_render_single_product( $atts = array() ) {
 
 				var progress = (window.scrollY - galleryStartY()) / Math.max(1, window.innerHeight);
 				var index = Math.max(0, Math.min(slides.length - 1, Math.round(progress)));
-				if (index !== currentSlide) setCurrentSlide(index);
+				if (index !== currentSlide) {
+					setCurrentSlide(index);
+					updateTrackPosition(true);
+				}
 			}
 
 			window.addEventListener("scroll", function () {
@@ -1696,14 +1763,25 @@ function igsp_render_single_product( $atts = array() ) {
 			window.addEventListener("resize", function () {
 				window.clearTimeout(galleryDelayTimer);
 				window.clearTimeout(galleryUnlockTimer);
+				window.clearTimeout(galleryReleaseTimer);
 				if (galleryAnimationFrame) window.cancelAnimationFrame(galleryAnimationFrame);
 				galleryAnimationFrame = 0;
 				galleryAnimating = false;
-				syncDesktopSlideToPage();
+				galleryInputThrottle = false;
+				root.classList.remove("is-gallery-squeezed");
+
+				if (isDesktopGallery()) {
+					syncDesktopSlideToPage();
+					updateTrackPosition(false);
+				} else if (gallery) {
+					gallery.style.transition = "";
+					gallery.style.transform = "";
+				}
 			});
 
 			setCurrentSlide(0);
 			syncDesktopSlideToPage();
+			updateTrackPosition(false);
 
 			/**
 			 * Quantity controls are added around WooCommerce's real input,
