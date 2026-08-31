@@ -85,6 +85,10 @@ if ( ! function_exists( 'ioulia_workshops_form_copy' ) ) {
 			'next'              => 'Επόμενο',
 			'complete'          => 'Ολοκλήρωση κράτησης',
 			'maximum'           => 'Αυτές είναι οι διαθέσιμες θέσεις.',
+			'vat'               => '+ ΦΠΑ',
+			'per_person'        => 'ανά άτομο',
+			'people_suffix'     => 'άτομα',
+			'vat_note'          => 'Οι τιμές δεν περιλαμβάνουν ΦΠΑ.',
 			'sending'           => 'Στέλνουμε...',
 			'generic_error'     => 'Κάτι πήγε στραβά.',
 			'network_error'     => 'Δεν υπάρχει σύνδεση. Δοκίμασε ξανά.',
@@ -254,6 +258,14 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 										<output data-iwf-people-value>1</output>
 										<button type="button" data-iwf-people="1" aria-label="Περισσότερα άτομα">+</button>
 									</div>
+								</div>
+
+								<div class="iwf__total" data-iwf-total-wrap>
+									<div class="iwf__total-head">
+										<span class="iwf__total-label">Σύνολο</span>
+										<strong class="iwf__total-value" data-iwf-total></strong>
+									</div>
+									<span class="iwf__total-note" data-iwf-total-note></span>
 								</div>
 
 								<div class="iwf__fields">
@@ -790,6 +802,12 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf__stepper button:active { transform: scale(.97); }
 	.iwf__stepper output { min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
 
+	.iwf__total { display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); }
+	.iwf__total-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+	.iwf__total-label { color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 600; }
+	.iwf__total-value { font-size: var(--ioulia-body-lg); font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+	.iwf__total-note { color: var(--iwf-muted); font-size: var(--ioulia-micro); line-height: 1.45; }
+
 	.iwf__fields { display: grid; gap: .8rem; padding: 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); }
 	.iwf__field > span { display: block; margin: 0 0 .4rem .15rem; color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 600; }
 	.iwf__field em { font-style: normal; opacity: .7; }
@@ -919,6 +937,8 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		error: root.querySelector('[data-iwf-error]'),
 		summary: root.querySelector('[data-iwf-summary]'),
 		people: root.querySelector('[data-iwf-people-value]'),
+		total: root.querySelector('[data-iwf-total]'),
+		totalNote: root.querySelector('[data-iwf-total-note]'),
 		scroll: root.querySelector('[data-iwf-scroll]')
 	};
 
@@ -1039,7 +1059,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 			top.appendChild(controls);
 
 			node.appendChild(top);
-			node.appendChild(span('iwf__option-price', programme.price + ' €'));
+			node.appendChild(span('iwf__option-price', programme.price + ' € ' + copy.vat));
 			node.appendChild(span('iwf__option-summary', programme.summary));
 
 			node.addEventListener('click', function () {
@@ -1220,6 +1240,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 		if (next === 2) { renderCalendar(); }
 		if (next === 3 && picked.date) { renderTimesFor(picked.date); }
+		if (Number(next) === 4) { renderTotal(); }
 
 		modal.querySelectorAll('[data-iwf-progress]').forEach(function (bar) {
 			bar.classList.toggle('is-done', Number(bar.getAttribute('data-iwf-progress')) <= Number(next));
@@ -1445,6 +1466,25 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 	/* ---- Step 4: booking details ---- */
 
+	/* Programme prices are per person and quoted before VAT, so the total says
+	   both: what the participant count comes to, and that VAT is still to be
+	   added on top of it. */
+	function renderTotal() {
+		if (!el.total) { return; }
+
+		var price = Number(picked.programme.price) || 0;
+		var parts = [ price + ' € ' + copy.per_person ];
+
+		if (picked.people > 1) {
+			parts.push(picked.people + ' ' + copy.people_suffix);
+		}
+
+		parts.push(copy.vat_note);
+
+		el.total.textContent = (price * picked.people) + ' € ' + copy.vat;
+		el.totalNote.textContent = parts.join('  ·  ');
+	}
+
 	root.querySelectorAll('[data-iwf-people]').forEach(function (control) {
 		control.addEventListener('click', function () {
 			var change = Number(control.getAttribute('data-iwf-people'));
@@ -1452,6 +1492,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 
 			picked.people = Math.min(most, Math.max(1, picked.people + change));
 			el.people.textContent = String(picked.people);
+			renderTotal();
 			showError(picked.people === most && change > 0 ? copy.maximum : '');
 		});
 	});
