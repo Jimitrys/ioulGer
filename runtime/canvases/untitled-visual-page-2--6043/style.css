@@ -852,6 +852,9 @@
       padding-top: 80px;
       padding-bottom: 80px;
     }
+    /* The hero's own inset already clears the header; the section padding on
+       top of it left a band of empty paper above the title. */
+    .igw-hero { padding-top: 0; }
     .igw-hero__inner {
       padding-top: calc(var(--ioulia-header-h, 139px) + 1.5rem);
       grid-template-columns: 1fr;
@@ -863,6 +866,12 @@
     .igw-shared__heading, .igw-shared__content,
     .igw-faq > h2, .igw-faq__items {
       grid-column: 1 / -1;
+    }
+    /* The desktop hero places the image across both rows, beside the title.
+       Stacked, it has to take a row of its own or it sits on top of the title
+       and the paragraphs. */
+    .igw-hero__title-group, .igw-hero__image, .igw-hero__text {
+      grid-row: auto;
     }
     .igw-hero__title { font-size: clamp(48px, 14vw, 76px); }
     .igw-hero__image { aspect-ratio: 4 / 5; height: auto; }
