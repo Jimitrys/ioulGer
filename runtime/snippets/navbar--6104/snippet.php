@@ -1028,15 +1028,69 @@ function ioulia_custom_navbar_shortcode() {
         /* --- Mobile --- */
         @media (max-width: 991px) {
             #ioulia-header { padding-top: 2.5em; }
-            #ioulia-menu-overlay { height: 100vh; padding-top: 12vh; padding-bottom: 6vh; }
-            .ioulia-canvas-main { flex-direction: column; gap: 0; }
+
+            /* svh, not vh: the panel then holds still while the browser chrome
+               slides away, instead of growing mid-animation. The shorter curve
+               lets the links arrive with the panel rather than a beat after it. */
+            #ioulia-menu-overlay {
+                height: 100svh;
+                padding-top: var(--ioulia-header-h, 139px);
+                padding-bottom: 4vh;
+                transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+            }
+
+            /* The list sits in the middle of what is left below the header,
+               with the footer still resting at the bottom. */
+            .ioulia-canvas-main {
+                flex: 1;
+                flex-direction: column;
+                justify-content: center;
+                /* Without stretch the columns shrink to their text and the
+                   right edge of the list stops short of the gutter. */
+                align-items: stretch;
+                gap: 0;
+                margin-top: 0;
+            }
             .ioulia-col-left{ padding-bottom: 0; }
-            .ioulia-col-right .ioulia-menu-list { align-items: flex-start; }
-            .ioulia-col-right .ioulia-menu-item-link { flex-direction: row; }
-            .ioulia-col-right .ioulia-vessel-svg { transform: translateX(-25px) scale(0.8); }
-            .ioulia-col-right .ioulia-menu-item-link:hover .ioulia-menu-text { transform: translateX(20px); }
-            .ioulia-menu-item-link { font-size: 2.4rem; }
-            .ioulia-canvas-footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; padding-top: 2.5vh; }
+
+            /* Both columns read as one right-aligned list on a phone. */
+            .ioulia-menu-list,
+            .ioulia-col-right .ioulia-menu-list { align-items: flex-end; }
+            .ioulia-menu-item-link { flex-direction: row-reverse; font-size: 2.4rem; }
+            .ioulia-vessel-svg,
+            .ioulia-col-right .ioulia-vessel-svg { transform: translateX(25px) scale(0.8); }
+            .ioulia-menu-item-link:hover .ioulia-menu-text,
+            .ioulia-col-right .ioulia-menu-item-link:hover .ioulia-menu-text { transform: translateX(-20px); }
+
+            /* The hover vessel is 50px tall even while it is hidden, which set
+               the row height on its own; at 34px the rows follow the text. */
+            .ioulia-vessel-svg svg { height: 34px; }
+
+            /* Closing is the plain state, so the links leave quickly; opening
+               gets the longer spring and a tighter stagger. */
+            .ioulia-menu-item {
+                margin-bottom: 0.5rem;
+                transform: translateY(24px);
+                transition: opacity 0.24s ease, transform 0.3s cubic-bezier(0.4, 0, 1, 1);
+            }
+            #ioulia-menu-overlay.active .ioulia-menu-item {
+                transition: opacity 0.5s var(--ioulia-smooth-ease), transform 0.62s var(--ioulia-snappy-ease);
+            }
+            #ioulia-menu-overlay.active .delay-1 { transition-delay: 0.10s; }
+            #ioulia-menu-overlay.active .delay-2 { transition-delay: 0.14s; }
+            #ioulia-menu-overlay.active .delay-3 { transition-delay: 0.18s; }
+            #ioulia-menu-overlay.active .delay-4 { transition-delay: 0.22s; }
+            #ioulia-menu-overlay.active .delay-5 { transition-delay: 0.26s; }
+
+            .ioulia-canvas-footer {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 1.5rem;
+                padding-top: 2.5vh;
+                transition: opacity 0.35s ease, transform 0.4s var(--ioulia-snappy-ease);
+                transition-delay: 0s;
+            }
+            #ioulia-menu-overlay.active .ioulia-canvas-footer { transition-delay: 0.3s; }
             .ioulia-nav-right { gap: 1.5em; }
             .ioulia-lang-switcher { font-size: var(--ioulia-small); gap: .35em; }
             .ioulia-mini-cart-panel {
