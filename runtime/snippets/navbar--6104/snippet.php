@@ -1069,7 +1069,7 @@ function ioulia_custom_navbar_shortcode() {
             /* Closing is the plain state, so the links leave quickly; opening
                gets the longer spring and a tighter stagger. */
             .ioulia-menu-item {
-                margin-bottom: 0.5rem;
+                margin-bottom: 1.35rem;
                 transform: translateY(24px);
                 transition: opacity 0.24s ease, transform 0.3s cubic-bezier(0.4, 0, 1, 1);
             }
