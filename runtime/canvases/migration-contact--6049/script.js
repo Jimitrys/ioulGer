@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const choiceButtons = Array.from(form.querySelectorAll(".igc-choice-btn"));
   const catCards = Array.from(form.querySelectorAll(".igc-cat-card"));
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const compactExperience = window.matchMedia("(max-width: 1024px), (max-height: 900px)");
 
   let currentStepKey = "1";
   let stepSequence = ["1", "2a", "2b", "2c", "3"];
@@ -40,6 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const syncStageHeight = (step = activeStep()) => {
     if (!step) return;
+    if (compactExperience.matches) {
+      stage.style.removeProperty("height");
+      return;
+    }
     window.requestAnimationFrame(() => {
       stage.style.height = `${step.scrollHeight}px`;
     });
@@ -144,6 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
       currentStepKey = targetStepKey;
       renderProgress(targetStepKey);
       syncStageHeight(target);
+      stage.scrollTo({ top: 0, behavior: "auto" });
 
       transitionUnlockTimer = window.setTimeout(() => {
         target.classList.remove("is-back");
@@ -240,5 +246,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if ("ResizeObserver" in window) {
     new ResizeObserver(() => syncStageHeight()).observe(form);
   }
+  compactExperience.addEventListener("change", () => syncStageHeight());
   window.addEventListener("resize", () => syncStageHeight(), { passive: true });
 });
