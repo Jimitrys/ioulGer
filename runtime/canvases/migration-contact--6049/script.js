@@ -92,6 +92,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
+  /* Site Studio stores canvas JS through update_post_meta(), which strips one
+     level of backslashes, so a regex like /<backslash>S+@<backslash>S+/ would
+     arrive as /S+@S+/ and reject every real address. This checks the same shape
+     without an escape in sight. */
+  const looksLikeEmail = (value) => {
+    const at = value.indexOf("@");
+    const dot = value.lastIndexOf(".");
+    return at > 0 && dot > at + 1 && dot < value.length - 1 && !value.includes(" ");
+  };
+
   const validateStep = (stepKey) => {
     const step = form.querySelector(`.igc-step[data-step='${stepKey}']`);
     if (!step) return true;
@@ -100,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     step.querySelectorAll("input[required], textarea[required], select[required]").forEach((input) => {
       const field = input.closest(".igc-field");
       const value = input.value.trim();
-      const valid = Boolean(value) && (input.type !== "email" || /\S+@\S+\.\S+/.test(value));
+      const valid = Boolean(value) && (input.type !== "email" || looksLikeEmail(value));
       input.setAttribute("aria-invalid", String(!valid));
       if (field) field.classList.toggle("has-error", !valid);
       if (!valid && !firstInvalid) firstInvalid = input;
