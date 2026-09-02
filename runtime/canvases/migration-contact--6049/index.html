@@ -5,18 +5,13 @@
       <!-- Minimal Centered Contact Wrapper -->
       <div class="igc-contact__wrapper">
         
-        <!-- Typeform-Style Progress Tracker Bar -->
+        <!-- Segmented progress follows the active custom/general route. -->
         <nav class="igc-progress" aria-label="Form Progress">
-          <div class="igc-progress__track">
-            <div class="igc-progress__bar" id="igc-progress-bar"></div>
-          </div>
-          <div class="igc-progress__counter" id="igc-progress-counter">
-            STEP 01 / 05
-          </div>
+          <div class="igc-progress__track" id="igc-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1"></div>
         </nav>
 
         <!-- Dynamic Main Title -->
-        <h1 class="igc-contact__title" id="igc-dynamic-title">
+        <h1 class="igc-contact__title" id="igc-dynamic-title" aria-live="polite">
           Let's shape something together
         </h1>
 
@@ -112,7 +107,8 @@
                 </div>
 
                 <div class="igc-field">
-                  <input type="text" id="color_finish" name="color_finish" class="igc-input" placeholder="Glaze / Color Preference (e.g. Raw matte cream, dark textured clay)" aria-label="Glaze or Color Preference">
+                  <label class="igc-label" for="color_finish">Glaze / Color Preference</label>
+                  <input type="text" id="color_finish" name="color_finish" class="igc-input" placeholder="e.g. Raw matte cream, dark textured clay">
                 </div>
               </div>
 
@@ -129,7 +125,8 @@
             <div class="igc-step" data-step="2c" data-title="Describe your vision">
               <div class="igc-fields">
                 <div class="igc-field">
-                  <textarea id="piece_description" name="piece_description" class="igc-textarea" rows="5" placeholder="Description & Ideas (Tell us about the space, concept, or specific requests) *" required aria-label="Description and Ideas"></textarea>
+                  <label class="igc-label" for="piece_description">Description &amp; Ideas</label>
+                  <textarea id="piece_description" name="piece_description" class="igc-textarea" rows="5" placeholder="Tell us about the space, concept, or specific requests" required></textarea>
                   <span class="igc-error-msg">Please write a short description of your piece.</span>
                 </div>
               </div>
@@ -147,7 +144,8 @@
             <div class="igc-step" data-step="2general" data-title="Your Inquiry Details">
               <div class="igc-fields">
                 <div class="igc-field">
-                  <select id="inquiry_topic" name="inquiry_topic" class="igc-select" aria-label="Inquiry Topic">
+                  <label class="igc-label" for="inquiry_topic">Inquiry Topic</label>
+                  <select id="inquiry_topic" name="inquiry_topic" class="igc-select">
                     <option value="" disabled selected>Select Topic</option>
                     <option value="workshops">Workshops &amp; Pottery Classes</option>
                     <option value="studio_visit">Studio Visit in Ano Patisia</option>
@@ -157,7 +155,8 @@
                 </div>
 
                 <div class="igc-field">
-                  <textarea id="general_message" name="general_message" class="igc-textarea" rows="5" placeholder="Your Message *" required aria-label="Your Message"></textarea>
+                  <label class="igc-label" for="general_message">Your Message</label>
+                  <textarea id="general_message" name="general_message" class="igc-textarea" rows="5" placeholder="How can we help?" required></textarea>
                   <span class="igc-error-msg">Please enter your message.</span>
                 </div>
               </div>
@@ -175,17 +174,20 @@
             <div class="igc-step" data-step="3" data-title="Where should we send our reply?">
               <div class="igc-fields">
                 <div class="igc-field">
-                  <input type="text" id="full_name" name="full_name" class="igc-input" placeholder="Full Name *" required autocomplete="name" aria-label="Full Name">
+                  <label class="igc-label" for="full_name">Full Name</label>
+                  <input type="text" id="full_name" name="full_name" class="igc-input" placeholder="Your name" required autocomplete="name">
                   <span class="igc-error-msg">Please enter your name.</span>
                 </div>
 
                 <div class="igc-field-row">
                   <div class="igc-field">
-                    <input type="email" id="email_address" name="email_address" class="igc-input" placeholder="Email Address *" required autocomplete="email" aria-label="Email Address">
+                    <label class="igc-label" for="email_address">Email Address</label>
+                    <input type="email" id="email_address" name="email_address" class="igc-input" placeholder="you@example.com" required autocomplete="email">
                     <span class="igc-error-msg">Please enter a valid email address.</span>
                   </div>
                   <div class="igc-field">
-                    <input type="tel" id="phone_number" name="phone_number" class="igc-input" placeholder="Phone Number (Optional)" autocomplete="tel" aria-label="Phone Number">
+                    <label class="igc-label" for="phone_number">Phone Number <span>(Optional)</span></label>
+                    <input type="tel" id="phone_number" name="phone_number" class="igc-input" placeholder="+30" autocomplete="tel">
                   </div>
                 </div>
               </div>

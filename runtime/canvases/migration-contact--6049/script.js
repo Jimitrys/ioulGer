@@ -1,228 +1,240 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("igc-multistep-form");
-    const dynamicTitle = document.getElementById("igc-dynamic-title");
-    const progressBar = document.getElementById("igc-progress-bar");
-    const progressCounter = document.getElementById("igc-progress-counter");
-    
-    if (!form || !dynamicTitle) return;
+  const form = document.getElementById("igc-multistep-form");
+  const stage = document.getElementById("igc-stage");
+  const dynamicTitle = document.getElementById("igc-dynamic-title");
+  const progress = document.querySelector(".igc-progress");
+  const progressTrack = document.getElementById("igc-progress-track");
 
-    let currentStepKey = "1";
-    let stepSequence = ["1", "2a", "2b", "2c", "3"];
-    let isTransitioning = false;
+  if (!form || !stage || !dynamicTitle || !progressTrack) return;
 
-    const steps = form.querySelectorAll(".igc-step[data-step]");
-    const hiddenInquiryVal = document.getElementById("inquiry_type_val");
-    const hiddenCategoryVal = document.getElementById("piece_category_val");
+  const steps = Array.from(form.querySelectorAll(".igc-step[data-step]"));
+  const hiddenInquiryVal = document.getElementById("inquiry_type_val");
+  const hiddenCategoryVal = document.getElementById("piece_category_val");
+  const sizeInput = document.getElementById("size_range_input");
+  const sizeValueDisplay = document.getElementById("igc-size-value");
+  const sizeTicks = Array.from(form.querySelectorAll(".igc-size-tick"));
+  const hiddenSizeVal = document.getElementById("piece_size_label_val");
+  const choiceButtons = Array.from(form.querySelectorAll(".igc-choice-btn"));
+  const catCards = Array.from(form.querySelectorAll(".igc-cat-card"));
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Size Slider Widget Logic
-    const sizeInput = document.getElementById("size_range_input");
-    const sizeValueDisplay = document.getElementById("igc-size-value");
-    const sizeTicks = document.querySelectorAll(".igc-size-tick");
-    const hiddenSizeVal = document.getElementById("piece_size_label_val");
+  let currentStepKey = "1";
+  let stepSequence = ["1", "2a", "2b", "2c", "3"];
+  let isTransitioning = false;
+  let transitionTimer = 0;
 
-    const sizeMap = {
-      "1": { label: "Small (< 20 cm)", text: "Small (< 20 cm)" },
-      "2": { label: "Medium (20 – 40 cm)", text: "Medium (20 – 40 cm)" },
-      "3": { label: "Large / Statement (40 cm+)", text: "Large / Statement (40 cm+)" }
-    };
+  const sizeMap = {
+    "1": "Small (< 20 cm)",
+    "2": "Medium (20 – 40 cm)",
+    "3": "Large / Statement (40 cm+)"
+  };
 
-    const setSize = (valStr) => {
-      if (sizeInput) sizeInput.value = valStr;
-      if (sizeValueDisplay) sizeValueDisplay.textContent = sizeMap[valStr].text;
-      if (hiddenSizeVal) hiddenSizeVal.value = sizeMap[valStr].label;
+  const activeStep = () => form.querySelector(`.igc-step[data-step='${currentStepKey}']`);
 
-      sizeTicks.forEach(tick => {
-        tick.classList.toggle("is-active", tick.getAttribute("data-size-val") === valStr);
-      });
-    };
+  const updateSequence = () => {
+    stepSequence = hiddenInquiryVal && hiddenInquiryVal.value === "general_question"
+      ? ["1", "2general", "3"]
+      : ["1", "2a", "2b", "2c", "3"];
+  };
 
-    if (sizeInput) {
-      sizeInput.addEventListener("input", (e) => setSize(e.target.value));
+  const syncStageHeight = (step = activeStep()) => {
+    if (!step) return;
+    window.requestAnimationFrame(() => {
+      stage.style.height = `${step.scrollHeight}px`;
+    });
+  };
+
+  const renderProgress = (stepKey) => {
+    updateSequence();
+    let index = stepSequence.indexOf(stepKey);
+    if (stepKey === "success") index = stepSequence.length - 1;
+    if (index < 0) index = 0;
+
+    if (progressTrack.children.length !== stepSequence.length) {
+      progressTrack.replaceChildren(...stepSequence.map(() => {
+        const segment = document.createElement("span");
+        segment.className = "igc-progress__segment";
+        segment.setAttribute("aria-hidden", "true");
+        return segment;
+      }));
     }
 
-    sizeTicks.forEach(tick => {
-      tick.addEventListener("click", () => setSize(tick.getAttribute("data-size-val")));
+    Array.from(progressTrack.children).forEach((segment, segmentIndex) => {
+      segment.classList.toggle("is-done", segmentIndex <= index);
+    });
+    progressTrack.setAttribute("aria-valuemax", String(stepSequence.length));
+    progressTrack.setAttribute("aria-valuenow", String(index + 1));
+  };
+
+  const setSize = (value) => {
+    const size = sizeMap[value] || sizeMap["2"];
+    if (sizeInput) sizeInput.value = value;
+    if (sizeValueDisplay) sizeValueDisplay.textContent = size;
+    if (hiddenSizeVal) hiddenSizeVal.value = size;
+    sizeTicks.forEach((tick) => {
+      const selected = tick.dataset.sizeVal === value;
+      tick.classList.toggle("is-active", selected);
+      tick.setAttribute("aria-pressed", String(selected));
+    });
+  };
+
+  const validateStep = (stepKey) => {
+    const step = form.querySelector(`.igc-step[data-step='${stepKey}']`);
+    if (!step) return true;
+
+    let firstInvalid = null;
+    step.querySelectorAll("input[required], textarea[required], select[required]").forEach((input) => {
+      const field = input.closest(".igc-field");
+      const value = input.value.trim();
+      const valid = Boolean(value) && (input.type !== "email" || /\S+@\S+\.\S+/.test(value));
+      input.setAttribute("aria-invalid", String(!valid));
+      if (field) field.classList.toggle("has-error", !valid);
+      if (!valid && !firstInvalid) firstInvalid = input;
     });
 
-    // Dynamic sequence calculation
-    const updateSequence = () => {
-      const type = hiddenInquiryVal ? hiddenInquiryVal.value : "custom_piece";
-      if (type === "general_question") {
-        stepSequence = ["1", "2general", "3"];
-      } else {
-        stepSequence = ["1", "2a", "2b", "2c", "3"];
-      }
-    };
+    if (firstInvalid) firstInvalid.focus({ preventScroll: true });
+    return !firstInvalid;
+  };
 
-    // Update Progress Bar & Counter
-    const updateProgress = (stepKey) => {
-      updateSequence();
-      let index = stepSequence.indexOf(stepKey);
-      if (stepKey === "success") index = stepSequence.length - 1;
-      if (index === -1) index = 0;
+  const updateStepUI = (targetStepKey) => {
+    if (isTransitioning || targetStepKey === currentStepKey) return;
 
-      const total = stepSequence.length;
-      const percent = Math.min(100, Math.max(20, Math.round(((index + 1) / total) * 100)));
+    const current = activeStep();
+    const target = form.querySelector(`.igc-step[data-step='${targetStepKey}']`);
+    if (!target) return;
 
-      if (progressBar) progressBar.style.width = percent + "%";
-      if (progressCounter) {
-        const stepNumText = String(index + 1).padStart(2, '0');
-        const totalNumText = String(total).padStart(2, '0');
-        progressCounter.textContent = `STEP ${stepNumText} / ${totalNumText}`;
-      }
-    };
+    updateSequence();
+    const currentIndex = stepSequence.indexOf(currentStepKey);
+    const targetIndex = stepSequence.indexOf(targetStepKey);
+    const goingBack = targetStepKey !== "success" && targetIndex < currentIndex;
+    const nextTitle = target.dataset.title || "Contact Us";
+    const delay = reduceMotion ? 0 : 180;
 
-    // ULTRA SMOOTH NON-JUMPY STEP TRANSITION (Exit -> Entrance)
-    const updateStepUI = (targetStepKey) => {
-      if (isTransitioning || targetStepKey === currentStepKey) return;
-      isTransitioning = true;
+    isTransitioning = true;
+    window.clearTimeout(transitionTimer);
+    dynamicTitle.style.opacity = "0";
+    dynamicTitle.style.transform = goingBack ? "translateX(8px)" : "translateX(-8px)";
 
-      const currentStepEl = form.querySelector(`.igc-step[data-step='${currentStepKey}']`);
-      const targetStepEl = form.querySelector(`.igc-step[data-step='${targetStepKey}']`);
-
-      if (!targetStepEl) {
-        isTransitioning = false;
-        return;
-      }
-
-      // Title exit & update
-      const newTitle = targetStepEl.getAttribute("data-title") || "Contact Us";
-      dynamicTitle.style.opacity = "0";
-      dynamicTitle.style.transform = "translateY(-6px)";
-
-      // Step Exit animation
-      if (currentStepEl) {
-        currentStepEl.classList.remove("is-active");
-        currentStepEl.classList.add("is-exiting");
-      }
-
-      setTimeout(() => {
-        if (currentStepEl) {
-          currentStepEl.classList.remove("is-exiting");
-          currentStepEl.style.display = "none";
-        }
-
-        // Show target step
-        targetStepEl.style.display = "flex";
-        void targetStepEl.offsetWidth; // force layout recalc
-        targetStepEl.classList.add("is-active");
-
-        // Update Title text and entrance
-        dynamicTitle.textContent = newTitle;
-        dynamicTitle.style.opacity = "1";
-        dynamicTitle.style.transform = "translateY(0)";
-
-        currentStepKey = targetStepKey;
-        updateProgress(targetStepKey);
-        isTransitioning = false;
-      }, 220);
-    };
-
-    // Step 1: Purpose Choice Buttons (Auto Advance)
-    const choiceButtons = form.querySelectorAll(".igc-choice-btn");
-    choiceButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const choice = btn.getAttribute("data-choice");
-        if (hiddenInquiryVal) hiddenInquiryVal.value = choice;
-        updateSequence();
-        
-        if (choice === "general_question") {
-          updateStepUI("2general");
-        } else {
-          updateStepUI("2a");
-        }
-      });
-    });
-
-    // Step 2A: Custom Piece Category Cards (Auto Advance on Click)
-    const catCards = form.querySelectorAll(".igc-cat-card");
-    catCards.forEach(card => {
-      card.addEventListener("click", () => {
-        catCards.forEach(c => c.classList.remove("is-selected"));
-        card.classList.add("is-selected");
-
-        const cat = card.getAttribute("data-category");
-        if (hiddenCategoryVal) hiddenCategoryVal.value = cat;
-
-        setTimeout(() => {
-          updateStepUI("2b");
-        }, 150);
-      });
-    });
-
-    // Validation
-    const validateStep = (stepKey) => {
-      let isValid = true;
-      const currentStepEl = form.querySelector(`.igc-step[data-step='${stepKey}']`);
-      if (!currentStepEl) return true;
-
-      const visibleRequiredInputs = currentStepEl.querySelectorAll("input[required]:not([style*='display: none']), textarea[required]:not([style*='display: none'])");
-
-      visibleRequiredInputs.forEach(input => {
-        const fieldParent = input.closest(".igc-field");
-        if (!input.value.trim() || (input.type === "email" && !/S+@S+.S+/.test(input.value))) {
-          isValid = false;
-          if (fieldParent) fieldParent.classList.add("has-error");
-        } else {
-          if (fieldParent) fieldParent.classList.remove("has-error");
-        }
-      });
-
-      return isValid;
-    };
-
-    // Clear error state on field input
-    form.addEventListener("input", (e) => {
-      const field = e.target.closest(".igc-field");
-      if (field && field.classList.contains("has-error")) {
-        field.classList.remove("has-error");
-      }
-    });
-
-    // Action Buttons (Next / Prev)
-    form.addEventListener("click", (e) => {
-      const btn = e.target.closest("button[data-action]");
-      if (!btn) return;
-
-      const action = btn.getAttribute("data-action");
-      updateSequence();
-      const currentIndex = stepSequence.indexOf(currentStepKey);
-
-      if (action === "next") {
-        if (validateStep(currentStepKey)) {
-          if (currentIndex < stepSequence.length - 1) {
-            updateStepUI(stepSequence[currentIndex + 1]);
-          }
-        }
-      } else if (action === "prev") {
-        if (currentIndex > 0) {
-          updateStepUI(stepSequence[currentIndex - 1]);
-        }
-      }
-    });
-
-    // Form Submit Handler
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      if (validateStep(currentStepKey)) {
-        updateStepUI("success");
-        const progressNav = document.querySelector(".igc-progress");
-        if (progressNav) progressNav.style.display = "none";
-      }
-    });
-
-    // Form Reset Handler
-    const resetBtn = document.getElementById("igc-reset-form");
-    if (resetBtn) {
-      resetBtn.addEventListener("click", () => {
-        form.reset();
-        catCards.forEach(c => c.classList.remove("is-selected"));
-        setSize("2");
-        const progressNav = document.querySelector(".igc-progress");
-        if (progressNav) progressNav.style.display = "flex";
-        updateStepUI("1");
-      });
+    if (current) {
+      current.setAttribute("aria-hidden", "true");
+      current.setAttribute("inert", "");
+      current.classList.toggle("is-back", goingBack);
+      current.classList.remove("is-active");
+      current.classList.add("is-exiting");
     }
 
+    target.classList.toggle("is-back", goingBack);
+    target.setAttribute("aria-hidden", "false");
+    target.removeAttribute("inert");
+    target.style.display = "flex";
+    syncStageHeight(target);
+
+    transitionTimer = window.setTimeout(() => {
+      if (current) {
+        current.classList.remove("is-exiting", "is-back");
+        current.style.display = "";
+      }
+
+      target.classList.add("is-active");
+      dynamicTitle.textContent = nextTitle;
+      dynamicTitle.style.opacity = "1";
+      dynamicTitle.style.transform = "none";
+      currentStepKey = targetStepKey;
+      renderProgress(targetStepKey);
+      syncStageHeight(target);
+
+      window.setTimeout(() => target.classList.remove("is-back"), reduceMotion ? 0 : 440);
+      isTransitioning = false;
+    }, delay);
+  };
+
+  choiceButtons.forEach((button) => {
+    button.setAttribute("aria-pressed", "false");
+    button.addEventListener("click", () => {
+      const choice = button.dataset.choice;
+      choiceButtons.forEach((item) => {
+        const selected = item === button;
+        item.classList.toggle("is-selected", selected);
+        item.setAttribute("aria-pressed", String(selected));
+      });
+      if (hiddenInquiryVal) hiddenInquiryVal.value = choice;
+      updateSequence();
+      window.setTimeout(() => updateStepUI(choice === "general_question" ? "2general" : "2a"), reduceMotion ? 0 : 120);
+    });
   });
+
+  catCards.forEach((card) => {
+    card.setAttribute("aria-pressed", "false");
+    card.addEventListener("click", () => {
+      catCards.forEach((item) => {
+        const selected = item === card;
+        item.classList.toggle("is-selected", selected);
+        item.setAttribute("aria-pressed", String(selected));
+      });
+      if (hiddenCategoryVal) hiddenCategoryVal.value = card.dataset.category || "";
+      window.setTimeout(() => updateStepUI("2b"), reduceMotion ? 0 : 120);
+    });
+  });
+
+  if (sizeInput) sizeInput.addEventListener("input", (event) => setSize(event.target.value));
+  sizeTicks.forEach((tick) => tick.addEventListener("click", () => setSize(tick.dataset.sizeVal)));
+
+  form.addEventListener("input", (event) => {
+    const field = event.target.closest(".igc-field");
+    if (field) field.classList.remove("has-error");
+    event.target.removeAttribute("aria-invalid");
+  });
+
+  form.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+
+    updateSequence();
+    const currentIndex = stepSequence.indexOf(currentStepKey);
+    if (button.dataset.action === "next" && validateStep(currentStepKey) && currentIndex < stepSequence.length - 1) {
+      updateStepUI(stepSequence[currentIndex + 1]);
+    }
+    if (button.dataset.action === "prev" && currentIndex > 0) {
+      updateStepUI(stepSequence[currentIndex - 1]);
+    }
+  });
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!validateStep(currentStepKey)) return;
+    if (progress) progress.hidden = true;
+    updateStepUI("success");
+  });
+
+  const resetButton = document.getElementById("igc-reset-form");
+  if (resetButton) {
+    resetButton.addEventListener("click", () => {
+      form.reset();
+      choiceButtons.concat(catCards).forEach((item) => {
+        item.classList.remove("is-selected");
+        item.setAttribute("aria-pressed", "false");
+      });
+      if (hiddenInquiryVal) hiddenInquiryVal.value = "custom_piece";
+      if (hiddenCategoryVal) hiddenCategoryVal.value = "";
+      setSize("2");
+      if (progress) progress.hidden = false;
+      updateStepUI("1");
+    });
+  }
+
+  steps.forEach((step) => {
+    step.style.display = "";
+    step.classList.remove("is-exiting", "is-back");
+    const active = step.dataset.step === currentStepKey;
+    step.setAttribute("aria-hidden", String(!active));
+    step.toggleAttribute("inert", !active);
+  });
+  setSize("2");
+  renderProgress(currentStepKey);
+  syncStageHeight();
+
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(() => syncStageHeight()).observe(form);
+  }
+  window.addEventListener("resize", () => syncStageHeight(), { passive: true });
+});
