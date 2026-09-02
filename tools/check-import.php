@@ -1,6 +1,6 @@
 <?php
 /**
- * Pre-deploy check for Site Studio snippets.
+ * Pre-deploy check for Site Studio snippets and canvases.
  *
  * Site Studio stores snippet code through update_post_meta(), which unslashes
  * it, so one level of backslashes is stripped between this repository and the
@@ -40,6 +40,20 @@ foreach ( glob( dirname( __DIR__ ) . '/runtime/snippets/*/snippet.php' ) as $fil
 	}
 }
 
-echo $failures ? "\n$failures snippet(s) would break on import.\n" : "\nAll snippets survive the import unchanged.\n";
+// Canvas HTML, CSS and JS take the same update_post_meta() path, so they lose
+// backslashes too. There is nothing to parse here, only the strip to detect.
+foreach ( glob( dirname( __DIR__ ) . '/runtime/canvases/*/*.{html,css,js}', GLOB_BRACE ) as $file ) {
+	$name = basename( dirname( $file ) ) . '/' . basename( $file );
+	$code = file_get_contents( $file );
+
+	if ( stripslashes( $code ) !== $code ) {
+		echo "MANGLED  $name — contains backslashes the importer will strip\n";
+		$failures++;
+	} else {
+		echo "ok       $name\n";
+	}
+}
+
+echo $failures ? "\n$failures file(s) would break on import.\n" : "\nEverything survives the import unchanged.\n";
 
 exit( $failures ? 1 : 0 );
