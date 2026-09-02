@@ -59,16 +59,16 @@ if ( ! function_exists( 'ioulia_contact_field' ) ) {
 if ( ! function_exists( 'ioulia_contact_labels' ) ) {
 	function ioulia_contact_labels() {
 		return array(
-			'vase'         => 'Statement Vase',
-			'bowl'         => 'Serving Bowl / Platter',
-			'dinnerware'   => 'Dinnerware Set',
-			'sculpture'    => 'Sculptural Object',
-			'tile_surface' => 'Architectural Surface',
-			'other'        => 'Other Concept',
-			'workshops'    => 'Workshops & Pottery Classes',
-			'studio_visit' => 'Studio Visit in Ano Patisia',
-			'collaboration' => 'Creative Collaboration / Press',
-			'general'      => 'General Question',
+			'vase'          => 'Βάζο',
+			'bowl'          => 'Μπολ ή πιατέλα',
+			'dinnerware'    => 'Σερβίτσιο',
+			'sculpture'     => 'Γλυπτό αντικείμενο',
+			'tile_surface'  => 'Αρχιτεκτονική επιφάνεια',
+			'other'         => 'Κάτι άλλο',
+			'workshops'     => 'Μαθήματα κεραμικής',
+			'studio_visit'  => 'Επίσκεψη στο εργαστήριο',
+			'collaboration' => 'Συνεργασία ή Τύπος',
+			'general'       => 'Γενική ερώτηση',
 		);
 	}
 }
@@ -110,46 +110,46 @@ if ( ! function_exists( 'ioulia_contact_send' ) ) {
 			wp_send_json_error( array( 'message' => 'incomplete' ), 400 );
 		}
 
-		$lines = array( $custom ? 'Custom piece enquiry' : 'General enquiry', '' );
+		$lines = array( $custom ? 'Αίτημα για κεραμικό κατά παραγγελία' : 'Γενική ερώτηση', '' );
 
 		if ( $custom ) {
 			$category = ioulia_contact_field( 'piece_category' );
 
 			if ( isset( $labels[ $category ] ) ) {
-				$lines[] = 'Piece: ' . $labels[ $category ];
+				$lines[] = 'Κεραμικό: ' . $labels[ $category ];
 			}
 
 			$size = ioulia_contact_field( 'piece_size_label' );
 
 			if ( '' !== $size ) {
-				$lines[] = 'Scale: ' . $size;
+				$lines[] = 'Μέγεθος: ' . $size;
 			}
 
 			$finish = ioulia_contact_field( 'color_finish' );
 
 			if ( '' !== $finish ) {
-				$lines[] = 'Glaze: ' . $finish;
+				$lines[] = 'Υάλωμα: ' . $finish;
 			}
 		} else {
 			$topic = ioulia_contact_field( 'inquiry_topic' );
 
 			if ( isset( $labels[ $topic ] ) ) {
-				$lines[] = 'Topic: ' . $labels[ $topic ];
+				$lines[] = 'Θέμα: ' . $labels[ $topic ];
 			}
 		}
 
 		$lines[] = '';
 		$lines[] = $message;
 		$lines[] = '';
-		$lines[] = 'From: ' . $name;
+		$lines[] = 'Από: ' . $name;
 		$lines[] = 'Email: ' . $email;
 
 		if ( '' !== $phone ) {
-			$lines[] = 'Phone: ' . $phone;
+			$lines[] = 'Τηλέφωνο: ' . $phone;
 		}
 
 		$headers = array( 'Content-Type: text/plain; charset=UTF-8', 'Reply-To: ' . $name . ' <' . $email . '>' );
-		$subject = ( $custom ? 'Custom piece enquiry from ' : 'Enquiry from ' ) . $name;
+		$subject = ( $custom ? 'Παραγγελία κεραμικού από ' : 'Μήνυμα από ' ) . $name;
 
 		$delivered = wp_mail( ioulia_contact_studio_email(), $subject, implode( chr( 10 ), $lines ), $headers );
 
@@ -159,24 +159,35 @@ if ( ! function_exists( 'ioulia_contact_send' ) ) {
 
 		set_transient( $throttle, $sent + 1, HOUR_IN_SECONDS );
 
-		$reply = array(
-			'Thank you for reaching out.',
-			'',
-			'Your message has arrived at the studio and Ioulia will answer it personally. A copy of what you sent is below.',
-			'',
-			'---',
-			'',
-			$message,
-			'',
-			'---',
-			'',
-			'Ioulia Geraskli Ceramics',
-			home_url( '/' ),
-		);
+		/* The studio reads Greek; the sender reads whichever side of the site
+		   they were on when they wrote. */
+		$english = 'en' === ioulia_contact_field( 'lang' );
+
+		$reply = $english
+			? array(
+				'Thank you for getting in touch.',
+				'',
+				'Your message has reached the studio and Ioulia will answer it personally. A copy of what you sent is below.',
+			)
+			: array(
+				'Ευχαριστούμε που επικοινώνησες.',
+				'',
+				'Το μήνυμά σου έφτασε στο εργαστήριο και η Ιουλία θα σου απαντήσει προσωπικά. Πιο κάτω είναι ένα αντίγραφο.',
+			);
+
+		$reply[] = '';
+		$reply[] = '---';
+		$reply[] = '';
+		$reply[] = $message;
+		$reply[] = '';
+		$reply[] = '---';
+		$reply[] = '';
+		$reply[] = 'Ioulia Geraskli Ceramics';
+		$reply[] = home_url( '/' );
 
 		wp_mail(
 			$email,
-			'We received your message',
+			$english ? 'We received your message' : 'Λάβαμε το μήνυμά σου',
 			implode( chr( 10 ), $reply ),
 			array( 'Content-Type: text/plain; charset=UTF-8', 'Reply-To: ' . ioulia_contact_studio_email() )
 		);

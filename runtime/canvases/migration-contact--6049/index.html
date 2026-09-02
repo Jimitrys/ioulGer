@@ -1,227 +1,223 @@
 <main class="igc-page">
-  <section class="igc-contact" aria-label="Contact and Custom Piece Request">
+  <section class="igc-contact" aria-label="Επικοινωνία και παραγγελία κεραμικού">
     <div class="igc-container">
-      
-      <!-- Minimal Centered Contact Wrapper -->
+
       <div class="igc-contact__wrapper">
-        
+
         <!-- Segmented progress follows the active custom/general route. -->
-        <nav class="igc-progress" aria-label="Form Progress">
+        <nav class="igc-progress" aria-label="Πρόοδος φόρμας">
           <div class="igc-progress__track" id="igc-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1"></div>
         </nav>
 
-        <!-- Dynamic Main Title -->
         <h1 class="igc-contact__title" id="igc-dynamic-title" aria-live="polite">
-          Let's shape something together
+          Ας φτιάξουμε κάτι μαζί
         </h1>
 
-        <!-- Form Stage Container for Non-Jumpy Smooth Transitions -->
         <div class="igc-stage" id="igc-stage" data-lenis-prevent data-lenis-prevent-wheel data-lenis-prevent-touch>
           <form id="igc-multistep-form" class="igc-form" novalidate data-ajax="/wp-admin/admin-ajax.php">
-            
+
             <!-- ================= STEP 1: Purpose Choice ================= -->
-            <div class="igc-step is-active" data-step="1" data-title="Let's shape something together">
-              <div class="igc-choice-buttons" role="radiogroup" aria-label="What is this about?">
+            <div class="igc-step is-active" data-step="1" data-title="Ας φτιάξουμε κάτι μαζί">
+              <div class="igc-choice-buttons" role="radiogroup" aria-label="Για τι πρόκειται;">
                 <button type="button" class="igc-choice-btn" role="radio" aria-checked="false" tabindex="-1" data-choice="custom_piece">
-                  <span>Custom Ceramic Piece</span>
+                  <span>Κεραμικό κατά παραγγελία</span>
                 </button>
 
                 <button type="button" class="igc-choice-btn" role="radio" aria-checked="false" tabindex="-1" data-choice="general_question">
-                  <span>General Inquiry / Studio Visit</span>
+                  <span>Γενική ερώτηση ή επίσκεψη στο εργαστήριο</span>
                 </button>
               </div>
               <input type="hidden" name="inquiry_type" id="inquiry_type_val" value="custom_piece">
             </div>
 
-            <!-- ================= STEP 2A: Custom Piece Category (Minimal Cards) ================= -->
-            <div class="igc-step" data-step="2a" data-title="What type of ceramic piece do you envision?">
-              <div class="igc-cat-grid" role="radiogroup" aria-label="Type of ceramic piece">
+            <!-- ================= STEP 2A: Custom Piece Category ================= -->
+            <div class="igc-step" data-step="2a" data-title="Τι κεραμικό φαντάζεσαι;">
+              <div class="igc-cat-grid" role="radiogroup" aria-label="Είδος κεραμικού">
                 <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="vase">
                   <span class="igc-cat-card__tag">01</span>
-                  <h3 class="igc-cat-card__name">Statement Vase</h3>
+                  <h3 class="igc-cat-card__name">Βάζο</h3>
                 </button>
 
                 <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="bowl">
                   <span class="igc-cat-card__tag">02</span>
-                  <h3 class="igc-cat-card__name">Serving Bowl / Platter</h3>
+                  <h3 class="igc-cat-card__name">Μπολ ή πιατέλα</h3>
                 </button>
 
                 <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="dinnerware">
                   <span class="igc-cat-card__tag">03</span>
-                  <h3 class="igc-cat-card__name">Dinnerware Set</h3>
+                  <h3 class="igc-cat-card__name">Σερβίτσιο</h3>
                 </button>
 
                 <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="sculpture">
                   <span class="igc-cat-card__tag">04</span>
-                  <h3 class="igc-cat-card__name">Sculptural Object</h3>
+                  <h3 class="igc-cat-card__name">Γλυπτό αντικείμενο</h3>
                 </button>
 
                 <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="tile_surface">
                   <span class="igc-cat-card__tag">05</span>
-                  <h3 class="igc-cat-card__name">Architectural Surface</h3>
+                  <h3 class="igc-cat-card__name">Αρχιτεκτονική επιφάνεια</h3>
                 </button>
 
                 <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="other">
                   <span class="igc-cat-card__tag">06</span>
-                  <h3 class="igc-cat-card__name">Other Concept</h3>
+                  <h3 class="igc-cat-card__name">Κάτι άλλο</h3>
                 </button>
               </div>
               <input type="hidden" name="piece_category" id="piece_category_val" value="">
 
               <div class="igc-step__actions">
-                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Back</button>
+                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Πίσω</button>
               </div>
             </div>
 
-            <!-- ================= STEP 2B: Size Objects (3 Options) & Glaze ================= -->
-            <div class="igc-step" data-step="2b" data-title="Select Scale &amp; Glaze Preference">
+            <!-- ================= STEP 2B: Scale & Glaze ================= -->
+            <div class="igc-step" data-step="2b" data-title="Μέγεθος και υάλωμα">
               <div class="igc-fields">
-                
-                <!-- Three visual objects replace the range UI while preserving its value. -->
+
                 <div class="igc-size-widget">
                   <div class="igc-size-widget__header">
-                    <span class="igc-size-widget__title">APPROX. SCALE / SIZE</span>
+                    <span class="igc-size-widget__title">Μέγεθος κατά προσέγγιση</span>
                   </div>
 
                   <div class="igc-size-slider__track">
                     <input type="hidden" id="size_range_input" name="size_range" value="2">
-                    <div class="igc-size-slider__ticks" role="radiogroup" aria-label="Approximate scale">
+                    <div class="igc-size-slider__ticks" role="radiogroup" aria-label="Μέγεθος κατά προσέγγιση">
                       <button type="button" class="igc-size-tick" role="radio" aria-checked="false" tabindex="-1" data-size-val="1">
                         <span class="igc-size-tick__art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/small.svg" alt=""></span>
-                        <span class="igc-size-tick__label">Small</span>
-                        <span class="igc-size-tick__sub">&lt; 20cm</span>
+                        <span class="igc-size-tick__label">Μικρό</span>
+                        <span class="igc-size-tick__sub">έως 20 εκ.</span>
                       </button>
                       <button type="button" class="igc-size-tick" role="radio" aria-checked="true" tabindex="0" data-size-val="2">
                         <span class="igc-size-tick__art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/medium.svg" alt=""></span>
-                        <span class="igc-size-tick__label">Medium</span>
-                        <span class="igc-size-tick__sub">20–40cm</span>
+                        <span class="igc-size-tick__label">Μεσαίο</span>
+                        <span class="igc-size-tick__sub">20–40 εκ.</span>
                       </button>
                       <button type="button" class="igc-size-tick" role="radio" aria-checked="false" tabindex="-1" data-size-val="3">
                         <span class="igc-size-tick__art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/big.svg" alt=""></span>
-                        <span class="igc-size-tick__label">Large</span>
-                        <span class="igc-size-tick__sub">40cm+</span>
+                        <span class="igc-size-tick__label">Μεγάλο</span>
+                        <span class="igc-size-tick__sub">πάνω από 40 εκ.</span>
                       </button>
                     </div>
                   </div>
-                  <input type="hidden" name="piece_size_label" id="piece_size_label_val" value="Medium (20 – 40 cm)">
+                  <input type="hidden" name="piece_size_label" id="piece_size_label_val" value="Μεσαίο (20–40 εκ.)">
                 </div>
 
                 <div class="igc-field">
-                  <label class="igc-label" for="color_finish">Glaze / Color Preference</label>
-                  <input type="text" id="color_finish" name="color_finish" class="igc-input" placeholder="e.g. Raw matte cream, dark textured clay">
-                </div>
-              </div>
-
-              <div class="igc-step__actions">
-                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Back</button>
-                <button type="button" class="igc-btn igc-btn--primary" data-action="next">
-                  <span>Continue</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- ================= STEP 2C: Description / Vision ================= -->
-            <div class="igc-step" data-step="2c" data-title="Describe your vision">
-              <div class="igc-fields">
-                <div class="igc-field">
-                  <label class="igc-label" for="piece_description">Description &amp; Ideas</label>
-                  <textarea id="piece_description" aria-describedby="piece_description_error" name="piece_description" class="igc-textarea" rows="5" placeholder="Tell us about the space, concept, or specific requests" required></textarea>
-                  <span class="igc-error-msg" id="piece_description_error">Please write a short description of your piece.</span>
+                  <label class="igc-label" for="color_finish">Υάλωμα ή χρώμα</label>
+                  <input type="text" id="color_finish" name="color_finish" class="igc-input" placeholder="π.χ. ματ κρεμ, σκούρος πηλός με υφή">
                 </div>
               </div>
 
               <div class="igc-step__actions">
-                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Back</button>
+                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Πίσω</button>
                 <button type="button" class="igc-btn igc-btn--primary" data-action="next">
-                  <span>Continue to Contact</span>
+                  <span>Συνέχεια</span>
                 </button>
               </div>
             </div>
 
-            <!-- ================= STEP 2-GENERAL: General Inquiry Details ================= -->
-            <div class="igc-step" data-step="2general" data-title="Your Inquiry Details">
+            <!-- ================= STEP 2C: Description ================= -->
+            <div class="igc-step" data-step="2c" data-title="Περίγραψέ το μας">
               <div class="igc-fields">
                 <div class="igc-field">
-                  <label class="igc-label" for="inquiry_topic">Inquiry Topic</label>
+                  <label class="igc-label" for="piece_description">Περιγραφή και ιδέες</label>
+                  <textarea id="piece_description" aria-describedby="piece_description_error" name="piece_description" class="igc-textarea" rows="5" placeholder="Πες μας για τον χώρο, την ιδέα ή κάτι συγκεκριμένο" required></textarea>
+                  <span class="igc-error-msg" id="piece_description_error">Γράψε μας λίγα λόγια για το κομμάτι.</span>
+                </div>
+              </div>
+
+              <div class="igc-step__actions">
+                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Πίσω</button>
+                <button type="button" class="igc-btn igc-btn--primary" data-action="next">
+                  <span>Συνέχεια</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ================= STEP 2-GENERAL ================= -->
+            <div class="igc-step" data-step="2general" data-title="Πες μας περισσότερα">
+              <div class="igc-fields">
+                <div class="igc-field">
+                  <label class="igc-label" for="inquiry_topic">Θέμα</label>
                   <select id="inquiry_topic" name="inquiry_topic" class="igc-select">
-                    <option value="" disabled selected>Select Topic</option>
-                    <option value="workshops">Workshops &amp; Pottery Classes</option>
-                    <option value="studio_visit">Studio Visit in Ano Patisia</option>
-                    <option value="collaboration">Creative Collaboration / Press</option>
-                    <option value="general">General Question</option>
+                    <option value="" disabled selected>Διάλεξε θέμα</option>
+                    <option value="workshops">Μαθήματα κεραμικής</option>
+                    <option value="studio_visit">Επίσκεψη στο εργαστήριο, Άνω Πατήσια</option>
+                    <option value="collaboration">Συνεργασία ή Τύπος</option>
+                    <option value="general">Γενική ερώτηση</option>
                   </select>
                 </div>
 
                 <div class="igc-field">
-                  <label class="igc-label" for="general_message">Your Message</label>
-                  <textarea id="general_message" aria-describedby="general_message_error" name="general_message" class="igc-textarea" rows="5" placeholder="How can we help?" required></textarea>
-                  <span class="igc-error-msg" id="general_message_error">Please enter your message.</span>
+                  <label class="igc-label" for="general_message">Το μήνυμά σου</label>
+                  <textarea id="general_message" aria-describedby="general_message_error" name="general_message" class="igc-textarea" rows="5" placeholder="Πώς μπορούμε να βοηθήσουμε;" required></textarea>
+                  <span class="igc-error-msg" id="general_message_error">Γράψε μας το μήνυμά σου.</span>
                 </div>
               </div>
 
               <div class="igc-step__actions">
-                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Back</button>
+                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Πίσω</button>
                 <button type="button" class="igc-btn igc-btn--primary" data-action="next">
-                  <span>Continue to Contact</span>
+                  <span>Συνέχεια</span>
                 </button>
               </div>
             </div>
 
             <!-- ================= STEP 3: Contact Information ================= -->
-            <div class="igc-step" data-step="3" data-title="Where should we send our reply?">
+            <div class="igc-step" data-step="3" data-title="Πού να σου απαντήσουμε;">
               <div class="igc-fields">
                 <div class="igc-field">
-                  <label class="igc-label" for="full_name">Full Name</label>
-                  <input type="text" id="full_name" aria-describedby="full_name_error" name="full_name" class="igc-input" placeholder="Your name" required autocomplete="name">
-                  <span class="igc-error-msg" id="full_name_error">Please enter your name.</span>
+                  <label class="igc-label" for="full_name">Ονοματεπώνυμο</label>
+                  <input type="text" id="full_name" aria-describedby="full_name_error" name="full_name" class="igc-input" placeholder="Το όνομά σου" required autocomplete="name">
+                  <span class="igc-error-msg" id="full_name_error">Γράψε το ονοματεπώνυμό σου.</span>
                 </div>
 
                 <div class="igc-field-row">
                   <div class="igc-field">
-                    <label class="igc-label" for="email_address">Email Address</label>
-                    <input type="email" id="email_address" aria-describedby="email_address_error" name="email_address" class="igc-input" placeholder="you@example.com" required autocomplete="email">
-                    <span class="igc-error-msg" id="email_address_error">Please enter a valid email address.</span>
+                    <label class="igc-label" for="email_address">Email</label>
+                    <input type="email" id="email_address" aria-describedby="email_address_error" name="email_address" class="igc-input" placeholder="onoma@example.com" required autocomplete="email">
+                    <span class="igc-error-msg" id="email_address_error">Γράψε ένα έγκυρο email.</span>
                   </div>
                   <div class="igc-field">
-                    <label class="igc-label" for="phone_number">Phone Number <span>(Optional)</span></label>
+                    <label class="igc-label" for="phone_number">Τηλέφωνο <span>(προαιρετικό)</span></label>
                     <input type="tel" id="phone_number" name="phone_number" class="igc-input" placeholder="+30" autocomplete="tel">
                   </div>
                 </div>
 
                 <div class="igc-consent">
                   <input type="checkbox" id="igc_consent" name="consent" value="1" required aria-describedby="igc_consent_error">
-                  <label for="igc_consent">I agree that my details may be used to answer this enquiry. They are emailed to the studio and not stored on this site.</label>
+                  <label for="igc_consent">Συμφωνώ να χρησιμοποιηθούν τα στοιχεία μου για να απαντηθεί αυτό το μήνυμα. Στέλνονται με email στο εργαστήριο και δεν αποθηκεύονται σε αυτό το site.</label>
                 </div>
-                <span class="igc-error-msg" id="igc_consent_error">Please confirm before sending.</span>
+                <span class="igc-error-msg" id="igc_consent_error">Χρειαζόμαστε τη συγκατάθεσή σου για να στείλουμε το μήνυμα.</span>
 
                 <p class="igc-form-error" id="igc-form-error" role="alert"></p>
 
                 <div class="igc-honeypot" aria-hidden="true">
-                  <label for="igc_website">Leave this field empty</label>
+                  <label for="igc_website">Άφησε αυτό το πεδίο κενό</label>
                   <input type="text" id="igc_website" name="website" tabindex="-1" autocomplete="off">
                 </div>
               </div>
 
               <div class="igc-step__actions">
-                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Back</button>
+                <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Πίσω</button>
                 <button type="submit" class="igc-btn igc-btn--primary">
-                  <span>Send Message</span>
+                  <span>Αποστολή</span>
                 </button>
               </div>
             </div>
 
-            <!-- ================= SUCCESS STATE SCREEN ================= -->
-            <div class="igc-step igc-step--success" data-step="success" data-title="Thank you!">
+            <!-- ================= SUCCESS ================= -->
+            <div class="igc-step igc-step--success" data-step="success" data-title="Ευχαριστούμε!">
               <div class="igc-success">
                 <p class="igc-success__desc">
-                  Your message has been received. We review every request personally and will be in touch with you shortly.
+                  Το μήνυμά σου έφτασε. Διαβάζουμε κάθε αίτημα προσωπικά και θα σου απαντήσουμε σύντομα.
                 </p>
                 <div class="igc-success__actions">
                   <a href="https://www.instagram.com/iouliageraskli/" target="_blank" rel="noopener noreferrer" class="igc-btn igc-btn--primary">
-                    <span>Follow us on Instagram</span>
+                    <span>Ακολούθησέ μας στο Instagram</span>
                     <svg class="igc-arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                   </a>
-                  <button type="button" class="igc-btn igc-btn--ghost" id="igc-reset-form">Send another request</button>
+                  <button type="button" class="igc-btn igc-btn--ghost" id="igc-reset-form">Στείλε νέο μήνυμα</button>
                 </div>
               </div>
             </div>
@@ -229,9 +225,15 @@
           </form>
         </div>
 
-        <!-- BOTTOM DIRECT REACHOUT BAR -->
+        <!-- Messages the script needs. They live here as ordinary text so the
+             translation pass can reach them; JavaScript strings it cannot. -->
+        <div id="igc-messages" hidden>
+          <span data-msg="failed">Δεν μπορέσαμε να στείλουμε το μήνυμά σου. Δοκίμασε ξανά ή γράψε μας στο info@iouliageraskliceramics.com.</span>
+          <span data-msg="offline">Η φόρμα δεν είναι συνδεδεμένη ακόμη. Γράψε μας στο info@iouliageraskliceramics.com.</span>
+        </div>
+
         <footer class="igc-direct-bar">
-          <span class="igc-direct-bar__label">Prefer direct contact?</span>
+          <span class="igc-direct-bar__label">Προτιμάς απευθείας επικοινωνία;</span>
           <div class="igc-direct-bar__links">
             <a href="mailto:info@iouliageraskliceramics.com" class="igc-direct-bar__link">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>

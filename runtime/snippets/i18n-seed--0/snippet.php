@@ -187,6 +187,76 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Γράψε ένα έγκυρο email.' => 'Please enter a valid email address.',
 				'Χρειαζόμαστε τη συγκατάθεσή σου για να κρατήσουμε τα στοιχεία σου.' => 'We need your consent to keep your details for this booking.',
 				'Στις τιμές δεν συμπεριλαμβάνεται ΦΠΑ 24%.' => 'Prices exclude 24% VAT.',
+				/* CONTACT — headings, one per step */
+				'Ας φτιάξουμε κάτι μαζί' => "Let's shape something together",
+				'Τι κεραμικό φαντάζεσαι;' => 'What kind of piece do you have in mind?',
+				'Μέγεθος και υάλωμα' => 'Scale and glaze',
+				'Περίγραψέ το μας' => 'Describe it for us',
+				'Πες μας περισσότερα' => 'Tell us more',
+				'Πού να σου απαντήσουμε;' => 'Where should we reply?',
+				'Ευχαριστούμε!' => 'Thank you!',
+
+				/* CONTACT — the two routes */
+				'Κεραμικό κατά παραγγελία' => 'A commissioned piece',
+				'Γενική ερώτηση ή επίσκεψη στο εργαστήριο' => 'A question or a studio visit',
+
+				/* CONTACT — what the piece is */
+				'Βάζο' => 'Vase',
+				'Μπολ ή πιατέλα' => 'Bowl or platter',
+				'Σερβίτσιο' => 'Dinnerware set',
+				'Γλυπτό αντικείμενο' => 'Sculptural object',
+				'Αρχιτεκτονική επιφάνεια' => 'Architectural surface',
+				'Κάτι άλλο' => 'Something else',
+
+				/* CONTACT — scale */
+				'Μέγεθος κατά προσέγγιση' => 'Approximate scale',
+				'Μικρό' => 'Small',
+				'Μεσαίο' => 'Medium',
+				'Μεγάλο' => 'Large',
+				'έως 20 εκ.' => 'up to 20cm',
+				'20–40 εκ.' => '20-40cm',
+				'πάνω από 40 εκ.' => 'over 40cm',
+
+				/* CONTACT — fields */
+				'Υάλωμα ή χρώμα' => 'Glaze or colour',
+				'π.χ. ματ κρεμ, σκούρος πηλός με υφή' => 'e.g. matte cream, dark textured clay',
+				'Περιγραφή και ιδέες' => 'Description and ideas',
+				'Πες μας για τον χώρο, την ιδέα ή κάτι συγκεκριμένο' => 'Tell us about the space, the idea, or anything specific',
+				'Γράψε μας λίγα λόγια για το κομμάτι.' => 'Please tell us a little about the piece.',
+				'Θέμα' => 'Subject',
+				'Διάλεξε θέμα' => 'Choose a subject',
+				'Μαθήματα κεραμικής' => 'Pottery classes',
+				'Επίσκεψη στο εργαστήριο, Άνω Πατήσια' => 'Studio visit in Ano Patisia',
+				'Συνεργασία ή Τύπος' => 'Collaboration or press',
+				'Γενική ερώτηση' => 'General question',
+				'Το μήνυμά σου' => 'Your message',
+				'Πώς μπορούμε να βοηθήσουμε;' => 'How can we help?',
+				'Γράψε μας το μήνυμά σου.' => 'Please write your message.',
+				'Το όνομά σου' => 'Your name',
+				'(προαιρετικό)' => '(optional)',
+
+				/* CONTACT — consent, sending, and what comes after */
+				'Συμφωνώ να χρησιμοποιηθούν τα στοιχεία μου για να απαντηθεί αυτό το μήνυμα. Στέλνονται με email στο εργαστήριο και δεν αποθηκεύονται σε αυτό το site.' => 'I agree to my details being used to answer this message. They are emailed to the studio and are not stored on this site.',
+				'Χρειαζόμαστε τη συγκατάθεσή σου για να στείλουμε το μήνυμα.' => 'We need your consent before sending.',
+				'Άφησε αυτό το πεδίο κενό' => 'Leave this field empty',
+				'Αποστολή' => 'Send',
+				'Δεν μπορέσαμε να στείλουμε το μήνυμά σου. Δοκίμασε ξανά ή γράψε μας στο info@iouliageraskliceramics.com.' => 'We could not send your message. Please try again, or write to us at info@iouliageraskliceramics.com.',
+				'Η φόρμα δεν είναι συνδεδεμένη ακόμη. Γράψε μας στο info@iouliageraskliceramics.com.' => 'The form is not connected yet. Please write to us at info@iouliageraskliceramics.com.',
+				'Το μήνυμά σου έφτασε. Διαβάζουμε κάθε αίτημα προσωπικά και θα σου απαντήσουμε σύντομα.' => 'Your message has arrived. We read every request personally and will be in touch shortly.',
+				'Ακολούθησέ μας στο Instagram' => 'Follow us on Instagram',
+				'Στείλε νέο μήνυμα' => 'Send another message',
+				'Προτιμάς απευθείας επικοινωνία;' => 'Prefer to get in touch directly?',
+
+				/* CONTACT — chrome the screen reader reads */
+				'Επικοινωνία και παραγγελία κεραμικού' => 'Contact and commission enquiries',
+				'Πρόοδος φόρμας' => 'Form progress',
+				'Για τι πρόκειται;' => 'What is this about?',
+				'Είδος κεραμικού' => 'Type of piece',
+
+				/* 'Πίσω', 'Ονοματεπώνυμο' and 'Τηλέφωνο' are already carried by
+				   the booking dialog above and translate the same way here. */
+				'Συνέχεια' => 'Continue',
+
 				/* WORKSHOPS — dialog chrome */
 				'Δημοφιλές' => 'Popular',
 				'Επόμενο' => 'Next',

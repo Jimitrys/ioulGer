@@ -261,7 +261,7 @@ if ( ! function_exists( 'ioulia_translatable_attributes' ) ) {
 	 * translating a form value would change what gets submitted.
 	 */
 	function ioulia_translatable_attributes() {
-		return array( 'aria-label', 'alt', 'placeholder', 'title', 'aria-placeholder' );
+		return array( 'aria-label', 'alt', 'placeholder', 'title', 'aria-placeholder', 'data-title' );
 	}
 }
 

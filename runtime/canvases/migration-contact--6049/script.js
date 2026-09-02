@@ -40,9 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
     general_question: ["1", "2general", "3"]
   };
   const SIZES = {
-    "1": "Small (< 20 cm)",
-    "2": "Medium (20 - 40 cm)",
-    "3": "Large / Statement (40 cm+)"
+    "1": "Μικρό (έως 20 εκ.)",
+    "2": "Μεσαίο (20–40 εκ.)",
+    "3": "Μεγάλο (πάνω από 40 εκ.)"
   };
 
   let currentKey = "1";
@@ -255,9 +255,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const endpoint = form.dataset.ajax || "";
   const submitButton = form.querySelector("button[type=submit]");
 
-  const showError = (message) => {
+  /* The wording lives in the markup so the translation pass can reach it;
+     strings written here would stay Greek on the English site. */
+  const messages = document.getElementById("igc-messages");
+  const say = (name) => {
+    const node = messages && messages.querySelector("[data-msg=" + name + "]");
+    return node ? node.textContent.trim() : "";
+  };
+
+  const showError = (name) => {
     if (!formError) return;
-    formError.textContent = message;
+    formError.textContent = say(name);
     formError.classList.add("is-shown");
     formError.scrollIntoView({ block: "nearest", behavior: "smooth" });
   };
@@ -277,7 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (formError) formError.classList.remove("is-shown");
 
     if (!endpoint) {
-      showError("The form is not connected yet. Please email us directly at info@iouliageraskliceramics.com.");
+      showError("offline");
       return;
     }
 
@@ -286,6 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const body = new FormData(form);
       body.set("action", "ioulia_contact");
+      body.set("lang", document.body.classList.contains("ioulia-lang-en") ? "en" : "el");
       body.set("nonce", await token());
 
       const response = await fetch(endpoint, { method: "POST", body, credentials: "same-origin" });
@@ -295,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (progress) progress.hidden = true;
       goTo("success");
     } catch (error) {
-      showError("We could not send your message. Please try again, or email us at info@iouliageraskliceramics.com.");
+      showError("failed");
     } finally {
       if (submitButton) submitButton.removeAttribute("aria-busy");
     }
