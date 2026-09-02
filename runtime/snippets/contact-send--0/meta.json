@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "contact send",
+    "slug": "contact-send",
+    "status": "publish",
+    "menu_order": 20,
+    "properties": {
+        "scope": "frontend",
+        "enabled": true
+    }
+}
