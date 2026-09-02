@@ -104,8 +104,12 @@
 
 .igc-form { width: 100%; text-align: left; }
 
-/* Only one step is ever in flow. The one on its way out is lifted out of
-   flow on top of it, so the two cross-fade and the stage is never empty. */
+/* One step on screen, never two. The step being left is gone in the same
+   frame the next one arrives, so the two are never both visible - a crossfade
+   put a ghost of the old step under the new one, which is worse than the
+   blank frame it was avoiding. The arrival carries the whole transition, and
+   the heading, the progress bar and the card stay put through it, so there is
+   always something on screen holding the place. */
 .igc-step {
   position: absolute;
   inset: 0 0 auto;
@@ -118,20 +122,22 @@
 .igc-step.is-active {
   position: relative;
   display: flex;
-  animation: igc-step-in .42s var(--igc-spring) both;
+  animation: igc-step-in .38s var(--igc-ease) both;
 }
 .igc-step.is-active.is-back { animation-name: igc-step-in-back; }
-.igc-step.is-leaving {
-  display: flex;
-  pointer-events: none;
-  animation: igc-step-out .24s var(--igc-exit) both;
-}
-.igc-step.is-leaving.is-back { animation-name: igc-step-out-back; }
 
-@keyframes igc-step-in { from { opacity: 0; transform: translate3d(18px, 0, 0); } to { opacity: 1; transform: none; } }
-@keyframes igc-step-in-back { from { opacity: 0; transform: translate3d(-18px, 0, 0); } to { opacity: 1; transform: none; } }
-@keyframes igc-step-out { from { opacity: 1; } to { opacity: 0; transform: translate3d(-14px, 0, 0); } }
-@keyframes igc-step-out-back { from { opacity: 1; } to { opacity: 0; transform: translate3d(14px, 0, 0); } }
+/* Opacity lands well before the movement does: the step reads as present
+   almost at once and then settles, rather than creeping into view. */
+@keyframes igc-step-in {
+  from { opacity: 0; transform: translate3d(14px, 0, 0); }
+  55% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
+@keyframes igc-step-in-back {
+  from { opacity: 0; transform: translate3d(-14px, 0, 0); }
+  55% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
 
 .igc-choice-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .igc-choice-btn,

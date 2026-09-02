@@ -106,18 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
     track.setAttribute("aria-valuenow", String(index + 1));
   };
 
-  /* The exit animation is the only thing left running after a swap, and it
-     is purely cosmetic: this ends it, whether it played or not. */
-  let leaving = null;
-  let leavingTimer = 0;
-
-  const endExit = () => {
-    window.clearTimeout(leavingTimer);
-    if (!leaving) return;
-    leaving.classList.remove("is-leaving", "is-back");
-    leaving = null;
-  };
-
   function goTo(key) {
     const next = steps.get(key);
     if (!next || key === currentKey) return;
@@ -128,15 +116,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const back = to > -1 && from > -1 && to < from;
     const previous = steps.get(currentKey);
 
-    endExit();
-
+    /* Gone in this frame, with nothing left running on it. Only the arriving
+       step animates, so no two steps are ever on screen together. */
     if (previous) {
-      previous.classList.remove("is-active");
-      previous.classList.toggle("is-back", back);
-      previous.classList.add("is-leaving");
+      previous.classList.remove("is-active", "is-back");
       previous.setAttribute("inert", "");
-      leaving = previous;
-      leavingTimer = window.setTimeout(endExit, 600);
     }
 
     next.classList.toggle("is-back", back);
@@ -333,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
   steps.forEach((step, key) => {
     const active = key === currentKey;
     step.classList.toggle("is-active", active);
-    step.classList.remove("is-leaving", "is-back");
+    step.classList.remove("is-back");
     step.toggleAttribute("inert", !active);
   });
   if (choices[0]) choices[0].tabIndex = 0;
