@@ -1,3 +1,10 @@
+/* Contact — one screen that behaves like an app on a laptop or a phone.
+
+   The layout has two modes and one rule that keeps them honest: the mode
+   lives in the media query below and nowhere else. It publishes itself as
+   --igc-app so the script can read the decision instead of repeating the
+   breakpoint and drifting out of step with it. */
+
 .igc-page {
   --igc-paper: var(--ioulia-paper, #fffef7);
   --igc-ink: var(--ioulia-ink, #2b2b2b);
@@ -13,17 +20,27 @@
   --igc-card-radius: 18px;
   --igc-control-radius: 12px;
   --igc-x: var(--ioulia-page-x, clamp(1rem, 2.35vw, 2.4rem));
+  --igc-header: var(--ioulia-header-h, 176px);
+  --igc-gutter: clamp(1.25rem, 5vw, 4rem);
+  --igc-app: 0;
 
   display: flex;
   width: 100%;
   min-height: 100svh;
-  padding: clamp(1.5rem, 4vh, 3rem) var(--igc-x);
+
+  /* The header is fixed, so the space it covers has to be reserved here or
+     the centred card slides underneath it. */
+  padding: calc(var(--igc-header) + clamp(1rem, 3vh, 2rem)) var(--igc-x) clamp(1.5rem, 4vh, 3rem);
   background: var(--igc-paper);
   color: var(--igc-ink);
   font-family: var(--ioulia-font, "Montserrat", Arial, sans-serif);
   align-items: center;
 }
 
+/* The page itself is included, not only its children: in app mode its height
+   is the viewport and its padding is the header, and content-box would add
+   the two together and push the bottom of the screen out of reach. */
+.igc-page,
 .igc-page *,
 .igc-page *::before,
 .igc-page *::after { box-sizing: border-box; }
@@ -55,51 +72,66 @@
   border-radius: 999px;
   background: var(--igc-line);
   flex: 1 1 0;
-  transition: background-color .34s var(--igc-ease), transform .34s var(--igc-ease);
-  transform-origin: left;
+  transition: background-color .34s var(--igc-ease);
 }
 .igc-progress__segment.is-done { background: var(--igc-ink); }
 
 .igc-contact__title {
   max-width: 15ch;
   margin: clamp(2.4rem, 5vw, 4.5rem) auto clamp(2rem, 4vw, 3.25rem);
-  padding-inline: clamp(1.25rem, 5vw, 4rem);
+  padding-inline: var(--igc-gutter);
   font-size: clamp(2.45rem, 5vw, 4.8rem);
   font-weight: 400;
   line-height: .98;
   letter-spacing: -.052em;
   text-align: center;
   text-wrap: balance;
-  transition: opacity .2s ease, transform .28s var(--igc-ease);
-  will-change: opacity, transform;
+}
+/* The heading text is swapped in the same frame as the step, so it is never
+   blank. This only replays its arrival. */
+.igc-contact__title.is-entering { animation: igc-title-in .34s var(--igc-ease) both; }
+@keyframes igc-title-in {
+  from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  to { opacity: 1; transform: none; }
 }
 
 .igc-stage {
   position: relative;
   width: 100%;
   min-height: 260px;
-  transition: height .52s var(--igc-spring);
+  transition: height .5s var(--igc-spring);
 }
 
 .igc-form { width: 100%; text-align: left; }
+
+/* Only one step is ever in flow. The one on its way out is lifted out of
+   flow on top of it, so the two cross-fade and the stage is never empty. */
 .igc-step {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0 0 auto;
   display: none;
   width: 100%;
-  padding: 0 clamp(1.25rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
-  opacity: 0;
+  padding: 0 var(--igc-gutter) clamp(1.5rem, 4vw, 3rem);
   flex-direction: column;
   gap: clamp(1.25rem, 3vw, 2rem);
-  transform: translate3d(20px, 0, 0) scale(.992);
-  transition: opacity .24s ease, transform .48s var(--igc-spring);
-  will-change: opacity, transform;
 }
-.igc-step.is-back { transform: translate3d(-20px, 0, 0) scale(.992); }
-.igc-step.is-active { position: relative; display: flex; opacity: 1; transform: none; }
-.igc-step.is-exiting { display: flex; opacity: 0; transform: translate3d(-14px, 0, 0) scale(.992); pointer-events: none; transition-timing-function: ease, var(--igc-exit); transition-duration: .18s; }
-.igc-step.is-exiting.is-back { transform: translate3d(14px, 0, 0) scale(.992); }
+.igc-step.is-active {
+  position: relative;
+  display: flex;
+  animation: igc-step-in .42s var(--igc-spring) both;
+}
+.igc-step.is-active.is-back { animation-name: igc-step-in-back; }
+.igc-step.is-leaving {
+  display: flex;
+  pointer-events: none;
+  animation: igc-step-out .24s var(--igc-exit) both;
+}
+.igc-step.is-leaving.is-back { animation-name: igc-step-out-back; }
+
+@keyframes igc-step-in { from { opacity: 0; transform: translate3d(18px, 0, 0); } to { opacity: 1; transform: none; } }
+@keyframes igc-step-in-back { from { opacity: 0; transform: translate3d(-18px, 0, 0); } to { opacity: 1; transform: none; } }
+@keyframes igc-step-out { from { opacity: 1; } to { opacity: 0; transform: translate3d(-14px, 0, 0); } }
+@keyframes igc-step-out-back { from { opacity: 1; } to { opacity: 0; transform: translate3d(14px, 0, 0); } }
 
 .igc-choice-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .igc-choice-btn,
@@ -109,11 +141,11 @@
   display: flex;
   min-width: 0;
   margin: 0;
-  border: 1px solid var(--igc-line) !important;
+  border: 1px solid var(--igc-line);
   border-radius: var(--igc-card-radius);
-  background: rgba(255, 255, 255, .42) !important;
+  background: rgba(255, 255, 255, .42);
   box-shadow: none;
-  color: var(--igc-ink) !important;
+  color: var(--igc-ink);
   font: inherit;
   cursor: pointer;
   transition: border-color .22s ease, background-color .22s ease, transform .28s var(--igc-ease), box-shadow .28s var(--igc-ease);
@@ -146,19 +178,18 @@
 .igc-choice-btn:focus-visible,
 .igc-cat-card:hover,
 .igc-cat-card:focus-visible {
-  border-color: rgba(43, 43, 43, .34) !important;
-  background: rgba(255, 255, 255, .8) !important;
+  border-color: rgba(43, 43, 43, .34);
+  background: rgba(255, 255, 255, .8);
   outline: none;
   transform: translateY(-2px);
   box-shadow: 0 14px 34px rgba(43, 43, 43, .07);
 }
 .igc-choice-btn:focus-visible,
 .igc-cat-card:focus-visible { box-shadow: 0 0 0 3px var(--igc-soft), 0 14px 34px rgba(43, 43, 43, .07); }
-.igc-choice-btn.is-selected,
-.igc-cat-card.is-selected { border-color: var(--igc-ink) !important; background: rgba(255, 255, 255, .9) !important; }
-.igc-choice-btn.is-selected::after,
-.igc-cat-card.is-selected::after { border-color: var(--igc-ink); background: var(--igc-ink); box-shadow: inset 0 0 0 6px var(--igc-ink); }
-.igc-choice-btn .igc-arrow-icon { display: none; }
+.igc-choice-btn[aria-checked="true"],
+.igc-cat-card[aria-checked="true"] { border-color: var(--igc-ink); background: rgba(255, 255, 255, .9); }
+.igc-choice-btn[aria-checked="true"]::after,
+.igc-cat-card[aria-checked="true"]::after { border-color: var(--igc-ink); background: var(--igc-ink); box-shadow: inset 0 0 0 6px var(--igc-ink); }
 
 .igc-cat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
 .igc-cat-card {
@@ -186,16 +217,10 @@
 }
 .igc-cat-card__name { margin: 0; font-size: var(--ioulia-body, 1rem); font-weight: 500; line-height: 1.28; letter-spacing: -.02em; }
 
-.igc-size-widget {
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
 .igc-size-widget__header { display: flex; margin-bottom: .75rem; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
 .igc-size-widget__title,
 .igc-label { color: var(--igc-ink); font-size: var(--ioulia-micro, .82rem); font-weight: 500; letter-spacing: .055em; line-height: 1.2; text-transform: uppercase; }
 .igc-label span { color: var(--igc-muted); font-weight: 400; }
-.igc-size-slider__track { display: block; }
 .igc-size-slider__ticks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
 .igc-size-tick {
   appearance: none;
@@ -214,8 +239,8 @@
 .igc-size-tick:hover,
 .igc-size-tick:focus-visible { border-color: rgba(43, 43, 43, .35); background: rgba(255, 255, 255, .8); color: var(--igc-ink); outline: none; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(43, 43, 43, .07); }
 .igc-size-tick:focus-visible { box-shadow: 0 0 0 3px var(--igc-soft), 0 12px 28px rgba(43, 43, 43, .07); }
-.igc-size-tick.is-active { border-color: var(--igc-ink); background: rgba(255, 255, 255, .9); color: var(--igc-ink); box-shadow: inset 0 0 0 1px var(--igc-ink); }
-.igc-size-tick.is-active::after { border-color: var(--igc-ink); background: var(--igc-ink); box-shadow: inset 0 0 0 5px var(--igc-ink); }
+.igc-size-tick[aria-checked="true"] { border-color: var(--igc-ink); background: rgba(255, 255, 255, .9); color: var(--igc-ink); box-shadow: inset 0 0 0 1px var(--igc-ink); }
+.igc-size-tick[aria-checked="true"]::after { border-color: var(--igc-ink); background: var(--igc-ink); box-shadow: inset 0 0 0 5px var(--igc-ink); }
 .igc-size-tick__art { display: flex; height: 82px; margin-bottom: .65rem; align-items: center; justify-content: center; }
 .igc-size-tick__art img { display: block; width: auto; max-width: none; object-fit: contain; transition: transform .36s var(--igc-spring); }
 .igc-size-tick[data-size-val="1"] .igc-size-tick__art img { height: 38px; }
@@ -223,7 +248,7 @@
 .igc-size-tick[data-size-val="3"] .igc-size-tick__art img { height: 70px; }
 .igc-size-tick:hover .igc-size-tick__art img,
 .igc-size-tick:focus-visible .igc-size-tick__art img,
-.igc-size-tick.is-active .igc-size-tick__art img { transform: scale(1.04) translateY(-2px); }
+.igc-size-tick[aria-checked="true"] .igc-size-tick__art img { transform: scale(1.04) translateY(-2px); }
 .igc-size-tick__label,
 .igc-size-tick__sub { display: block; }
 .igc-size-tick__label { font-size: var(--ioulia-small, .9rem); font-weight: 500; line-height: 1.2; }
@@ -241,9 +266,10 @@
   border: 1px solid var(--igc-line);
   border-radius: var(--igc-control-radius);
   outline: none;
-  background: rgba(255, 255, 255, .6) !important;
+  background: rgba(255, 255, 255, .6);
   color: var(--igc-ink);
   font: inherit;
+  /* Literal 16px: anything smaller makes iOS zoom the page on focus. */
   font-size: 16px;
   transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
 }
@@ -254,68 +280,88 @@
 .igc-textarea:hover { border-color: rgba(43, 43, 43, .32); }
 .igc-input:focus,
 .igc-select:focus,
-.igc-textarea:focus { border-color: var(--igc-ink); background: #fff !important; box-shadow: 0 0 0 3px var(--igc-soft); }
+.igc-textarea:focus { border-color: var(--igc-ink); background: #fff; box-shadow: 0 0 0 3px var(--igc-soft); }
 .igc-select {
   appearance: none;
   padding-right: 2.75rem;
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%232B2B2B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat !important;
-  background-position: right 1rem center !important;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%232B2B2B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
   cursor: pointer;
 }
 .igc-textarea { min-height: 128px; resize: vertical; }
-.igc-error-msg { display: none; margin-top: .1rem; color: var(--igc-error); font-size: var(--ioulia-micro, .82rem); line-height: 1.35; }
+.igc-error-msg { display: none; margin-top: .1rem; color: var(--igc-error); font-size: var(--ioulia-micro, .82rem); font-weight: 500; line-height: 1.35; }
 .igc-field.has-error .igc-input,
 .igc-field.has-error .igc-select,
 .igc-field.has-error .igc-textarea { border-color: var(--igc-error); box-shadow: 0 0 0 3px rgba(143, 57, 57, .08); }
 .igc-field.has-error .igc-error-msg { display: block; }
+
+.igc-consent { display: flex; gap: .65rem; align-items: flex-start; }
+.igc-consent input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--igc-ink); flex: 0 0 auto; }
+.igc-consent label { color: var(--igc-muted); font-size: var(--ioulia-micro, .82rem); font-weight: 500; line-height: 1.45; }
+.igc-consent a { color: var(--igc-ink); text-underline-offset: 2px; }
+.igc-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .igc-step__actions {
   position: sticky;
   bottom: 0;
   z-index: 3;
   display: flex;
-  margin: .35rem calc(clamp(1.25rem, 5vw, 4rem) * -1) calc(clamp(1.5rem, 4vw, 3rem) * -1);
-  padding: .9rem clamp(1.25rem, 5vw, 4rem) calc(.9rem + env(safe-area-inset-bottom));
+  margin: .35rem calc(var(--igc-gutter) * -1) calc(clamp(1.5rem, 4vw, 3rem) * -1);
+  padding: .9rem var(--igc-gutter) calc(.9rem + env(safe-area-inset-bottom));
   border-top: 1px solid var(--igc-line);
   background: var(--igc-paper);
   align-items: center;
   justify-content: space-between;
   gap: .75rem;
 }
-.igc-btn { min-height: 48px; border-radius: var(--igc-control-radius) !important; }
+.igc-btn { min-height: 48px; border-radius: var(--igc-control-radius); }
 .igc-btn--primary { min-width: 150px; margin-left: auto; justify-content: center; }
 .igc-step__actions .igc-btn--ghost {
-  width: auto !important;
-  min-width: 0 !important;
+  width: auto;
+  min-width: 0;
   min-height: 44px;
-  padding: .5rem 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: none !important;
-  box-shadow: none !important;
-  color: var(--igc-muted) !important;
+  padding: .5rem 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--igc-muted);
   font-size: var(--ioulia-small, .9rem);
 }
 .igc-step__actions .igc-btn--ghost:hover,
-.igc-step__actions .igc-btn--ghost:focus-visible { color: var(--igc-ink) !important; transform: none; outline: none; }
+.igc-step__actions .igc-btn--ghost:focus-visible { color: var(--igc-ink); transform: none; outline: none; }
 .igc-step__actions .igc-btn--primary {
-  width: auto !important;
+  width: auto;
   min-width: min(240px, 68vw);
   min-height: clamp(50px, 1.4vw + 2.8rem, 58px);
-  padding-inline: 1.5rem !important;
+  padding-inline: 1.5rem;
 }
-.igc-step__actions .igc-arrow-icon { display: none; }
+.igc-btn[aria-busy="true"] { opacity: .6; pointer-events: none; }
 .igc-btn .igc-arrow-icon { transition: transform .25s var(--igc-ease); }
 .igc-btn:hover .igc-arrow-icon { transform: translate(3px, -3px); }
 
+.igc-form-error {
+  display: none;
+  margin: 0;
+  padding: .8rem 1rem;
+  border: 1px solid rgba(143, 57, 57, .3);
+  border-radius: var(--igc-control-radius);
+  background: rgba(143, 57, 57, .06);
+  color: var(--igc-error);
+  font-size: var(--ioulia-small, .9rem);
+  font-weight: 500;
+  line-height: 1.45;
+}
+.igc-form-error.is-shown { display: block; }
+
 .igc-success { display: flex; min-height: 250px; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; text-align: center; }
-.igc-success__desc { max-width: 44ch; margin: 0; color: var(--igc-muted); font-size: var(--ioulia-small, .9rem); line-height: 1.6; }
+.igc-success__desc { max-width: 44ch; margin: 0; color: var(--igc-muted); font-size: var(--ioulia-small, .9rem); font-weight: 500; line-height: 1.6; }
 .igc-success__actions { display: flex; width: min(100%, 360px); flex-direction: column; gap: .65rem; }
 
 .igc-direct-bar {
   display: flex;
-  padding: 1.15rem clamp(1.25rem, 5vw, 4rem);
+  padding: 1.15rem var(--igc-gutter);
   border-top: 1px solid var(--igc-line);
   color: var(--igc-muted);
   align-items: center;
@@ -324,29 +370,31 @@
 }
 .igc-direct-bar__label { font-size: var(--ioulia-micro, .82rem); font-weight: 500; letter-spacing: .055em; text-transform: uppercase; }
 .igc-direct-bar__links { display: flex; align-items: center; justify-content: flex-end; gap: .65rem 1rem; flex-wrap: wrap; }
-.igc-direct-bar__link { display: inline-flex; color: inherit !important; font-size: var(--ioulia-micro, .82rem); text-decoration: none !important; align-items: center; gap: .45rem; transition: color .2s ease; }
+.igc-direct-bar__link { display: inline-flex; min-width: 0; color: inherit; font-size: var(--ioulia-micro, .82rem); font-weight: 500; text-decoration: none; align-items: center; gap: .45rem; transition: color .2s ease; }
+.igc-direct-bar__link svg { flex: 0 0 auto; }
+.igc-direct-bar__link span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .igc-direct-bar__link:hover,
-.igc-direct-bar__link:focus-visible { color: var(--igc-ink) !important; outline: none; }
+.igc-direct-bar__link:focus-visible { color: var(--igc-ink); outline: none; }
 .igc-direct-bar__sep { opacity: .35; }
 
-/* Laptop and phone are one full-height app surface below the fixed navbar.
-   Only the step body owns scrolling; navigation and direct contact stay put. */
+/* ---------------------------------------------------------------------------
+   App mode. Laptop and phone get one full-height surface under the fixed
+   header: only the step body scrolls, and the site footer steps aside so the
+   screen is exactly one viewport with nothing stranded below it. Locking html
+   or body is deliberately avoided — that is the navbar's job and only its.
+   --------------------------------------------------------------------------- */
 @media (max-width: 1024px), (max-height: 900px) {
-  html.igc-contact-app,
-  body.igc-contact-app {
-    height: 100%;
-    overflow: hidden !important;
-    overscroll-behavior: none;
-  }
   .igc-page {
+    --igc-app: 1;
+
     height: 100svh;
     height: 100dvh;
-    min-height: 100svh;
-    min-height: 100dvh;
-    padding: var(--ioulia-header-h, 176px) 0 0;
+    min-height: 0;
+    padding: var(--igc-header) 0 0;
     overflow: hidden;
     align-items: stretch;
   }
+  body.igc-contact-app .igc-rendered-footer-site-studio-migration { display: none; }
   .igc-contact,
   .igc-container { height: 100%; min-height: 0; max-width: none; }
   .igc-contact__wrapper {
@@ -365,7 +413,7 @@
     flex: 0 0 auto;
   }
   .igc-stage {
-    height: auto !important;
+    height: auto;
     min-height: 0;
     padding-top: 10px;
     overflow-y: auto;
@@ -381,19 +429,17 @@
   .igc-form { min-height: 100%; }
   .igc-step.is-active { min-height: 100%; padding-bottom: 0; }
   .igc-step__actions {
-    margin: auto calc(clamp(1.25rem, 5vw, 4rem) * -1) 0;
+    margin: auto calc(var(--igc-gutter) * -1) 0;
     flex: 0 0 auto;
   }
   .igc-direct-bar {
-    padding-block: clamp(.7rem, 1.8vh, 1rem);
+    padding-block: clamp(.6rem, 1.6vh, .9rem);
     background: var(--igc-paper);
     flex: 0 0 auto;
   }
   body.admin-bar .igc-page {
     height: calc(100svh - 32px);
     height: calc(100dvh - 32px);
-    min-height: calc(100svh - 32px);
-    min-height: calc(100dvh - 32px);
   }
 }
 
@@ -401,8 +447,6 @@
   body.admin-bar .igc-page {
     height: calc(100svh - 46px);
     height: calc(100dvh - 46px);
-    min-height: calc(100svh - 46px);
-    min-height: calc(100dvh - 46px);
   }
 }
 
@@ -411,8 +455,6 @@
   .igc-choice-buttons,
   .igc-field-row { grid-template-columns: 1fr; }
   .igc-choice-btn { min-height: 92px; }
-  .igc-direct-bar { flex-direction: column; align-items: flex-start; }
-  .igc-direct-bar__links { justify-content: flex-start; }
 }
 
 @media (max-width: 520px) {
@@ -425,10 +467,16 @@
   .igc-size-tick[data-size-val="1"] .igc-size-tick__art img { height: 34px; }
   .igc-size-tick[data-size-val="2"] .igc-size-tick__art img { height: 54px; }
   .igc-size-tick[data-size-val="3"] .igc-size-tick__art img { height: 62px; }
-  .igc-step__actions { align-items: center; }
   .igc-step__actions .igc-btn--primary { min-width: min(210px, 62vw); }
-  .igc-direct-bar__links { flex-direction: column; align-items: flex-start; }
+
+  /* One line, not three: on a phone this bar was taking an eighth of the
+     screen away from the form it sits under. The address is the part worth
+     reading, so it keeps the width and Instagram shrinks to its mark. */
+  .igc-direct-bar { justify-content: center; gap: .9rem; }
+  .igc-direct-bar__label,
   .igc-direct-bar__sep { display: none; }
+  .igc-direct-bar__links { justify-content: center; gap: 1.1rem; flex-wrap: nowrap; }
+  .igc-direct-bar__links .igc-direct-bar__link:last-child span { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

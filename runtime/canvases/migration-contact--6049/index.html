@@ -17,19 +17,17 @@
 
         <!-- Form Stage Container for Non-Jumpy Smooth Transitions -->
         <div class="igc-stage" id="igc-stage" data-lenis-prevent data-lenis-prevent-wheel data-lenis-prevent-touch>
-          <form id="igc-multistep-form" class="igc-form" novalidate>
+          <form id="igc-multistep-form" class="igc-form" novalidate data-ajax="/wp-admin/admin-ajax.php">
             
             <!-- ================= STEP 1: Purpose Choice ================= -->
             <div class="igc-step is-active" data-step="1" data-title="Let's shape something together">
-              <div class="igc-choice-buttons">
-                <button type="button" class="igc-choice-btn" data-choice="custom_piece">
+              <div class="igc-choice-buttons" role="radiogroup" aria-label="What is this about?">
+                <button type="button" class="igc-choice-btn" role="radio" aria-checked="false" tabindex="-1" data-choice="custom_piece">
                   <span>Custom Ceramic Piece</span>
-                  <svg class="igc-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </button>
 
-                <button type="button" class="igc-choice-btn" data-choice="general_question">
+                <button type="button" class="igc-choice-btn" role="radio" aria-checked="false" tabindex="-1" data-choice="general_question">
                   <span>General Inquiry / Studio Visit</span>
-                  <svg class="igc-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </button>
               </div>
               <input type="hidden" name="inquiry_type" id="inquiry_type_val" value="custom_piece">
@@ -37,33 +35,33 @@
 
             <!-- ================= STEP 2A: Custom Piece Category (Minimal Cards) ================= -->
             <div class="igc-step" data-step="2a" data-title="What type of ceramic piece do you envision?">
-              <div class="igc-cat-grid">
-                <button type="button" class="igc-cat-card" data-category="vase">
+              <div class="igc-cat-grid" role="radiogroup" aria-label="Type of ceramic piece">
+                <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="vase">
                   <span class="igc-cat-card__tag">01</span>
                   <h3 class="igc-cat-card__name">Statement Vase</h3>
                 </button>
 
-                <button type="button" class="igc-cat-card" data-category="bowl">
+                <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="bowl">
                   <span class="igc-cat-card__tag">02</span>
                   <h3 class="igc-cat-card__name">Serving Bowl / Platter</h3>
                 </button>
 
-                <button type="button" class="igc-cat-card" data-category="dinnerware">
+                <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="dinnerware">
                   <span class="igc-cat-card__tag">03</span>
                   <h3 class="igc-cat-card__name">Dinnerware Set</h3>
                 </button>
 
-                <button type="button" class="igc-cat-card" data-category="sculpture">
+                <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="sculpture">
                   <span class="igc-cat-card__tag">04</span>
                   <h3 class="igc-cat-card__name">Sculptural Object</h3>
                 </button>
 
-                <button type="button" class="igc-cat-card" data-category="tile_surface">
+                <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="tile_surface">
                   <span class="igc-cat-card__tag">05</span>
                   <h3 class="igc-cat-card__name">Architectural Surface</h3>
                 </button>
 
-                <button type="button" class="igc-cat-card" data-category="other">
+                <button type="button" class="igc-cat-card" role="radio" aria-checked="false" tabindex="-1" data-category="other">
                   <span class="igc-cat-card__tag">06</span>
                   <h3 class="igc-cat-card__name">Other Concept</h3>
                 </button>
@@ -87,18 +85,18 @@
 
                   <div class="igc-size-slider__track">
                     <input type="hidden" id="size_range_input" name="size_range" value="2">
-                    <div class="igc-size-slider__ticks">
-                      <button type="button" class="igc-size-tick" data-size-val="1">
+                    <div class="igc-size-slider__ticks" role="radiogroup" aria-label="Approximate scale">
+                      <button type="button" class="igc-size-tick" role="radio" aria-checked="false" tabindex="-1" data-size-val="1">
                         <span class="igc-size-tick__art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/small.svg" alt=""></span>
                         <span class="igc-size-tick__label">Small</span>
                         <span class="igc-size-tick__sub">&lt; 20cm</span>
                       </button>
-                      <button type="button" class="igc-size-tick is-active" data-size-val="2">
+                      <button type="button" class="igc-size-tick" role="radio" aria-checked="true" tabindex="0" data-size-val="2">
                         <span class="igc-size-tick__art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/medium.svg" alt=""></span>
                         <span class="igc-size-tick__label">Medium</span>
                         <span class="igc-size-tick__sub">20–40cm</span>
                       </button>
-                      <button type="button" class="igc-size-tick" data-size-val="3">
+                      <button type="button" class="igc-size-tick" role="radio" aria-checked="false" tabindex="-1" data-size-val="3">
                         <span class="igc-size-tick__art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/big.svg" alt=""></span>
                         <span class="igc-size-tick__label">Large</span>
                         <span class="igc-size-tick__sub">40cm+</span>
@@ -118,7 +116,6 @@
                 <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Back</button>
                 <button type="button" class="igc-btn igc-btn--primary" data-action="next">
                   <span>Continue</span>
-                  <svg class="igc-arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </button>
               </div>
             </div>
@@ -128,8 +125,8 @@
               <div class="igc-fields">
                 <div class="igc-field">
                   <label class="igc-label" for="piece_description">Description &amp; Ideas</label>
-                  <textarea id="piece_description" name="piece_description" class="igc-textarea" rows="5" placeholder="Tell us about the space, concept, or specific requests" required></textarea>
-                  <span class="igc-error-msg">Please write a short description of your piece.</span>
+                  <textarea id="piece_description" aria-describedby="piece_description_error" name="piece_description" class="igc-textarea" rows="5" placeholder="Tell us about the space, concept, or specific requests" required></textarea>
+                  <span class="igc-error-msg" id="piece_description_error">Please write a short description of your piece.</span>
                 </div>
               </div>
 
@@ -137,7 +134,6 @@
                 <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Back</button>
                 <button type="button" class="igc-btn igc-btn--primary" data-action="next">
                   <span>Continue to Contact</span>
-                  <svg class="igc-arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </button>
               </div>
             </div>
@@ -158,8 +154,8 @@
 
                 <div class="igc-field">
                   <label class="igc-label" for="general_message">Your Message</label>
-                  <textarea id="general_message" name="general_message" class="igc-textarea" rows="5" placeholder="How can we help?" required></textarea>
-                  <span class="igc-error-msg">Please enter your message.</span>
+                  <textarea id="general_message" aria-describedby="general_message_error" name="general_message" class="igc-textarea" rows="5" placeholder="How can we help?" required></textarea>
+                  <span class="igc-error-msg" id="general_message_error">Please enter your message.</span>
                 </div>
               </div>
 
@@ -167,7 +163,6 @@
                 <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Back</button>
                 <button type="button" class="igc-btn igc-btn--primary" data-action="next">
                   <span>Continue to Contact</span>
-                  <svg class="igc-arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </button>
               </div>
             </div>
@@ -177,20 +172,33 @@
               <div class="igc-fields">
                 <div class="igc-field">
                   <label class="igc-label" for="full_name">Full Name</label>
-                  <input type="text" id="full_name" name="full_name" class="igc-input" placeholder="Your name" required autocomplete="name">
-                  <span class="igc-error-msg">Please enter your name.</span>
+                  <input type="text" id="full_name" aria-describedby="full_name_error" name="full_name" class="igc-input" placeholder="Your name" required autocomplete="name">
+                  <span class="igc-error-msg" id="full_name_error">Please enter your name.</span>
                 </div>
 
                 <div class="igc-field-row">
                   <div class="igc-field">
                     <label class="igc-label" for="email_address">Email Address</label>
-                    <input type="email" id="email_address" name="email_address" class="igc-input" placeholder="you@example.com" required autocomplete="email">
-                    <span class="igc-error-msg">Please enter a valid email address.</span>
+                    <input type="email" id="email_address" aria-describedby="email_address_error" name="email_address" class="igc-input" placeholder="you@example.com" required autocomplete="email">
+                    <span class="igc-error-msg" id="email_address_error">Please enter a valid email address.</span>
                   </div>
                   <div class="igc-field">
                     <label class="igc-label" for="phone_number">Phone Number <span>(Optional)</span></label>
                     <input type="tel" id="phone_number" name="phone_number" class="igc-input" placeholder="+30" autocomplete="tel">
                   </div>
+                </div>
+
+                <div class="igc-consent">
+                  <input type="checkbox" id="igc_consent" name="consent" value="1" required aria-describedby="igc_consent_error">
+                  <label for="igc_consent">I agree that my details may be used to answer this enquiry. They are emailed to the studio and not stored on this site.</label>
+                </div>
+                <span class="igc-error-msg" id="igc_consent_error">Please confirm before sending.</span>
+
+                <p class="igc-form-error" id="igc-form-error" role="alert"></p>
+
+                <div class="igc-honeypot" aria-hidden="true">
+                  <label for="igc_website">Leave this field empty</label>
+                  <input type="text" id="igc_website" name="website" tabindex="-1" autocomplete="off">
                 </div>
               </div>
 
@@ -198,7 +206,6 @@
                 <button type="button" class="igc-btn igc-btn--ghost" data-action="prev">Back</button>
                 <button type="submit" class="igc-btn igc-btn--primary">
                   <span>Send Message</span>
-                  <svg class="igc-arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </button>
               </div>
             </div>
