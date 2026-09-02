@@ -426,8 +426,13 @@
   }
   .igc-stage::-webkit-scrollbar { width: 5px; }
   .igc-stage::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(43, 43, 43, .18); }
-  .igc-form { min-height: 100%; }
-  .igc-step.is-active { min-height: 100%; padding-bottom: 0; }
+  /* The action bar sits at the bottom of the screen whatever the step holds.
+     A percentage min-height on the step could not do that — it resolved
+     against a form of automatic height and was quietly dropped — so the form
+     is a column the active step grows inside instead. Short steps push the
+     bar down; tall ones scroll under it, because it is sticky. */
+  .igc-form { display: flex; min-height: 100%; flex-direction: column; }
+  .igc-step.is-active { min-height: 0; padding-bottom: 0; flex: 1 1 auto; }
   .igc-step__actions {
     margin: auto calc(var(--igc-gutter) * -1) 0;
     flex: 0 0 auto;
