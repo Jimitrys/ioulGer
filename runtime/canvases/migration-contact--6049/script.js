@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!form || !stage || !dynamicTitle || !progressTrack) return;
 
+  document.documentElement.classList.add("igc-contact-app");
+  document.body.classList.add("igc-contact-app");
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
   const steps = Array.from(form.querySelectorAll(".igc-step[data-step]"));
   const hiddenInquiryVal = document.getElementById("inquiry_type_val");
   const hiddenCategoryVal = document.getElementById("piece_category_val");
