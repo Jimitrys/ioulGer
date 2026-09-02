@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let stepSequence = ["1", "2a", "2b", "2c", "3"];
   let isTransitioning = false;
   let transitionTimer = 0;
+  let transitionUnlockTimer = 0;
 
   const sizeMap = {
     "1": "Small (< 20 cm)",
@@ -108,10 +109,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const targetIndex = stepSequence.indexOf(targetStepKey);
     const goingBack = targetStepKey !== "success" && targetIndex < currentIndex;
     const nextTitle = target.dataset.title || "Contact Us";
-    const delay = reduceMotion ? 0 : 180;
+    const delay = reduceMotion ? 0 : 120;
 
     isTransitioning = true;
     window.clearTimeout(transitionTimer);
+    window.clearTimeout(transitionUnlockTimer);
     dynamicTitle.style.opacity = "0";
     dynamicTitle.style.transform = goingBack ? "translateX(8px)" : "translateX(-8px)";
 
@@ -143,8 +145,10 @@ document.addEventListener("DOMContentLoaded", () => {
       renderProgress(targetStepKey);
       syncStageHeight(target);
 
-      window.setTimeout(() => target.classList.remove("is-back"), reduceMotion ? 0 : 440);
-      isTransitioning = false;
+      transitionUnlockTimer = window.setTimeout(() => {
+        target.classList.remove("is-back");
+        isTransitioning = false;
+      }, reduceMotion ? 0 : 500);
     }, delay);
   };
 

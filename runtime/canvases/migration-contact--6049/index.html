@@ -75,30 +75,32 @@
               </div>
             </div>
 
-            <!-- ================= STEP 2B: Size Slider (3 Options) & Glaze ================= -->
+            <!-- ================= STEP 2B: Size Objects (3 Options) & Glaze ================= -->
             <div class="igc-step" data-step="2b" data-title="Select Scale &amp; Glaze Preference">
               <div class="igc-fields">
                 
-                <!-- 3-Option Size Slider Widget -->
+                <!-- Three visual objects replace the range UI while preserving its value. -->
                 <div class="igc-size-widget">
                   <div class="igc-size-widget__header">
                     <span class="igc-size-widget__title">APPROX. SCALE / SIZE</span>
-                    <span class="igc-size-widget__value" id="igc-size-value">Medium (20 – 40 cm)</span>
                   </div>
-                  
+
                   <div class="igc-size-slider__track">
-                    <input type="range" id="size_range_input" name="size_range" min="1" max="3" step="1" value="2" class="igc-range-input">
+                    <input type="hidden" id="size_range_input" name="size_range" value="2">
                     <div class="igc-size-slider__ticks">
                       <button type="button" class="igc-size-tick" data-size-val="1">
+                        <span class="igc-size-tick__art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/small.svg" alt=""></span>
                         <span class="igc-size-tick__label">Small</span>
                         <span class="igc-size-tick__sub">&lt; 20cm</span>
                       </button>
                       <button type="button" class="igc-size-tick is-active" data-size-val="2">
+                        <span class="igc-size-tick__art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/medium.svg" alt=""></span>
                         <span class="igc-size-tick__label">Medium</span>
                         <span class="igc-size-tick__sub">20–40cm</span>
                       </button>
                       <button type="button" class="igc-size-tick" data-size-val="3">
-                        <span class="igc-size-tick__label">Large / Statement</span>
+                        <span class="igc-size-tick__art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/big.svg" alt=""></span>
+                        <span class="igc-size-tick__label">Large</span>
                         <span class="igc-size-tick__sub">40cm+</span>
                       </button>
                     </div>
