@@ -359,16 +359,18 @@
   }
   .igc-progress { flex: 0 0 auto; padding-top: clamp(.85rem, 2.2vh, 1.25rem); }
   .igc-contact__title {
-    max-width: 15ch;
+    max-width: min(24ch, 760px);
     margin: clamp(.85rem, 2.3vh, 1.35rem) auto clamp(.75rem, 2vh, 1.15rem);
-    font-size: clamp(2rem, 5.6vh, 3.35rem);
+    font-size: clamp(2rem, 5vh, 3.15rem);
     flex: 0 0 auto;
   }
   .igc-stage {
     height: auto !important;
     min-height: 0;
+    padding-top: 10px;
     overflow-y: auto;
     overscroll-behavior-y: contain;
+    scroll-padding-block: 10px 1rem;
     scrollbar-width: thin;
     scrollbar-color: rgba(43, 43, 43, .18) transparent;
     flex: 1 1 0;
@@ -405,7 +407,7 @@
 }
 
 @media (max-width: 768px) {
-  .igc-contact__title { max-width: 13ch; }
+  .igc-contact__title { max-width: min(17ch, calc(100vw - 2.5rem)); }
   .igc-choice-buttons,
   .igc-field-row { grid-template-columns: 1fr; }
   .igc-choice-btn { min-height: 92px; }
