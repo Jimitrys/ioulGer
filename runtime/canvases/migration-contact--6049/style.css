@@ -28,13 +28,21 @@
   width: 100%;
   min-height: 100svh;
 
-  /* The header is fixed, so the space it covers has to be reserved here or
-     the centred card slides underneath it. */
-  padding: calc(var(--igc-header) + clamp(1rem, 3vh, 2rem)) var(--igc-x) clamp(1.5rem, 4vh, 3rem);
+  /* Matching top and bottom padding is what puts the card on the true centre
+     of the screen rather than the centre of the space under the header, and
+     reserving the header's height in both keeps it clear of it.
+
+     The guard is 'safe': on a screen too short for the card, plain centring
+     would overflow evenly and slide the top of it back under the fixed
+     header. Safe centring drops to the top edge instead and lets the page
+     scroll. The plain value stays first for anything that does not know the
+     keyword. */
+  padding: var(--igc-header) var(--igc-x);
   background: var(--igc-paper);
   color: var(--igc-ink);
   font-family: var(--ioulia-font, "Montserrat", Arial, sans-serif);
   align-items: center;
+  align-items: safe center;
 }
 
 /* The page itself is included, not only its children: in app mode its height
@@ -411,10 +419,14 @@
     background: transparent;
     box-shadow: none;
   }
-  .igc-progress { flex: 0 0 auto; padding-top: clamp(.85rem, 2.2vh, 1.25rem); }
+  /* The heading block sits closer to the header and further from the choices
+     below it. The top values keep a hand's width off the navbar rather than
+     tucking under it - the page's padding already makes that impossible, so
+     this is only about not looking crowded against it. */
+  .igc-progress { flex: 0 0 auto; padding-top: clamp(.7rem, 1.7vh, 1.05rem); }
   .igc-contact__title {
     max-width: min(24ch, 760px);
-    margin: clamp(.85rem, 2.3vh, 1.35rem) auto clamp(.75rem, 2vh, 1.15rem);
+    margin: clamp(.5rem, 1.4vh, .95rem) auto clamp(1.4rem, 3.4vh, 2.5rem);
     font-size: clamp(2rem, 5vh, 3.15rem);
     flex: 0 0 auto;
   }
@@ -469,7 +481,10 @@
 }
 
 @media (max-width: 520px) {
-  .igc-contact__title { font-size: clamp(2.2rem, 10vw, 3rem); }
+  .igc-contact__title {
+    margin-bottom: clamp(1rem, 2.2vh, 1.5rem);
+    font-size: clamp(2.2rem, 10vw, 3rem);
+  }
   .igc-cat-grid { grid-template-columns: 1fr; }
   .igc-cat-card { min-height: 94px; }
   .igc-size-slider__ticks { gap: .35rem; }
