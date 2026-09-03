@@ -1074,6 +1074,7 @@ a {
     z-index: 0;
     height: 100%;
     padding-top: calc(var(--igc-header) + clamp(1.25rem, 3vh, 2rem));
+    padding-bottom: clamp(3rem, 7vh, 5rem);
   }
   .igc-shop__body > .woocommerce {
     width: min(100%, 1440px);
