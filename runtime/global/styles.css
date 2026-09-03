@@ -937,6 +937,24 @@ a {
 .igc-shop .woocommerce abbr.required { border: 0; color: var(--igc-muted); text-decoration: none; }
 .igc-shop .woocommerce ::placeholder { color: var(--ioulia-ink-45, rgba(43, 43, 43, .45)); }
 
+/* --- Buttons, rounded to match the fields beside them -------------------
+
+   Site-wide a button is 5px, which is right where it stands on its own. Inside
+   a form card it sits directly against inputs at 12px, and the two radii read
+   as a mismatch rather than a system - so here, and only here, the button
+   takes the control radius. This is what the contact page already does.
+
+   The weight answers the button bridge's own !important, and naming the shop
+   surface is what keeps the change to these two pages. */
+
+.igc-shop .woocommerce a.button,
+.igc-shop .woocommerce button.button,
+.igc-shop .woocommerce input.button,
+.igc-shop .woocommerce #place_order,
+.igc-shop .woocommerce #respond input#submit {
+  border-radius: var(--igc-control-radius) !important;
+}
+
 /* --- What WooCommerce says back ---------------------------------------- */
 
 .igc-shop .woocommerce :is(.woocommerce-message, .woocommerce-info, .woocommerce-error,
