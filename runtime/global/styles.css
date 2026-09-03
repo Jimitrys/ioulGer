@@ -1120,6 +1120,9 @@ a {
 
 @media (max-width: 782px) {
   body.admin-bar .igc-shop { height: calc(100dvh - 46px); }
+  .igc-shop__body {
+    padding-bottom: calc(clamp(3rem, 10vh, 5rem) + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 @media (min-width:1700px) {
