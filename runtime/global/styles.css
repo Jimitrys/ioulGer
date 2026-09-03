@@ -1042,12 +1042,13 @@ a {
     right: 0;
     left: 0;
     z-index: 1;
-    height: calc(var(--igc-header) + 3.5rem);
+    height: var(--igc-header);
     background: linear-gradient(
       to bottom,
       var(--ioulia-paper) 0%,
-      var(--ioulia-paper) 70%,
-      rgba(255, 254, 247, .9) 82%,
+      rgba(255, 254, 247, .94) 24%,
+      rgba(255, 254, 247, .48) 42%,
+      rgba(255, 254, 247, 0) 58%,
       rgba(255, 254, 247, 0) 100%
     );
     pointer-events: none;
