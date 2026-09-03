@@ -1,0 +1,249 @@
+/* Cart — WooCommerce's shortcode cart, dressed.
+
+   The shell, the controls and the notices come from the shop surface in the
+   global stylesheet. What is here is only what makes a cart a cart: the line
+   items, the quantity stepper and the totals.
+
+   Nothing is renamed or moved. Every class below is WooCommerce's own, so the
+   form still posts what WooCommerce expects and the page works with the
+   script switched off. */
+
+.igc-shop--cart .igc-shop__body > .woocommerce { display: flex; flex-direction: column; gap: clamp(1.5rem, 3vw, 2.25rem); }
+
+/* --- Line items. The table becomes a list of rows on every width, because a
+       six-column table has nothing to say on a phone. -------------------- */
+
+.igc-shop--cart .woocommerce .woocommerce-cart-form { margin: 0; }
+.igc-shop--cart .woocommerce .shop_table.cart { width: 100%; margin: 0; border: 0; border-collapse: collapse; }
+.igc-shop--cart .woocommerce .shop_table.cart thead { display: none; }
+.igc-shop--cart .woocommerce .shop_table.cart tbody { display: flex; flex-direction: column; gap: .65rem; }
+
+.igc-shop--cart .woocommerce .cart_item {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  padding: 1rem;
+  border: 1px solid var(--igc-line);
+  border-radius: var(--igc-card-radius);
+  background: rgba(255, 255, 255, .42);
+  gap: .35rem 1rem;
+  align-items: center;
+  transition: border-color .22s ease, background-color .22s ease;
+}
+.igc-shop--cart .woocommerce .cart_item:hover { border-color: var(--ioulia-ink-22, rgba(43, 43, 43, .22)); background: rgba(255, 255, 255, .7); }
+.igc-shop--cart .woocommerce .cart_item.is-busy { opacity: .5; pointer-events: none; }
+.igc-shop--cart .woocommerce .cart_item td { padding: 0; border: 0; }
+
+.igc-shop--cart .woocommerce .woocommerce-cart-form .product-thumbnail { width: auto; grid-row: 1 / span 3; grid-column: 1; }
+/* woocommerce-blocktheme.css pins this to 117px and the cell to 120px, both
+   with three classes, so the selectors here name the form to match them. */
+.igc-shop--cart .woocommerce .woocommerce-cart-form .product-thumbnail a img {
+  display: block;
+  width: 84px;
+  height: 84px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.igc-shop--cart .woocommerce .product-name { grid-row: 1; grid-column: 2; }
+.igc-shop--cart .woocommerce .product-name a {
+  color: var(--ioulia-ink);
+  font-size: var(--ioulia-body);
+  font-weight: 500;
+  line-height: 1.28;
+  letter-spacing: -.02em;
+  text-decoration: none;
+}
+.igc-shop--cart .woocommerce .product-name a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* The unit price is the quiet half of the pair; the line total is the answer. */
+.igc-shop--cart .woocommerce .product-price { grid-row: 2; grid-column: 2; color: var(--igc-muted); font-size: var(--ioulia-micro); font-weight: 500; }
+.igc-shop--cart .woocommerce .product-quantity { grid-row: 3; grid-column: 2; }
+.igc-shop--cart .woocommerce .product-subtotal { grid-row: 1 / span 3; grid-column: 3; font-size: var(--ioulia-body); font-weight: 500; text-align: right; }
+
+/* WooCommerce prints the column name into each cell on narrow screens. */
+.igc-shop--cart .woocommerce .shop_table_responsive td::before { display: none; }
+
+/* --- Quantity stepper. The minus and plus are added by the script; the
+       number input is WooCommerce's own and keeps its name. ------------- */
+
+.igc-shop--cart .woocommerce .quantity {
+  display: inline-flex;
+  border: 1px solid var(--igc-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .6);
+  align-items: center;
+  overflow: hidden;
+}
+.igc-shop--cart .woocommerce .quantity .igc-qty-step {
+  display: flex;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ioulia-ink);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: background-color .18s ease, opacity .18s ease;
+}
+.igc-shop--cart .woocommerce .quantity .igc-qty-step:hover { background: var(--igc-soft); }
+.igc-shop--cart .woocommerce .quantity .igc-qty-step[disabled] { opacity: .3; cursor: default; }
+.igc-shop--cart .woocommerce .quantity input.qty {
+  width: 40px;
+  min-height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  font-size: var(--ioulia-small);
+  font-weight: 500;
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.igc-shop--cart .woocommerce .quantity input.qty::-webkit-outer-spin-button,
+.igc-shop--cart .woocommerce .quantity input.qty::-webkit-inner-spin-button { margin: 0; appearance: none; }
+.igc-shop--cart .woocommerce .quantity input.qty:focus { box-shadow: none; }
+
+/* --- Remove. A cross in the corner of the row, not a column of its own. -- */
+
+.igc-shop--cart .woocommerce .woocommerce-cart-form .product-remove {
+  width: auto;
+  grid-row: 1;
+  grid-column: 3;
+  justify-self: end;
+  align-self: start;
+}
+.igc-shop--cart .woocommerce .product-remove a.remove {
+  display: flex;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: none;
+  /* WooCommerce sets this colour with !important, so answering it needs the
+     same weight. It is the only one on this page. */
+  color: var(--igc-muted) !important;
+  font-size: 17px;
+  line-height: 1;
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  transition: background-color .18s ease, color .18s ease;
+}
+.igc-shop--cart .woocommerce .product-remove a.remove:hover { background: var(--igc-soft); color: var(--ioulia-ink) !important; }
+
+/* The subtotal shares the third column with the remove cross, so it starts
+   below it rather than under it. */
+.igc-shop--cart .woocommerce .product-subtotal { grid-row: 2 / span 2; align-self: center; }
+
+/* --- Coupon and the update fallback ------------------------------------ */
+
+.igc-shop--cart .woocommerce tr:has(> td.actions) { display: block; }
+.igc-shop--cart .woocommerce td.actions {
+  display: flex;
+  padding: 0;
+  gap: .6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.igc-shop--cart .woocommerce .coupon { display: flex; gap: .6rem; align-items: center; flex: 1 1 240px; }
+.igc-shop--cart .woocommerce .coupon input#coupon_code { min-width: 0; flex: 1 1 auto; }
+/* The skin comes from the site's button system. Only the fit is local. */
+.igc-shop--cart .woocommerce td.actions button { flex: 0 0 auto; }
+/* The script updates the cart as the quantity changes, so the button is a
+   fallback for anyone without it rather than a step in the flow. */
+/* The weight answers the button system's own display:inline-flex !important;
+   without it the fallback button stays visible beside the live steppers. */
+.igc-shop--cart.is-live .woocommerce td.actions button[name="update_cart"] { display: none !important; }
+
+/* --- Totals ------------------------------------------------------------- */
+
+.igc-shop--cart .woocommerce .cart-collaterals { width: 100%; }
+.igc-shop--cart .woocommerce .cart_totals {
+  width: 100%;
+  padding: clamp(1.1rem, 2.5vw, 1.6rem);
+  border: 1px solid var(--igc-line);
+  border-radius: var(--igc-card-radius);
+  background: rgba(255, 255, 255, .55);
+}
+.igc-shop--cart .woocommerce .cart_totals h2 {
+  margin: 0 0 .9rem;
+  color: var(--ioulia-ink);
+  font-size: var(--ioulia-micro);
+  font-weight: 500;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+.igc-shop--cart .woocommerce .cart_totals table { width: 100%; margin: 0; border: 0; border-collapse: collapse; }
+.igc-shop--cart .woocommerce .cart_totals tr { display: flex; padding: .6rem 0; border-bottom: 1px solid var(--igc-line); gap: 1rem; align-items: baseline; justify-content: space-between; }
+.igc-shop--cart .woocommerce .cart_totals tr:last-child { border-bottom: 0; padding-bottom: 0; }
+.igc-shop--cart .woocommerce .cart_totals :is(th, td) { padding: 0; border: 0; font-weight: 400; text-align: right; }
+.igc-shop--cart .woocommerce .cart_totals th { color: var(--igc-muted); font-size: var(--ioulia-small); font-weight: 500; text-align: left; }
+.igc-shop--cart .woocommerce .cart_totals .order-total { padding-top: .9rem; font-size: var(--ioulia-body-lg); }
+.igc-shop--cart .woocommerce .cart_totals .order-total th { color: var(--ioulia-ink); font-size: var(--ioulia-body); }
+.igc-shop--cart .woocommerce .cart_totals .order-total strong { font-weight: 500; }
+.igc-shop--cart .woocommerce .cart_totals small.includes_tax { display: block; color: var(--igc-muted); font-size: var(--ioulia-micro); font-weight: 500; }
+
+.igc-shop--cart .woocommerce .woocommerce-shipping-calculator { margin-top: .5rem; text-align: left; }
+.igc-shop--cart .woocommerce .woocommerce-shipping-calculator .shipping-calculator-button { color: var(--ioulia-ink); font-size: var(--ioulia-small); font-weight: 500; }
+.igc-shop--cart .woocommerce .woocommerce-shipping-calculator p { margin: 0 0 .6rem; }
+.igc-shop--cart .woocommerce .shipping__list { margin: 0; padding: 0; list-style: none; text-align: left; }
+.igc-shop--cart .woocommerce .shipping__list li { display: flex; gap: .5rem; align-items: center; }
+
+/* --- Proceed ------------------------------------------------------------ */
+
+.igc-shop--cart .woocommerce .wc-proceed-to-checkout { margin-top: 1.1rem; padding: 0; }
+/* WooCommerce marks this one .alt, so the system already gives it the filled
+   variant. All it needs from here is the full width of the summary. */
+.igc-shop--cart .woocommerce .checkout-button { width: 100%; }
+
+/* --- Empty ---------------------------------------------------------------
+   Nothing to lay out, so the card just holds a sentence and a way onward. */
+
+.igc-shop--cart .woocommerce .cart-empty { margin: 0 0 1.25rem; color: var(--igc-muted); font-size: var(--ioulia-body); font-weight: 500; text-align: center; }
+.igc-shop--cart .woocommerce .return-to-shop { text-align: center; }
+
+
+/* --- Two columns once there is room for them ---------------------------- */
+
+@media (min-width: 900px) {
+  .igc-shop--cart .igc-shop__body > .woocommerce {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+    gap: 1.5rem;
+  }
+  .igc-shop--cart .woocommerce .woocommerce-notices-wrapper { grid-column: 1 / -1; }
+  .igc-shop--cart .woocommerce .cart-collaterals { position: sticky; top: 0; }
+}
+
+/* WooCommerce ships a separate small-screen stylesheet, loaded only under
+   768px, that turns this table into its own stack of labelled rows: it hides
+   the thumbnail, right-aligns every cell, prints the column name before each
+   value and stripes alternate rows. The layout here is already a stack and a
+   better one, so these put back what that sheet takes away instead of letting
+   two designs argue on a phone.
+
+   The weights match that sheet rather than exceeding it: this stylesheet is
+   inline in the body, so equal specificity already wins. The two !important
+   answer an !important of its own. */
+@media (max-width: 768px) {
+  .igc-shop--cart .woocommerce table.cart .product-thumbnail { display: block; }
+  .igc-shop--cart .woocommerce table.shop_table_responsive tr td { display: block; text-align: left !important; }
+  .igc-shop--cart .woocommerce table.shop_table_responsive tr td.product-subtotal { text-align: right !important; }
+  .igc-shop--cart .woocommerce table.shop_table_responsive tr td::before { display: none; }
+  .igc-shop--cart .woocommerce table.shop_table_responsive tr:nth-child(2n) td { background: none; }
+  .igc-shop--cart .woocommerce table.cart td.actions .button { width: auto; }
+  .igc-shop--cart .woocommerce table.cart td.actions .coupon .button { width: auto; float: none; }
+  .igc-shop--cart .woocommerce table.cart td.actions .coupon { float: none; padding-bottom: 0; }
+}
+
+@media (max-width: 520px) {
+  .igc-shop--cart .woocommerce .cart_item { grid-template-columns: 64px minmax(0, 1fr) auto; }
+  .igc-shop--cart .woocommerce .woocommerce-cart-form .product-thumbnail a img { width: 64px; height: 64px; }
+  .igc-shop--cart .woocommerce td.actions { flex-direction: column; align-items: stretch; }
+  .igc-shop--cart .woocommerce .coupon { flex: 0 0 auto; }
+}

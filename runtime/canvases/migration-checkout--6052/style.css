@@ -1,0 +1,220 @@
+/* Checkout — WooCommerce's shortcode checkout, dressed.
+
+   Not one field is moved, renamed or re-ordered. WooCommerce owns the form,
+   its validation, the AJAX order review, shipping and the gateways; this only
+   decides how it looks. The shell, the controls, the notices and the buttons
+   come from the shop surface in the global stylesheet.
+
+   Every selector carries '.woocommerce' so it matches the reach WooCommerce
+   uses on its own markup. This stylesheet is inline in the body, after every
+   sheet in the head, so matching is enough to win and almost nothing here
+   needs !important. */
+
+.igc-shop--checkout .igc-shop__body > .woocommerce { display: flex; flex-direction: column; gap: 1rem; }
+
+/* --- The two invitations at the top: sign in, and use a coupon ---------- */
+
+.igc-shop--checkout .woocommerce :is(.woocommerce-form-login-toggle, .woocommerce-form-coupon-toggle) { margin: 0; }
+.igc-shop--checkout .woocommerce :is(.woocommerce-form-login-toggle, .woocommerce-form-coupon-toggle) .wc-block-components-notice-banner {
+  margin: 0;
+  padding: .8rem 1.1rem;
+  background: var(--igc-soft);
+  font-size: var(--ioulia-small);
+}
+.igc-shop--checkout .woocommerce :is(.showlogin, .showcoupon) {
+  color: var(--ioulia-ink);
+  font-weight: 500;
+  text-underline-offset: 3px;
+}
+.igc-shop--checkout .woocommerce :is(form.login, form.checkout_coupon) {
+  margin: 0;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  border: 1px solid var(--igc-line);
+  border-radius: var(--igc-card-radius);
+  background: rgba(255, 255, 255, .55);
+}
+
+/* --- Field rows. WooCommerce marks halves with -first and -last. -------- */
+
+.igc-shop--checkout .woocommerce .form-row { margin: 0 0 .9rem; padding: 0; }
+.igc-shop--checkout .woocommerce .form-row:last-child { margin-bottom: 0; }
+.igc-shop--checkout .woocommerce .woocommerce-input-wrapper { display: block; width: 100%; }
+.igc-shop--checkout .woocommerce :is(.form-row-first, .form-row-last) { width: 100%; float: none; }
+.igc-shop--checkout .woocommerce .clear { display: none; }
+
+@media (min-width: 640px) {
+  .igc-shop--checkout .woocommerce :is(.woocommerce-billing-fields__field-wrapper,
+                                       .woocommerce-shipping-fields__field-wrapper,
+                                       form.login, form.checkout_coupon) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 .8rem;
+  }
+  .igc-shop--checkout .woocommerce :is(.form-row-wide, .form-row:not(.form-row-first):not(.form-row-last)) { grid-column: 1 / -1; }
+}
+
+/* --- Section headings --------------------------------------------------- */
+
+.igc-shop--checkout .woocommerce :is(.woocommerce-billing-fields h3,
+                                     .woocommerce-shipping-fields h3,
+                                     .woocommerce-additional-fields h3,
+                                     #order_review_heading,
+                                     #payment .wc_payment_methods + h3) {
+  margin: 0 0 1rem;
+  color: var(--ioulia-ink);
+  font-size: var(--ioulia-micro);
+  font-weight: 500;
+  letter-spacing: .055em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.igc-shop--checkout .woocommerce h3#ship-to-different-address {
+  display: flex;
+  margin: 0;
+  gap: .65rem;
+  align-items: center;
+}
+.igc-shop--checkout .woocommerce h3#ship-to-different-address label {
+  display: flex;
+  margin: 0;
+  gap: .65rem;
+  align-items: center;
+  letter-spacing: .055em;
+}
+
+/* --- The panels the form is built from ---------------------------------- */
+
+.igc-shop--checkout .woocommerce :is(.woocommerce-billing-fields,
+                                     .woocommerce-shipping-fields,
+                                     .woocommerce-additional-fields) {
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  border: 1px solid var(--igc-line);
+  border-radius: var(--igc-card-radius);
+  background: rgba(255, 255, 255, .55);
+}
+.igc-shop--checkout .woocommerce #customer_details { display: flex; flex-direction: column; gap: 1rem; }
+.igc-shop--checkout .woocommerce :is(#customer_details .col-1, #customer_details .col-2) {
+  display: flex;
+  width: 100%;
+  float: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+.igc-shop--checkout .woocommerce .shipping_address { padding-top: 1rem; }
+.igc-shop--checkout .woocommerce .create-account { margin-top: .9rem; }
+
+/* --- Order review ------------------------------------------------------- */
+
+.igc-shop--checkout .woocommerce #order_review {
+  padding: clamp(1.1rem, 2.5vw, 1.6rem);
+  border: 1px solid var(--igc-line);
+  border-radius: var(--igc-card-radius);
+  background: rgba(255, 255, 255, .62);
+}
+.igc-shop--checkout .woocommerce .shop_table.woocommerce-checkout-review-order-table {
+  width: 100%;
+  margin: 0 0 1rem;
+  border: 0;
+  border-collapse: collapse;
+}
+.igc-shop--checkout .woocommerce .woocommerce-checkout-review-order-table thead { display: none; }
+.igc-shop--checkout .woocommerce .woocommerce-checkout-review-order-table :is(tbody tr, tfoot tr) {
+  display: flex;
+  padding: .6rem 0;
+  border-bottom: 1px solid var(--igc-line);
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.igc-shop--checkout .woocommerce .woocommerce-checkout-review-order-table :is(th, td) {
+  padding: 0;
+  border: 0;
+  font-weight: 400;
+  text-align: right;
+}
+.igc-shop--checkout .woocommerce .woocommerce-checkout-review-order-table :is(td.product-name, th) {
+  color: var(--ioulia-ink);
+  font-size: var(--ioulia-small);
+  font-weight: 500;
+  text-align: left;
+}
+.igc-shop--checkout .woocommerce .product-quantity { color: var(--igc-muted); font-weight: 500; }
+.igc-shop--checkout .woocommerce .woocommerce-checkout-review-order-table tfoot .order-total {
+  padding-top: .9rem;
+  border-bottom: 0;
+  font-size: var(--ioulia-body-lg);
+}
+.igc-shop--checkout .woocommerce .woocommerce-checkout-review-order-table tfoot .order-total th { font-size: var(--ioulia-body); }
+.igc-shop--checkout .woocommerce .woocommerce-checkout-review-order-table tfoot .order-total strong { font-weight: 500; }
+.igc-shop--checkout .woocommerce .includes_tax { display: block; color: var(--igc-muted); font-size: var(--ioulia-micro); font-weight: 500; }
+
+/* --- Payment ------------------------------------------------------------ */
+
+.igc-shop--checkout .woocommerce #payment { border: 0; border-radius: 0; background: none; }
+.igc-shop--checkout .woocommerce #payment ul.wc_payment_methods {
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+  list-style: none;
+}
+.igc-shop--checkout .woocommerce #payment li.wc_payment_method {
+  margin: 0 0 .6rem;
+  padding: .9rem 1rem;
+  border: 1px solid var(--igc-line);
+  border-radius: var(--igc-control-radius);
+  background: rgba(255, 255, 255, .5);
+  transition: border-color .22s ease, background-color .22s ease;
+}
+.igc-shop--checkout .woocommerce #payment li.wc_payment_method:hover { border-color: var(--ioulia-ink-22); background: rgba(255, 255, 255, .8); }
+.igc-shop--checkout .woocommerce #payment li.wc_payment_method:has(input:checked) { border-color: var(--ioulia-ink); background: rgba(255, 255, 255, .9); }
+.igc-shop--checkout .woocommerce #payment li.wc_payment_method label {
+  display: inline-flex;
+  margin: 0;
+  gap: .6rem;
+  align-items: center;
+  font-size: var(--ioulia-small);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+}
+.igc-shop--checkout .woocommerce #payment .payment_box {
+  margin: .7rem 0 0;
+  padding: .8rem 1rem;
+  border-radius: var(--igc-control-radius);
+  background: var(--igc-soft);
+  color: var(--igc-muted);
+  font-size: var(--ioulia-micro);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.igc-shop--checkout .woocommerce #payment .payment_box::before { display: none; }
+.igc-shop--checkout .woocommerce #payment .payment_box p:last-child { margin-bottom: 0; }
+
+.igc-shop--checkout .woocommerce .woocommerce-privacy-policy-text {
+  margin: 0 0 1rem;
+  color: var(--igc-muted);
+  font-size: var(--ioulia-micro);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.igc-shop--checkout .woocommerce .woocommerce-terms-and-conditions-wrapper { margin-bottom: 1rem; }
+.igc-shop--checkout .woocommerce .form-row.place-order { margin: 0; }
+.igc-shop--checkout .woocommerce #place_order { width: 100%; }
+
+/* The overlay WooCommerce lays over the review while it recalculates. */
+.igc-shop--checkout .woocommerce .blockUI.blockOverlay { border-radius: var(--igc-card-radius); background: var(--ioulia-paper) !important; opacity: .55 !important; }
+
+/* --- Two columns once there is room ------------------------------------- */
+
+@media (min-width: 1000px) {
+  .igc-shop--checkout .woocommerce form.checkout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    align-items: start;
+    gap: 1.25rem 1.5rem;
+  }
+  .igc-shop--checkout .woocommerce form.checkout > #customer_details { grid-column: 1; grid-row: 1 / span 3; }
+  .igc-shop--checkout .woocommerce form.checkout > #order_review_heading { grid-column: 2; grid-row: 1; margin: 0; }
+  .igc-shop--checkout .woocommerce form.checkout > #order_review { grid-column: 2; grid-row: 2; position: sticky; top: 0; }
+}

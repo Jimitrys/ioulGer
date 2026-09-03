@@ -4,10 +4,10 @@
     "post_type": "igc_php_snippet",
     "title": "Cart look",
     "slug": "cart-look",
-    "status": "publish",
+    "status": "draft",
     "menu_order": 0,
     "properties": {
         "scope": "everywhere",
-        "enabled": true
+        "enabled": false
     }
 }

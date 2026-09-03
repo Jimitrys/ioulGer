@@ -187,6 +187,13 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Γράψε ένα έγκυρο email.' => 'Please enter a valid email address.',
 				'Χρειαζόμαστε τη συγκατάθεσή σου για να κρατήσουμε τα στοιχεία σου.' => 'We need your consent to keep your details for this booking.',
 				'Στις τιμές δεν συμπεριλαμβάνεται ΦΠΑ 24%.' => 'Prices exclude 24% VAT.',
+				/* CART & CHECKOUT — the page headings. Everything else on these two
+				   screens is WooCommerce's own wording and comes from its language pack. */
+				'Το καλάθι σου' => 'Your cart',
+				'Ολοκλήρωση παραγγελίας' => 'Checkout',
+				'Καλάθι' => 'Cart',
+				'Ταμείο' => 'Checkout',
+
 				/* CONTACT — headings, one per step */
 				'Ας φτιάξουμε κάτι μαζί' => "Let's shape something together",
 				'Τι κεραμικό φαντάζεσαι;' => 'What kind of piece do you have in mind?',

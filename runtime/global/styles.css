@@ -275,11 +275,7 @@ a {
 .elementor a.icph__button,
 .elementor button.icph__button,
 .elementor .elementor-button,
-.elementor-widget-button .elementor-button,
-.woocommerce a.button,
-.woocommerce button.button,
-.woocommerce input.button,
-.woocommerce #respond input#submit {
+.elementor-widget-button .elementor-button {
   appearance: none !important;
   display: inline-flex !important;
   align-items: center;
@@ -317,11 +313,7 @@ a {
 .elementor a.icph__button:hover,
 .elementor button.icph__button:hover,
 .elementor .elementor-button:hover,
-.elementor-widget-button .elementor-button:hover,
-.woocommerce a.button:hover,
-.woocommerce button.button:hover,
-.woocommerce input.button:hover,
-.woocommerce #respond input#submit:hover {
+.elementor-widget-button .elementor-button:hover {
   border-color: var(--ioulia-ink) !important;
   background-color: transparent !important;
   color: var(--ioulia-ink) !important;
@@ -332,8 +324,7 @@ a {
 .ioulia-button:focus-visible,
 .icph__button:focus-visible,
 .igw-btn:focus-visible,
-.elementor .elementor-button:focus-visible,
-.woocommerce a.button:focus-visible {
+.elementor .elementor-button:focus-visible {
   outline: 1px solid var(--ioulia-accent) !important;
   outline-offset: 3px !important;
 }
@@ -715,6 +706,312 @@ a {
   }
 
   .ioulia-editorial-row > :last-child { grid-column: 2; }
+}
+
+/* --- WooCommerce's buttons join the system ------------------------------
+
+   They used to be held by the legacy block above, which still carried the old
+   11px type and a fixed 42px height. They belong to the current system now.
+
+   The !important here is not decoration: WooCommerce reaches its own buttons
+   with three classes ('.woocommerce-cart .wc-proceed-to-checkout
+   a.checkout-button'), which outruns any selector this system would otherwise
+   use. Matching that reach for every WooCommerce button in every context is
+   more selector than it is worth, so the weight says it once.
+
+   '.alt' is WooCommerce's own mark for the primary action on a screen, so it
+   maps to the filled variant and everything else to the outlined one.
+
+   The selectors are written out rather than folded into :is(). An :is() takes
+   the specificity of its most specific argument, so one id in the list would
+   lift the whole rule to id level - and the base rule would then outrank the
+   filled variant it is supposed to sit under. A comma list keeps each
+   selector's own weight, which is what the cascade here depends on. */
+
+.woocommerce a.button,
+.woocommerce button.button,
+.woocommerce input.button,
+.woocommerce #respond input#submit,
+.woocommerce #place_order {
+  appearance: none !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: .75em;
+  min-height: clamp(46px, 1.6vw + 2.5rem, 58px) !important;
+  padding: clamp(.75rem, .35vw + .6rem, 1.05rem) clamp(1.15rem, 1vw + .8rem, 1.9rem) !important;
+  border: 1px solid var(--ioulia-ink-22) !important;
+  border-radius: var(--ioulia-radius, 5px) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--ioulia-ink) !important;
+  font-family: inherit !important;
+  font-size: var(--ioulia-small) !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: .025em !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  cursor: pointer;
+  transition:
+    transform 320ms cubic-bezier(.16, 1, .3, 1),
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease !important;
+}
+
+.woocommerce a.button:is(:hover, :focus-visible),
+.woocommerce button.button:is(:hover, :focus-visible),
+.woocommerce input.button:is(:hover, :focus-visible),
+.woocommerce #place_order:is(:hover, :focus-visible) {
+  border-color: var(--ioulia-ink) !important;
+  background: var(--ioulia-ink-07) !important;
+  transform: translateY(-3px);
+  outline: none;
+}
+
+.woocommerce a.button.alt,
+.woocommerce button.button.alt,
+.woocommerce input.button.alt,
+.woocommerce #place_order {
+  border-color: var(--ioulia-ink) !important;
+  background: var(--ioulia-ink) !important;
+  color: var(--ioulia-paper) !important;
+}
+
+.woocommerce a.button.alt:is(:hover, :focus-visible),
+.woocommerce button.button.alt:is(:hover, :focus-visible),
+.woocommerce input.button.alt:is(:hover, :focus-visible),
+.woocommerce #place_order:is(:hover, :focus-visible) {
+  background: transparent !important;
+  color: var(--ioulia-ink) !important;
+}
+
+.woocommerce :is(a.button, button.button, input.button):disabled,
+.woocommerce :is(a.button, button.button, input.button).disabled,
+.woocommerce #place_order:disabled {
+  opacity: .45 !important;
+  transform: none;
+  cursor: default;
+}
+
+/* ===========================================================================
+   SHOP SURFACE — the shell cart and checkout share.
+
+   Both pages are WooCommerce's own markup, untouched: this dresses it rather
+   than replacing it, so validation, shipping, coupons, gateways and the AJAX
+   order review keep working exactly as WooCommerce wrote them.
+
+   The shell follows the contact page. One card on a roomy desktop, centred on
+   the screen; one full-height app surface on a laptop or a phone, where only
+   the body scrolls. The breakpoint lives here and publishes --igc-app so a
+   script can read the decision instead of repeating it.
+   ======================================================================== */
+
+.igc-shop {
+  --igc-header: var(--ioulia-header-h, 176px);
+  --igc-gutter: clamp(1.25rem, 4vw, 3rem);
+  --igc-radius: 24px;
+  --igc-card-radius: 18px;
+  --igc-control-radius: 12px;
+  --igc-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
+  --igc-soft: var(--ioulia-ink-07, rgba(43, 43, 43, .07));
+  --igc-muted: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+  --igc-app: 0;
+
+  display: flex;
+  width: 100%;
+  min-height: 100svh;
+  padding: var(--igc-header) var(--ioulia-page-x);
+  background: var(--ioulia-paper);
+  color: var(--ioulia-ink);
+  align-items: center;
+  align-items: safe center;
+}
+
+.igc-shop,
+.igc-shop *,
+.igc-shop *::before,
+.igc-shop *::after { box-sizing: border-box; }
+
+.igc-shop__card {
+  display: flex;
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid var(--igc-line);
+  border-radius: var(--igc-radius);
+  background: rgba(255, 255, 255, .58);
+  box-shadow: 0 20px 70px rgba(43, 43, 43, .07);
+  flex-direction: column;
+}
+
+.igc-shop__title {
+  margin: clamp(2rem, 4vw, 3.5rem) 0 clamp(1.5rem, 3vw, 2.5rem);
+  padding-inline: var(--igc-gutter);
+  color: var(--ioulia-ink);
+  font-size: clamp(2.45rem, 5vw, 4.4rem);
+  font-weight: 400;
+  line-height: .98;
+  letter-spacing: -.052em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.igc-shop__body {
+  padding: 0 var(--igc-gutter) clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* --- Controls. One look for every field WooCommerce prints. ------------- */
+
+/* Specificity, once, on purpose. The furthest WooCommerce reaches its own
+   fields is '.woocommerce-page form .form-row input.input-text' in
+   woocommerce-blocktheme.css - three classes and two tags. Naming the card
+   body as well as the section matches that without inventing weight, and this
+   stylesheet loads after every WooCommerce sheet, so a tie already goes here.
+   That is why the selectors are long and why there is almost no !important
+   below: the few that remain answer rules that carry !important themselves. */
+.igc-shop .igc-shop__body .woocommerce :is(input[type="text"], input[type="email"], input[type="tel"],
+               input[type="password"], input[type="number"], input[type="search"],
+               textarea, select, .select2-selection) {
+  width: 100%;
+  min-height: 52px;
+  padding: .85rem 1rem;
+  border: 1px solid var(--igc-line);
+  border-radius: var(--igc-control-radius);
+  outline: none;
+  background: rgba(255, 255, 255, .6);
+  color: var(--ioulia-ink);
+  font: inherit;
+  /* Literal 16px: anything smaller makes iOS zoom the page on focus. */
+  font-size: 16px;
+  transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+.igc-shop .igc-shop__body .woocommerce :is(input, textarea, select):hover { border-color: var(--ioulia-ink-22, rgba(43, 43, 43, .22)); }
+.igc-shop .igc-shop__body .woocommerce :is(input, textarea, select):focus {
+  border-color: var(--ioulia-ink);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--igc-soft);
+}
+.igc-shop .igc-shop__body .woocommerce textarea { min-height: 112px; resize: vertical; }
+.igc-shop .igc-shop__body .woocommerce select {
+  appearance: none;
+  padding-right: 2.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%232B2B2B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  cursor: pointer;
+}
+.igc-shop .igc-shop__body .woocommerce :is(input[type="checkbox"], input[type="radio"]) {
+  width: 20px;
+  min-height: 0;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--ioulia-ink);
+  flex: 0 0 auto;
+}
+.igc-shop .igc-shop__body .woocommerce label {
+  display: block;
+  margin-bottom: .5rem;
+  color: var(--ioulia-ink);
+  font-size: var(--ioulia-micro);
+  font-weight: 500;
+  letter-spacing: .055em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+/* A label sitting beside its box is a sentence, not a field name. */
+.igc-shop .igc-shop__body .woocommerce :is(.woocommerce-form__label-for-checkbox, .checkbox) {
+  display: flex;
+  margin: 0;
+  gap: .65rem;
+  align-items: flex-start;
+  color: var(--igc-muted);
+  font-size: var(--ioulia-micro);
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
+}
+.igc-shop .woocommerce abbr.required { border: 0; color: var(--igc-muted); text-decoration: none; }
+.igc-shop .woocommerce ::placeholder { color: var(--ioulia-ink-45, rgba(43, 43, 43, .45)); }
+
+/* --- What WooCommerce says back ---------------------------------------- */
+
+.igc-shop .woocommerce :is(.woocommerce-message, .woocommerce-info, .woocommerce-error,
+              .wc-block-components-notice-banner) {
+  margin: 0 0 1rem;
+  padding: .85rem 1.1rem;
+  border: 1px solid var(--igc-line);
+  border-radius: var(--igc-control-radius);
+  background: var(--igc-soft);
+  color: var(--ioulia-ink);
+  font-size: var(--ioulia-small);
+  font-weight: 500;
+  line-height: 1.45;
+  list-style: none;
+}
+.igc-shop .woocommerce :is(.woocommerce-error, .wc-block-components-notice-banner.is-error) {
+  border-color: rgba(143, 57, 57, .3);
+  background: rgba(143, 57, 57, .06);
+  color: #8f3939;
+}
+.igc-shop .woocommerce :is(.woocommerce-message, .woocommerce-info,
+              .wc-block-components-notice-banner) > svg { display: none; }
+.igc-shop .woocommerce .woocommerce-notices-wrapper:empty { display: none; }
+
+/* --- Money ------------------------------------------------------------- */
+
+.igc-shop .woocommerce .woocommerce-Price-amount { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* --- App mode ----------------------------------------------------------- */
+
+@media (max-width: 1024px), (max-height: 900px) {
+  .igc-shop {
+    --igc-app: 1;
+
+    height: 100svh;
+    height: 100dvh;
+    min-height: 0;
+    padding: var(--igc-header) 0 0;
+    overflow: hidden;
+    align-items: stretch;
+  }
+  /* WooCommerce marks these pages on the body itself, so the footer steps
+     aside without waiting for a script - the checkout does not have one. */
+  body:is(.woocommerce-cart, .woocommerce-checkout) .igc-rendered-footer-site-studio-migration { display: none; }
+  .igc-shop__card {
+    height: 100%;
+    max-width: none;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .igc-shop__title {
+    margin: clamp(.7rem, 1.9vh, 1.2rem) 0 clamp(1.1rem, 2.6vh, 1.8rem);
+    font-size: clamp(2rem, 5vh, 3.15rem);
+    flex: 0 0 auto;
+  }
+  .igc-shop__body {
+    min-height: 0;
+    padding-bottom: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(43, 43, 43, .18) transparent;
+    flex: 1 1 auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .igc-shop__body::-webkit-scrollbar { width: 5px; }
+  .igc-shop__body::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(43, 43, 43, .18); }
+  body.admin-bar .igc-shop { height: calc(100dvh - 32px); }
+}
+
+@media (max-width: 782px) {
+  body.admin-bar .igc-shop { height: calc(100dvh - 46px); }
 }
 
 @media (min-width:1700px) {
