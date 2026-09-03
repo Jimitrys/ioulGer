@@ -1120,11 +1120,7 @@ a {
 
 @media (max-width: 782px) {
   body.admin-bar .igc-shop { height: calc(100dvh - 46px); }
-  .igc-shop::before { display: none; }
   .igc-shop__body {
-    height: auto;
-    margin-top: calc(var(--igc-header) + var(--igc-compact-title-h));
-    padding-top: clamp(1rem, 3vh, 1.5rem);
     padding-bottom: calc(clamp(3rem, 10vh, 5rem) + env(safe-area-inset-bottom, 0px));
   }
 }
