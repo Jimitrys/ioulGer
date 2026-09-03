@@ -1035,8 +1035,18 @@ a {
 @media (min-width: 1200px) and (max-height: 900px) {
   .igc-shop { padding-top: 0; }
   .igc-shop__title {
-    margin-top: clamp(2.75rem, 7vh, 4rem);
+    display: flex;
+    height: var(--igc-header);
+    margin: 0;
+    padding-top: 4rem;
     padding-inline: clamp(15rem, 21vw, 20rem);
+    align-items: center;
+    justify-content: center;
+  }
+  .igc-shop__body { padding-top: clamp(1.25rem, 3vh, 2rem); }
+  .igc-shop__body > .woocommerce {
+    width: min(100%, 1440px);
+    margin-inline: auto;
   }
 }
 
