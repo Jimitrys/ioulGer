@@ -347,7 +347,7 @@ function ioulia_custom_navbar_shortcode() {
         }
 
         .ioulia-mini-cart-panel.is-ready {
-            transition: transform .52s cubic-bezier(.16, 1, .3, 1);
+            transition: transform .52s cubic-bezier(.16, 1, .3, 1), box-shadow .4s ease;
         }
 
         .ioulia-mini-cart-panel.is-open {
@@ -1124,10 +1124,13 @@ function ioulia_custom_navbar_shortcode() {
                 height: min(92dvh, 820px);
                 border-width: 1px 1px 0;
                 border-radius: 24px 24px 0 0;
-                box-shadow: 0 -22px 70px rgba(20, 20, 18, .18);
+                box-shadow: none;
                 transform: translate3d(0, 102%, 0);
             }
-            .ioulia-mini-cart-panel.is-open { transform: translate3d(0, 0, 0); }
+            .ioulia-mini-cart-panel.is-open {
+                box-shadow: 0 -22px 70px rgba(20, 20, 18, .18);
+                transform: translate3d(0, 0, 0);
+            }
             .ioulia-mini-cart-grab {
                 display: block;
                 width: 40px;
