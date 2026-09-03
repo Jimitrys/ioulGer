@@ -1018,6 +1018,7 @@ a {
     padding-bottom: 0;
     overflow-y: auto;
     overscroll-behavior-y: contain;
+    touch-action: pan-y;
     scrollbar-width: thin;
     scrollbar-color: rgba(43, 43, 43, .18) transparent;
     flex: 1 1 auto;
@@ -1026,6 +1027,17 @@ a {
   .igc-shop__body::-webkit-scrollbar { width: 5px; }
   .igc-shop__body::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(43, 43, 43, .18); }
   body.admin-bar .igc-shop { height: calc(100dvh - 32px); }
+}
+
+/* On a wide laptop the heading can share the navbar's vertical band: its
+   centred lane stays clear of the logo and controls. Below this width the
+   normal header offset returns before those regions can collide. */
+@media (min-width: 1200px) and (max-height: 900px) {
+  .igc-shop { padding-top: 0; }
+  .igc-shop__title {
+    margin-top: clamp(2.75rem, 7vh, 4rem);
+    padding-inline: clamp(15rem, 21vw, 20rem);
+  }
 }
 
 @media (max-width: 782px) {
