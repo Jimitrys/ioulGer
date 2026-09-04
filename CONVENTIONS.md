@@ -66,10 +66,10 @@ typed into a component:
 
 | token | 375px | 1440px | 2560px |
 | --- | --- | --- | --- |
-| `--ioulia-body-lg` | 17.4px | 23.6px | 25.9px |
-| `--ioulia-body` | 16.3px | 21.6px | 23.0px |
-| `--ioulia-small` | 14.5px | 19.4px | 20.8px |
-| `--ioulia-micro` | 13.2px | 17.0px | 17.6px |
+| `--ioulia-body-lg` | 18.2px | 23.6px | 25.9px |
+| `--ioulia-body` | 17.0px | 21.6px | 23.0px |
+| `--ioulia-small` | 15.2px | 19.4px | 20.8px |
+| `--ioulia-micro` | 13.8px | 17.0px | 17.6px |
 
 The scale climbs all the way up. A media query used to pin `--ioulia-small`
 and `--ioulia-micro` back to their floors above 1700px, so the widest screens

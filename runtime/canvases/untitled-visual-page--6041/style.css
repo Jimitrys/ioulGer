@@ -82,7 +82,12 @@ body.admin-bar .ig-about { height: calc(100dvh - 32px); }
 }
 @media (max-width: 700px) {
   .ig-manifesto { height: 190svh; }
-  .ig-manifesto__sticky { min-height: 520px; padding: 34px 20px; }
+  /* The pane starts at the top of the screen and centres its contents in it,
+     so without this the statement sat behind the fixed header. */
+  .ig-manifesto__sticky {
+    min-height: 520px;
+    padding: calc(var(--about-nav, 140px) + 1.25rem) 20px 34px;
+  }
   .ig-manifesto__statement { display: flex; width: 100%; font-size: clamp(37px,11.7vw,54px); line-height: 1.02; flex-direction: column; }
   .ig-manifesto__line { min-height: 0; white-space: normal; }
   .ig-manifesto__line--split { display: block; }

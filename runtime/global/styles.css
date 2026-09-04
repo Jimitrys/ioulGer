@@ -73,10 +73,10 @@ body, .igw-page, .igw-page * {
   /* Each step keeps its floor for a phone and climbs to a ceiling a 2K screen
      can use. The middle term carries both a vw and a rem so it actually
      moves - a vw-only term sits on the floor at every width. */
-  --ioulia-body-lg: clamp(1.08rem, .58vw + .95rem, 1.62rem);
-  --ioulia-body: clamp(1rem, .5vw + .9rem, 1.44rem);
-  --ioulia-small: clamp(.9rem, .46vw + .8rem, 1.3rem);
-  --ioulia-micro: clamp(.82rem, .36vw + .74rem, 1.1rem);
+  --ioulia-body-lg: clamp(1.14rem, .58vw + .95rem, 1.62rem);
+  --ioulia-body: clamp(1.06rem, .5vw + .9rem, 1.44rem);
+  --ioulia-small: clamp(.95rem, .46vw + .8rem, 1.3rem);
+  --ioulia-micro: clamp(.86rem, .36vw + .74rem, 1.1rem);
 
   /* Smallest size any text on the site may be set at. Anything that wants to be
      quieter than this gets there with tone and weight, not by shrinking. */
@@ -1193,7 +1193,11 @@ html.ia-js figure[data-ia-reveal].is-in img {
   user-select: none;
   -webkit-user-select: none;
   overflow-x: auto;
+  /* Naming the other axis matters: a single overflow-x makes the browser
+     compute overflow-y as auto, and the strip could be dragged up and down. */
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
+  touch-action: pan-x;
   scrollbar-width: none;
   cursor: grab;
 }
@@ -1217,7 +1221,9 @@ html.ia-js figure[data-ia-reveal].is-in img {
   margin: 0;
   overflow: hidden;
   background: #e8e4d9;
-  transform: translateY(var(--lift, 0px));
+  /* --shift is the strip's own parallax, written by the script; --lift is the
+     scatter, and belongs to the stylesheet so a media query can drop it. */
+  transform: translate(var(--shift, 0px), var(--lift, 0px));
 }
 .ia-gallery__item--lg { width: clamp(230px, 34vw, 560px); aspect-ratio: 4 / 5; }
 .ia-gallery__item--md { width: clamp(190px, 26vw, 430px); aspect-ratio: 3 / 2; }
@@ -1225,9 +1231,14 @@ html.ia-js figure[data-ia-reveal].is-in img {
 .ia-gallery__img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; user-select: none; }
 
 @media (max-width: 700px) {
-  .ia-gallery__track { padding-block: clamp(2rem, 8vw, 3.5rem); }
-  /* The lifts are gentler where there is less room to spend on them. */
-  .ia-gallery__item { transform: translateY(calc(var(--lift, 0px) * .35)); }
+  /* The strip gets the same air around it as the sections either side. The
+     vertical scatter does not survive a 375px screen: the frames are already
+     close to the full height of the strip, so any lift pushes one of them
+     past the edge and the section clips it. They sit on one line here, which
+     is what the width wants anyway. */
+  .ia-gallery { padding: clamp(3.5rem, 12vw, 5rem) 0; }
+  .ia-gallery__track { padding-block: clamp(1.5rem, 6vw, 2.25rem); }
+  .ia-gallery__item { transform: translate(var(--shift, 0px), 0); }
 }
 
 /* ===========================================================================

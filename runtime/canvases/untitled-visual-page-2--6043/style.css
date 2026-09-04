@@ -951,6 +951,10 @@
      ======================================================================== */
 
   @media (max-width: 700px) {
+    /* The strip keeps the air the shared rule gives it, rather than this
+       page's tighter section padding. */
+    .igw-section.ia-gallery { padding-block: clamp(3.5rem, 12vw, 5rem); }
+
     /* A tap target is at least 44px on its shortest side. */
     .igw-tech__trigger,
     .igw-faq__trigger { min-height: 56px; }

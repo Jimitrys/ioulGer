@@ -212,8 +212,11 @@ document.addEventListener('DOMContentLoaded', function () {
       frames.forEach((frame) => {
         const fromMiddle = (frame.centre - position - width / 2) / width;
         const shift = Math.max(-1, Math.min(1, fromMiddle)) * frame.spread * scale;
-        frame.node.style.transform =
-          'translate3d(' + shift.toFixed(2) + 'px, var(--lift, 0px), 0)';
+        /* Only the horizontal shift is written here, as a custom property.
+           The vertical lift stays in the stylesheet, where a media query can
+           switch it off - an inline transform carrying both would have
+           overruled that and put the scatter back on a phone. */
+        frame.node.style.setProperty('--shift', shift.toFixed(2) + 'px');
       });
     };
     const requestPaint = () => { if (!ticking) ticking = window.requestAnimationFrame(paint); };
@@ -285,10 +288,16 @@ document.addEventListener('DOMContentLoaded', function () {
   };
   const requestDrift = () => { if (!driftFrame) driftFrame = window.requestAnimationFrame(drift); };
 
-  if (drifters.length) {
+  /* Not on a phone. A screen you scroll with a thumb, at speeds a wheel never
+     reaches, turns a gentle parallax into pictures that will not sit still. */
+  const roomToDrift = window.matchMedia('(min-width: 701px)');
+
+  if (drifters.length && roomToDrift.matches) {
     window.addEventListener('scroll', requestDrift, { passive: true });
     window.addEventListener('resize', requestDrift, { passive: true });
     if (typeof reduceMotion.addEventListener === 'function') reduceMotion.addEventListener('change', requestDrift);
     drift();
+  } else {
+    drifters.forEach((item) => { item.node.style.transform = ''; });
   }
 });
