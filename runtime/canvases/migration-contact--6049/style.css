@@ -329,8 +329,6 @@
   justify-content: space-between;
   gap: .75rem;
 }
-.igc-btn { min-height: 48px; border-radius: var(--igc-control-radius); }
-.igc-btn--primary { min-width: 150px; margin-left: auto; justify-content: center; }
 .igc-step__actions .igc-btn--ghost {
   width: auto;
   min-width: 0;
@@ -351,9 +349,6 @@
   min-height: clamp(50px, 1.4vw + 2.8rem, 58px);
   padding-inline: 1.5rem;
 }
-.igc-btn[aria-busy="true"] { opacity: .6; pointer-events: none; }
-.igc-btn .igc-arrow-icon { transition: transform .25s var(--igc-ease); }
-.igc-btn:hover .igc-arrow-icon { transform: translate(3px, -3px); }
 
 .igc-form-error {
   display: none;
@@ -510,3 +505,7 @@
   .igc-page *::before,
   .igc-page *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Layout and state only. The button's looks come from the site's system. */
+.igc-btn--primary { margin-left: auto; }
+.igc-btn[aria-busy="true"] { opacity: .6; pointer-events: none; }

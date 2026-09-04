@@ -271,7 +271,6 @@
     gap: clamp(28px, 5vh, 56px);
   }
 
-
   .igw-begin__statement {
     max-width: 26ch;
     font-size: clamp(30px, 4.1vw, 66px);
@@ -494,13 +493,6 @@
     flex-direction: column;
     gap: 22px;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
-  }
-
-  /* Layout only; this one is a full-width bar rather than a pill. */
-  .igw-location__gmaps-btn {
-    justify-content: space-between;
-    width: 100%;
-    padding: 13px 16px;
   }
 
   .igw-arrow-icon {
@@ -857,38 +849,6 @@
     transition-delay: .12s;
   }
 
-  /* --- BUTTONS, IN THE BOOKING DIALOG'S MANNER ------------------------- */
-
-  .igw-page :is(.igw-btn, .igw-btn--hero, .igw-location__gmaps-btn) {
-    display: inline-flex;
-    width: auto;
-    min-height: clamp(50px, 1.4vw + 2.8rem, 58px);
-    padding: 0 1.5rem;
-    border: 0;
-    border-radius: 12px;
-    background: var(--igw-ink);
-    color: var(--igw-paper);
-    font: inherit;
-    font-size: var(--ioulia-small);
-    font-weight: 500;
-    text-decoration: none;
-    gap: .6em;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: opacity .24s ease, transform .24s cubic-bezier(.2, 1.08, .32, 1), box-shadow .24s ease;
-  }
-  .igw-page :is(.igw-btn, .igw-btn--hero, .igw-location__gmaps-btn):is(:hover, :focus-visible) {
-    outline: none;
-    opacity: 1;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(43, 43, 43, .16);
-  }
-  .igw-page :is(.igw-btn, .igw-btn--hero, .igw-location__gmaps-btn):active {
-    transform: translateY(0) scale(.99);
-    box-shadow: none;
-  }
-
   /* --- THE CARD ON THE PHOTOGRAPH ---------------------------------------
      Same corner and same restraint as the booking dialog: one place, one way
      to reach it, one way to get there. */
@@ -928,7 +888,6 @@
   }
   .igw-location__phone a { color: var(--igw-ink); text-decoration: none; }
   .igw-location__phone a:hover { text-decoration: underline; text-underline-offset: 3px; }
-  .igw-location__gmaps-btn { margin-top: clamp(1.4rem, 3vw, 2rem); }
 
   @media (max-width: 900px) {
     .igw-shared__heading,
@@ -981,3 +940,6 @@
        sideways. */
     .igw-page :is(h1, h2, h3, p, li, a) { overflow-wrap: anywhere; }
   }
+
+  /* Layout only. The button's looks come from the site's system. */
+  .igw-location__gmaps-btn { margin-top: clamp(1.4rem, 3vw, 2rem); }

@@ -539,10 +539,6 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         flex-wrap: wrap;
     }
 
-    .icph__button {
-        min-height: 40px;
-    }
-
     .icph__meta {
         display: none;
     }

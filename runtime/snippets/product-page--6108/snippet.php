@@ -618,32 +618,13 @@ function igsp_render_single_product( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .single_add_to_cart_button,
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase .button {
-				appearance: none;
+				/* Layout only. This button is dressed by the site's button system
+				   like every other one; it used to carry its own 14px type, its own
+				   corner and its own colours at id specificity, which is how the
+				   product page ended up looking like a different site. */
 				float: none !important;
-				display: flex !important;
 				width: 100% !important;
-				min-height: 56px;
 				margin: 0 !important;
-				padding: 8px 18px !important;
-				border: 1px solid var(--igsp-ink) !important;
-				border-radius: var(--igsp-control) !important;
-				background: var(--igsp-ink) !important;
-				color: var(--igsp-paper) !important;
-				box-shadow: none !important;
-				cursor: pointer;
-				align-items: center;
-				justify-content: center;
-				font-size: 14px !important;
-				font-weight: 500 !important;
-				line-height: 1 !important;
-				letter-spacing: .025em;
-				text-align: center;
-				text-transform: lowercase;
-				transition:
-					color 240ms ease,
-					background 240ms ease,
-					transform 240ms var(--igsp-spring),
-					box-shadow 240ms ease;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igsp__purchase form.cart:not(.variations_form) > .single_add_to_cart_button,

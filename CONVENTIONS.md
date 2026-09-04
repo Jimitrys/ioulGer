@@ -109,3 +109,22 @@ Site Studio (`main` by default; the pull is `--ff-only`).
 
 Never run **Push Site → GitHub** while the repository holds work the database
 does not: it exports the current database over `runtime/` and would revert it.
+
+## Buttons: one system, no exceptions
+
+Every button on the site is dressed in one place, under `BUTTONS` in
+`runtime/global/styles.css`: filled ink on paper, a 12px corner, sized by the
+pointer, lifting two pixels under it. There is a filled variant, an outlined
+one, and a text variant for a button that is really a link.
+
+A component may set **where** a button sits and **how wide** it is. It may not
+set the corner, the colour, the type or the height. There were three competing
+systems here once — one of them still setting 11px type and a 42px height —
+and the product page had a fourth at id specificity. If a button looks wrong,
+fix the system; do not add a rule beside it.
+
+New markup gets `.ioulia-btn` plus a variant. The other class names in that
+rule are buttons that existed before it and keep their own names.
+
+Buttons carry no arrow. If a plugin prints one inside a button, the system
+hides it.
