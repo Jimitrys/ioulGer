@@ -98,9 +98,16 @@ body.admin-bar .ig-about { height: calc(100dvh - 32px); }
   .ioulia-process__grid { grid-template-columns: 1fr; gap: 3rem; }
   .ioulia-process__col-right { padding-top: 0; }
   .ioulia-process .ioulia-about-copy { max-width: 100%; }
-  .ioulia-designs__inner { flex-direction: column; gap: 3rem; }
+  /* The drawing sits over the middle of the photograph. At this width the
+     photograph is the whole column, so the drawing lands on the subject
+     rather than beside it. */
+  .ioulia-process__icon { display: none; }
+  /* Stacked, the drawing and the heading lead and the paragraph answers
+     them - the order the two columns read in side by side. */
+  .ioulia-designs__inner { flex-direction: column; gap: 2rem; }
   .ioulia-designs__col-left { max-width: 100%; }
-  .ioulia-designs__col-right { padding-top: 0; }
+  .ioulia-designs__col-right { order: -1; padding-top: 0; align-items: flex-start; }
+  .ioulia-designs__svg { width: clamp(180px, 52vw, 260px); margin-bottom: .9rem; }
   .ioulia-production { padding: 4rem 1.5rem; }
   .ioulia-production .ioulia-about-copy { max-width: 100%; }
 }

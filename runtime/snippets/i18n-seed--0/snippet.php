@@ -400,6 +400,13 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				/* WORKSHOPS — dialog chrome */
 				'Δημοφιλές' => 'Popular',
 				'Επόμενο' => 'Next',
+
+				/* 404 */
+				'Σφάλμα 404' => 'Error 404',
+				'Η σελίδα δεν βρέθηκε' => 'Page not found',
+				'Ο σύνδεσμος μπορεί να άλλαξε ή να μην υπήρξε ποτέ. Ό,τι έψαχνες είναι λίγο πιο πέρα.' => 'This link may have moved, or may never have existed. What you were looking for is close by.',
+				'Στην αρχική' => 'Back to the homepage',
+				'Δες το κατάστημα' => 'Browse the shop',
 			)
 		);
 	}

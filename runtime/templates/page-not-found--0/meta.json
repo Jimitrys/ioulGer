@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_theme_template",
+    "title": "404 — Page Not Found",
+    "slug": "page-not-found",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "404",
+        "include": "",
+        "priority": 10
+    }
+}

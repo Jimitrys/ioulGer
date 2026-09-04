@@ -1,6 +1,6 @@
 <?php
 /**
- * Pre-deploy check for Site Studio snippets and canvases.
+ * Pre-deploy check for Site Studio snippets, canvases and theme templates.
  *
  * Site Studio stores snippet code through update_post_meta(), which unslashes
  * it, so one level of backslashes is stripped between this repository and the
@@ -42,7 +42,10 @@ foreach ( glob( dirname( __DIR__ ) . '/runtime/snippets/*/snippet.php' ) as $fil
 
 // Canvas HTML, CSS and JS take the same update_post_meta() path, so they lose
 // backslashes too. There is nothing to parse here, only the strip to detect.
-foreach ( glob( dirname( __DIR__ ) . '/runtime/canvases/*/*.{html,css,js}', GLOB_BRACE ) as $file ) {
+foreach ( array_merge(
+	glob( dirname( __DIR__ ) . '/runtime/canvases/*/*.{html,css,js}', GLOB_BRACE ),
+	glob( dirname( __DIR__ ) . '/runtime/templates/*/*.{html,css,js}', GLOB_BRACE )
+) as $file ) {
 	$name = basename( dirname( $file ) ) . '/' . basename( $file );
 	$code = file_get_contents( $file );
 

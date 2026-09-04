@@ -16,20 +16,22 @@
 .igc-shop--cart .woocommerce .woocommerce-cart-form { margin: 0; }
 .igc-shop--cart .woocommerce .shop_table.cart { width: 100%; margin: 0; border: 0; border-collapse: collapse; }
 .igc-shop--cart .woocommerce .shop_table.cart thead { display: none; }
-.igc-shop--cart .woocommerce .shop_table.cart tbody { display: flex; flex-direction: column; gap: .65rem; }
+.igc-shop--cart .woocommerce .shop_table.cart tbody { display: flex; flex-direction: column; }
 
+/* A line, not a card. Each item is separated from the next by a hairline and
+   nothing else - the boxes were what made this page read as a template. */
 .igc-shop--cart .woocommerce .cart_item {
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) auto;
-  padding: 1rem;
-  border: 1px solid var(--igc-line);
-  border-radius: var(--igc-card-radius);
-  background: rgba(255, 255, 255, .42);
-  gap: .35rem 1rem;
+  grid-template-columns: clamp(84px, 7vw, 116px) minmax(0, 1fr) auto;
+  padding: clamp(1rem, 1.6vw, 1.6rem) 0;
+  border: 0;
+  border-top: 1px solid var(--igc-line);
+  border-radius: 0;
+  background: none;
+  gap: .4rem clamp(1rem, 1.8vw, 1.75rem);
   align-items: center;
-  transition: border-color .22s ease, background-color .22s ease;
+  transition: opacity .22s ease;
 }
-.igc-shop--cart .woocommerce .cart_item:hover { border-color: var(--ioulia-ink-22, rgba(43, 43, 43, .22)); background: rgba(255, 255, 255, .7); }
 .igc-shop--cart .woocommerce .cart_item.is-busy { opacity: .5; pointer-events: none; }
 .igc-shop--cart .woocommerce .cart_item td { padding: 0; border: 0; }
 
@@ -38,15 +40,16 @@
    with three classes, so the selectors here name the form to match them. */
 .igc-shop--cart .woocommerce .woocommerce-cart-form .product-thumbnail a img {
   display: block;
-  width: 84px;
-  height: 84px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
   border-radius: 12px;
   object-fit: cover;
 }
 .igc-shop--cart .woocommerce .product-name { grid-row: 1; grid-column: 2; }
 .igc-shop--cart .woocommerce .product-name a {
   color: var(--ioulia-ink);
-  font-size: var(--ioulia-body);
+  font-size: var(--ioulia-body-lg);
   font-weight: 500;
   line-height: 1.28;
   letter-spacing: -.02em;
@@ -57,7 +60,7 @@
 /* The unit price is the quiet half of the pair; the line total is the answer. */
 .igc-shop--cart .woocommerce .product-price { grid-row: 2; grid-column: 2; color: var(--igc-muted); font-size: var(--ioulia-micro); font-weight: 500; }
 .igc-shop--cart .woocommerce .product-quantity { grid-row: 3; grid-column: 2; }
-.igc-shop--cart .woocommerce .product-subtotal { grid-row: 1 / span 3; grid-column: 3; font-size: var(--ioulia-body); font-weight: 500; text-align: right; }
+.igc-shop--cart .woocommerce .product-subtotal { grid-row: 1 / span 3; grid-column: 3; font-size: var(--ioulia-body-lg); font-weight: 500; text-align: right; }
 
 /* WooCommerce prints the column name into each cell on narrow screens. */
 .igc-shop--cart .woocommerce .shop_table_responsive td::before { display: none; }
@@ -149,7 +152,18 @@
   align-items: center;
   flex-wrap: wrap;
 }
-.igc-shop--cart .woocommerce .coupon { display: flex; gap: .6rem; align-items: center; flex: 1 1 240px; }
+.igc-shop--cart .woocommerce td.actions { padding-top: clamp(1.25rem, 2.5vw, 2rem); border-top: 1px solid var(--igc-line); }
+/* WooCommerce's own rule wraps this, so the field and its button dropped onto
+   two lines as soon as the basis was narrower than the pair. They stay on one
+   line and the field takes what is left, up to a width a coupon code needs. */
+.igc-shop--cart .woocommerce .coupon {
+  display: flex;
+  max-width: 560px;
+  gap: .6rem;
+  align-items: center;
+  flex: 1 1 320px;
+  flex-wrap: nowrap;
+}
 .igc-shop--cart .woocommerce .coupon input#coupon_code { min-width: 0; flex: 1 1 auto; }
 /* The skin comes from the site's button system. Only the fit is local. */
 .igc-shop--cart .woocommerce td.actions button { flex: 0 0 auto; }
@@ -162,15 +176,19 @@
 /* --- Totals ------------------------------------------------------------- */
 
 .igc-shop--cart .woocommerce .cart-collaterals { width: 100%; }
+/* The summary is set apart by a rule above it and its own type, not by a
+   panel. On a wide screen it sits in the second column with the rule running
+   the height of the items beside it. */
 .igc-shop--cart .woocommerce .cart_totals {
   width: 100%;
-  padding: clamp(1.1rem, 2.5vw, 1.6rem);
-  border: 1px solid var(--igc-line);
-  border-radius: var(--igc-card-radius);
-  background: rgba(255, 255, 255, .55);
+  padding: clamp(1.25rem, 2.5vw, 1.75rem) 0 0;
+  border: 0;
+  border-top: 1px solid var(--ioulia-ink-22, rgba(43, 43, 43, .22));
+  border-radius: 0;
+  background: none;
 }
 .igc-shop--cart .woocommerce .cart_totals h2 {
-  margin: 0 0 .9rem;
+  margin: 0 0 1.1rem;
   color: var(--ioulia-ink);
   font-size: var(--ioulia-micro);
   font-weight: 500;
@@ -180,15 +198,27 @@
 .igc-shop--cart .woocommerce .cart_totals table { width: 100%; margin: 0; border: 0; border-collapse: collapse; }
 .igc-shop--cart .woocommerce .cart_totals tr { display: flex; padding: .6rem 0; border-bottom: 1px solid var(--igc-line); gap: 1rem; align-items: baseline; justify-content: space-between; }
 .igc-shop--cart .woocommerce .cart_totals tr:last-child { border-bottom: 0; padding-bottom: 0; }
-.igc-shop--cart .woocommerce .cart_totals :is(th, td) { padding: 0; border: 0; font-weight: 400; text-align: right; }
-.igc-shop--cart .woocommerce .cart_totals th { color: var(--igc-muted); font-size: var(--ioulia-small); font-weight: 500; text-align: left; }
+/* WooCommerce draws a rule above every cell in this table with
+   '.woocommerce-cart .cart-collaterals .cart_totals tr th' - three classes and
+   two elements. Naming the collaterals here matches that; without it the cells
+   kept their own hairline and the summary read as a grid of boxes. */
+.igc-shop--cart .woocommerce .cart-collaterals .cart_totals tr :is(th, td) { padding: 0; border: 0; font-weight: 400; text-align: right; }
+.igc-shop--cart .woocommerce .cart-collaterals .cart_totals tr th { color: var(--igc-muted); font-size: var(--ioulia-small); font-weight: 500; text-align: left; }
 .igc-shop--cart .woocommerce .cart_totals .order-total { padding-top: .9rem; font-size: var(--ioulia-body-lg); }
-.igc-shop--cart .woocommerce .cart_totals .order-total th { color: var(--ioulia-ink); font-size: var(--ioulia-body); }
+.igc-shop--cart .woocommerce .cart-collaterals .cart_totals tr.order-total th { color: var(--ioulia-ink); font-size: var(--ioulia-body); }
 .igc-shop--cart .woocommerce .cart_totals .order-total strong { font-weight: 500; }
 .igc-shop--cart .woocommerce .cart_totals small.includes_tax { display: block; color: var(--igc-muted); font-size: var(--ioulia-micro); font-weight: 500; }
 
+/* The shipping label and its calculator are a pair, not a value in a column:
+   at this width the link is wider than the half of the row it was given and
+   broke across two lines. It takes the line under the label instead. */
+.igc-shop--cart .woocommerce .cart_totals tr.shipping { flex-wrap: wrap; }
+.igc-shop--cart .woocommerce .cart_totals tr.shipping > td { flex: 1 1 100%; }
 .igc-shop--cart .woocommerce .woocommerce-shipping-calculator { margin-top: .5rem; text-align: left; }
 .igc-shop--cart .woocommerce .woocommerce-shipping-calculator .shipping-calculator-button { color: var(--ioulia-ink); font-size: var(--ioulia-small); font-weight: 500; }
+/* WooCommerce hangs a glyph from its own icon font off this link. The font is
+   not loaded here, so it printed as an empty box. */
+.igc-shop--cart .woocommerce .shipping-calculator-button::after { display: none; }
 .igc-shop--cart .woocommerce .woocommerce-shipping-calculator p { margin: 0 0 .6rem; }
 .igc-shop--cart .woocommerce .shipping__list { margin: 0; padding: 0; list-style: none; text-align: left; }
 .igc-shop--cart .woocommerce .shipping__list li { display: flex; gap: .5rem; align-items: center; }
@@ -198,26 +228,45 @@
 .igc-shop--cart .woocommerce .wc-proceed-to-checkout { margin-top: 1.1rem; padding: 0; }
 /* WooCommerce marks this one .alt, so the system already gives it the filled
    variant. All it needs from here is the full width of the summary. */
-.igc-shop--cart .woocommerce .checkout-button { width: 100%; }
+.igc-shop--cart .woocommerce .checkout-button {
+  width: 100%;
+  /* The button system sets white-space: nowrap, which suits a label sized to
+     its own text. This one is sized to its column, and 'Ολοκλήρωση
+     παραγγελίας' is wider than that column - it was overflowing the summary
+     rather than wrapping inside it. */
+  padding-block: .9rem !important;
+  white-space: normal;
+  line-height: 1.25 !important;
+}
 
 /* --- Empty ---------------------------------------------------------------
    Nothing to lay out, so the card just holds a sentence and a way onward. */
 
-.igc-shop--cart .woocommerce .cart-empty { margin: 0 0 1.25rem; color: var(--igc-muted); font-size: var(--ioulia-body); font-weight: 500; text-align: center; }
-.igc-shop--cart .woocommerce .return-to-shop { text-align: center; }
+/* An empty cart is one sentence and one way out; across 1680px they would sit
+   at opposite ends of a very wide line. */
+.igc-shop--cart .igc-shop__body > .woocommerce:not(:has(.woocommerce-cart-form)) { max-width: 620px; }
+.igc-shop--cart .woocommerce .cart-empty { margin: 0 0 1.25rem; color: var(--igc-muted); font-size: var(--ioulia-body); font-weight: 500; }
+.igc-shop--cart .woocommerce .wc-empty-cart-message { margin: 0 0 1.5rem; }
+.igc-shop--cart .woocommerce .return-to-shop { margin: 0; }
 
 
 /* --- Two columns once there is room for them ---------------------------- */
 
 @media (min-width: 900px) {
-  .igc-shop--cart .igc-shop__body > .woocommerce {
+  /* Only a cart with something in it has two columns. Empty, there is no form
+     and no summary, and the grid put the message in one column and the way
+     back to the shop in the other. */
+  .igc-shop--cart .igc-shop__body > .woocommerce:has(.woocommerce-cart-form) {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-columns: minmax(0, 1fr) clamp(300px, 26vw, 420px);
     align-items: start;
-    gap: 1.5rem;
+    gap: clamp(2rem, 5vw, 5.5rem);
   }
   .igc-shop--cart .woocommerce .woocommerce-notices-wrapper { grid-column: 1 / -1; }
-  .igc-shop--cart .woocommerce .cart-collaterals { position: sticky; top: 0; }
+  .igc-shop--cart .woocommerce .cart-collaterals { position: sticky; top: clamp(1rem, 4vh, 2.5rem); }
+  /* The summary's rule already reads as the top of that column, so it starts
+     level with the first item rather than below a heading it does not have. */
+  .igc-shop--cart .woocommerce .cart_totals { padding-top: clamp(1rem, 1.6vw, 1.6rem); }
 }
 
 /* WooCommerce ships a separate small-screen stylesheet, loaded only under
@@ -232,18 +281,24 @@
    answer an !important of its own. */
 @media (max-width: 768px) {
   .igc-shop--cart .woocommerce table.cart .product-thumbnail { display: block; }
-  .igc-shop--cart .woocommerce table.shop_table_responsive tr td { display: block; text-align: left !important; }
-  .igc-shop--cart .woocommerce table.shop_table_responsive tr td.product-subtotal { text-align: right !important; }
+  .igc-shop--cart .woocommerce table.cart.shop_table_responsive tr td { display: block; text-align: left !important; }
+  .igc-shop--cart .woocommerce table.cart.shop_table_responsive tr td.product-subtotal { text-align: right !important; }
   .igc-shop--cart .woocommerce table.shop_table_responsive tr td::before { display: none; }
   .igc-shop--cart .woocommerce table.shop_table_responsive tr:nth-child(2n) td { background: none; }
   .igc-shop--cart .woocommerce table.cart td.actions .button { width: auto; }
   .igc-shop--cart .woocommerce table.cart td.actions .coupon .button { width: auto; float: none; }
   .igc-shop--cart .woocommerce table.cart td.actions .coupon { float: none; padding-bottom: 0; }
+
+  /* That sheet also hides every row label and replaces it with the column name
+     printed before the value. The rule above turns the printed name off, so
+     without this the summary lost its labels: a column of bare amounts with
+     nothing saying which was the subtotal and which the total. */
+  .igc-shop--cart .woocommerce .cart-collaterals .cart_totals table.shop_table_responsive tbody th { display: block; }
+  .igc-shop--cart .woocommerce .cart-collaterals .cart_totals table.shop_table_responsive tr td { text-align: right !important; }
 }
 
 @media (max-width: 520px) {
-  .igc-shop--cart .woocommerce .cart_item { grid-template-columns: 64px minmax(0, 1fr) auto; }
-  .igc-shop--cart .woocommerce .woocommerce-cart-form .product-thumbnail a img { width: 64px; height: 64px; }
+  .igc-shop--cart .woocommerce .cart_item { grid-template-columns: 72px minmax(0, 1fr) auto; }
   .igc-shop--cart .woocommerce td.actions { flex-direction: column; align-items: stretch; }
-  .igc-shop--cart .woocommerce .coupon { flex: 0 0 auto; }
+  .igc-shop--cart .woocommerce .coupon { max-width: none; flex: 0 0 auto; }
 }

@@ -59,6 +59,23 @@ that needs a local gutter variable aliases the shared one:
 Text measures (`max-width: 42ch`, a 520px paragraph) are not container widths and
 stay where they are.
 
+## Every page WordPress can serve needs a template
+
+`IGC_Renderer::template_include()` only takes over the page when a published
+`igc_theme_template` matches the current location. With no match it hands the
+request straight back to the parent theme — which is why 404s were served with
+the old theme's header, its footer and a stock photograph while every other
+page had the site's own.
+
+The locations are the ones `current_location()` returns: `404`, `single_product`,
+`cart`, `checkout`, `product_archive`, `front_page`, `search`, `page`, `single`,
+`archive`, plus `header` and `footer` for the shell itself. A location with no
+template is a page served by the theme. `search` is the one still missing.
+
+A template holds markup, CSS and JS exactly as a canvas does, so a small page
+like the 404 lives in the template itself rather than in a canvas the template
+then points at.
+
 ## Type: one scale, one floor, and weight for quietness
 
 Sizes come from the tokens in `runtime/global/styles.css`, not from a number
@@ -98,8 +115,9 @@ makes iOS zoom the page when the field takes focus.
 docker run --rm -v "$PWD":/w -w /w php:8.2-cli php tools/check-import.php
 ```
 
-It reports any snippet whose code changes under the importer's unslashing, and
-parses the result the same way the plugin's validator does.
+It reports any snippet, canvas or template whose code changes under the
+importer's unslashing, and parses the result the same way the plugin's validator
+does.
 
 ## Deploying
 

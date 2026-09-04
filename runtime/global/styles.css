@@ -703,7 +703,6 @@ a {
 .igc-shop {
   --igc-header: var(--ioulia-header-h, 176px);
   --igc-gutter: clamp(1.25rem, 4vw, 3rem);
-  --igc-radius: 24px;
   --igc-card-radius: 18px;
   --igc-control-radius: 12px;
   --igc-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
@@ -714,11 +713,16 @@ a {
   display: flex;
   width: 100%;
   min-height: 100svh;
-  padding: var(--igc-header) var(--ioulia-page-x);
+  /* The header is cleared with padding rather than by centring what is below
+     it. Centring only ever suited a card small enough to float; a cart that
+     reads down the page starts at the top like every other page on the site. */
+  padding:
+    calc(var(--igc-header) + clamp(.5rem, 3vh, 2rem))
+    var(--ioulia-page-x)
+    clamp(4rem, 9vh, 7rem);
   background: var(--ioulia-paper);
   color: var(--ioulia-ink);
-  align-items: center;
-  align-items: safe center;
+  align-items: stretch;
 }
 
 .igc-shop,
@@ -726,33 +730,45 @@ a {
 .igc-shop *::before,
 .igc-shop *::after { box-sizing: border-box; }
 
+/* Not a card any more. A cart floating in the middle of a 2560px screen as a
+   1080px panel is the one place on this site that still looked like a boxed
+   template: everything around it runs to the gutter and it did not. It now
+   uses the page the way every other section does - the site's own gutter, a
+   width that grows with the screen, and no frame of its own. The name stays
+   because the app-mode shell below hangs off it. */
 .igc-shop__card {
   display: flex;
   width: 100%;
-  max-width: 1080px;
+  max-width: 1680px;
   margin-inline: auto;
-  overflow: hidden;
-  border: 1px solid var(--igc-line);
-  border-radius: var(--igc-radius);
-  background: rgba(255, 255, 255, .58);
-  box-shadow: 0 20px 70px rgba(43, 43, 43, .07);
   flex-direction: column;
 }
 
+/* A page title, set and placed like the ones on About and Workshops, rather
+   than a centred caption on a panel. */
 .igc-shop__title {
-  margin: clamp(2rem, 4vw, 3.5rem) 0 clamp(1.5rem, 3vw, 2.5rem);
-  padding-inline: var(--igc-gutter);
+  margin: 0 0 clamp(2rem, 4vw, 3.5rem);
+  padding-inline: 0;
   color: var(--ioulia-ink);
-  font-size: clamp(2.45rem, 5vw, 4.4rem);
+  font-size: var(--ioulia-h1);
   font-weight: 400;
-  line-height: .98;
-  letter-spacing: -.052em;
-  text-align: center;
+  line-height: .94;
+  letter-spacing: -.055em;
+  text-align: left;
   text-wrap: balance;
 }
 
 .igc-shop__body {
-  padding: 0 var(--igc-gutter) clamp(1.5rem, 3vw, 2.5rem);
+  padding: 0;
+}
+
+/* WooCommerce's own wrapper carries the theme's content width - 1000px, from
+   twentytwentyfive's global styles. Inside a 1080px card that cap never showed;
+   now that the page runs to 1680px it is what was holding the columns in. */
+.igc-shop .igc-shop__body > .woocommerce {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
 }
 
 /* --- Controls. One look for every field WooCommerce prints. ------------- */
@@ -916,10 +932,6 @@ a {
     height: 100%;
     max-width: none;
     min-height: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
   }
   .igc-shop__title {
     position: absolute;
@@ -943,6 +955,10 @@ a {
     min-height: 0;
     padding-top: calc(var(--igc-header) + var(--igc-compact-title-h) + clamp(1rem, 3vh, 1.5rem));
     padding-bottom: 0;
+    /* The base rule no longer carries a gutter, because on a wide screen the
+       page's own gutter does the framing. In app mode the body is the page, so
+       it carries one itself. */
+    padding-inline: var(--igc-gutter);
     overflow-y: auto;
     overscroll-behavior-y: contain;
     touch-action: pan-y;
@@ -1004,7 +1020,7 @@ a {
     padding-top: calc(var(--igc-header) + clamp(1.25rem, 3vh, 2rem));
     padding-bottom: clamp(3rem, 7vh, 5rem);
   }
-  .igc-shop__body > .woocommerce {
+  .igc-shop .igc-shop__body > .woocommerce {
     width: min(100%, 1440px);
     margin-inline: auto;
   }

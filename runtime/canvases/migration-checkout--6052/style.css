@@ -15,11 +15,20 @@
 /* --- The two invitations at the top: sign in, and use a coupon ---------- */
 
 .igc-shop--checkout .woocommerce :is(.woocommerce-form-login-toggle, .woocommerce-form-coupon-toggle) { margin: 0; }
+/* Two sentences, not two banners. WooCommerce prints its notice component
+   here, which is the right weight for "your card was declined" and far too
+   much for "already a customer?". */
 .igc-shop--checkout .woocommerce :is(.woocommerce-form-login-toggle, .woocommerce-form-coupon-toggle) .wc-block-components-notice-banner {
   margin: 0;
-  padding: .8rem 1.1rem;
-  background: var(--igc-soft);
+  /* wc-blocks.css sets this component's padding with !important, which is why
+     these two lines sat indented from the fields under them. */
+  padding: 0 !important;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--igc-muted);
   font-size: var(--ioulia-small);
+  font-weight: 500;
 }
 .igc-shop--checkout .woocommerce :is(.showlogin, .showcoupon) {
   color: var(--ioulia-ink);
@@ -27,11 +36,11 @@
   text-underline-offset: 3px;
 }
 .igc-shop--checkout .woocommerce :is(form.login, form.checkout_coupon) {
-  margin: 0;
-  padding: clamp(1rem, 2.4vw, 1.5rem);
-  border: 1px solid var(--igc-line);
-  border-radius: var(--igc-card-radius);
-  background: rgba(255, 255, 255, .55);
+  margin: .9rem 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
 }
 
 /* --- Field rows. WooCommerce marks halves with -first and -last. -------- */
@@ -60,7 +69,7 @@
                                      .woocommerce-additional-fields h3,
                                      #order_review_heading,
                                      #payment .wc_payment_methods + h3) {
-  margin: 0 0 1rem;
+  margin: 0 0 1.35rem;
   color: var(--ioulia-ink);
   font-size: var(--ioulia-micro);
   font-weight: 500;
@@ -84,21 +93,24 @@
 
 /* --- The panels the form is built from ---------------------------------- */
 
+/* Sections, not cards. Three stacked white panels inside a fourth was the
+   default-template look; a rule and some air says the same thing. */
 .igc-shop--checkout .woocommerce :is(.woocommerce-billing-fields,
                                      .woocommerce-shipping-fields,
                                      .woocommerce-additional-fields) {
-  padding: clamp(1rem, 2.4vw, 1.5rem);
-  border: 1px solid var(--igc-line);
-  border-radius: var(--igc-card-radius);
-  background: rgba(255, 255, 255, .55);
+  padding: clamp(1.5rem, 3vw, 2.5rem) 0 0;
+  border: 0;
+  border-top: 1px solid var(--igc-line);
+  border-radius: 0;
+  background: none;
 }
-.igc-shop--checkout .woocommerce #customer_details { display: flex; flex-direction: column; gap: 1rem; }
+.igc-shop--checkout .woocommerce #customer_details { display: flex; flex-direction: column; gap: clamp(1.5rem, 3vw, 2.5rem); }
 .igc-shop--checkout .woocommerce :is(#customer_details .col-1, #customer_details .col-2) {
   display: flex;
   width: 100%;
   float: none;
   flex-direction: column;
-  gap: 1rem;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 .igc-shop--checkout .woocommerce .shipping_address { padding-top: 1rem; }
 .igc-shop--checkout .woocommerce .create-account { margin-top: .9rem; }
@@ -106,10 +118,11 @@
 /* --- Order review ------------------------------------------------------- */
 
 .igc-shop--checkout .woocommerce #order_review {
-  padding: clamp(1.1rem, 2.5vw, 1.6rem);
-  border: 1px solid var(--igc-line);
-  border-radius: var(--igc-card-radius);
-  background: rgba(255, 255, 255, .62);
+  padding: clamp(1.25rem, 2.5vw, 1.75rem) 0 0;
+  border: 0;
+  border-top: 1px solid var(--ioulia-ink-22, rgba(43, 43, 43, .22));
+  border-radius: 0;
+  background: none;
 }
 .igc-shop--checkout .woocommerce .shop_table.woocommerce-checkout-review-order-table {
   width: 100%;
@@ -200,7 +213,14 @@
 }
 .igc-shop--checkout .woocommerce .woocommerce-terms-and-conditions-wrapper { margin-bottom: 1rem; }
 .igc-shop--checkout .woocommerce .form-row.place-order { margin: 0; }
-.igc-shop--checkout .woocommerce #place_order { width: 100%; }
+/* Same reason as the cart's proceed button: sized by its column rather than
+   by its label, so it has to be allowed to wrap inside it. */
+.igc-shop--checkout .woocommerce #place_order {
+  width: 100%;
+  padding-block: .9rem !important;
+  white-space: normal;
+  line-height: 1.25 !important;
+}
 
 /* The overlay WooCommerce lays over the review while it recalculates. */
 .igc-shop--checkout .woocommerce .blockUI.blockOverlay { border-radius: var(--igc-card-radius); background: var(--ioulia-paper) !important; opacity: .55 !important; }
@@ -210,11 +230,11 @@
 @media (min-width: 1000px) {
   .igc-shop--checkout .woocommerce form.checkout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 460px);
     align-items: start;
-    gap: 1.25rem 1.5rem;
+    gap: 1.25rem clamp(2.5rem, 5vw, 6rem);
   }
   .igc-shop--checkout .woocommerce form.checkout > #customer_details { grid-column: 1; grid-row: 1 / span 3; }
   .igc-shop--checkout .woocommerce form.checkout > #order_review_heading { grid-column: 2; grid-row: 1; margin: 0; }
-  .igc-shop--checkout .woocommerce form.checkout > #order_review { grid-column: 2; grid-row: 2; position: sticky; top: 0; }
+  .igc-shop--checkout .woocommerce form.checkout > #order_review { grid-column: 2; grid-row: 2; position: sticky; top: clamp(1rem, 4vh, 2.5rem); }
 }

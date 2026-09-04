@@ -1,0 +1,86 @@
+/* 404 — the page that is reached by accident.
+
+   Until this template existed there was no 404 location, so WordPress fell
+   back to the parent theme's own 404 file and the visitor got that theme's
+   header and footer instead of the site's. A template here is all it takes:
+   the studio shell renders the site header above and the site footer below,
+   the same as every other page.
+
+   Nothing on it is new. The type, the button and the entrance all come from
+   the global stylesheet; what is here is the room around them. */
+
+.i404 {
+  display: grid;
+  width: 100%;
+  min-height: 100svh;
+  padding:
+    calc(var(--ioulia-header-h, 176px) + clamp(2rem, 6vh, 4rem))
+    var(--ioulia-page-x)
+    clamp(4rem, 12vh, 8rem);
+  background: var(--ioulia-paper);
+  color: var(--ioulia-ink);
+  place-items: center;
+}
+
+.i404__inner {
+  width: 100%;
+  max-width: 46ch;
+  text-align: center;
+}
+
+.i404__eyebrow {
+  margin: 0 0 clamp(1.25rem, 3vh, 2rem);
+  color: var(--ioulia-ink-45);
+}
+
+.i404__title {
+  margin: 0 0 clamp(1.1rem, 2.5vh, 1.75rem);
+  font-size: var(--ioulia-h1);
+  font-weight: 400;
+  line-height: .94;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+
+.i404__copy {
+  margin: 0 auto clamp(2.25rem, 5vh, 3.25rem);
+  max-width: 38ch;
+  color: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+  font-size: var(--ioulia-body);
+  line-height: 1.5;
+  letter-spacing: -.012em;
+  text-wrap: pretty;
+}
+
+.i404__actions {
+  display: flex;
+  gap: clamp(1rem, 3vw, 1.75rem);
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* A link, kept a link: underlined on approach rather than dressed as a second
+   button competing with the first. */
+.i404__link {
+  color: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+  font-size: var(--ioulia-small);
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 4px;
+  transition: color .22s ease;
+}
+.i404__link:is(:hover, :focus-visible) {
+  color: var(--ioulia-ink);
+  text-decoration: underline;
+}
+
+/* The four pieces arrive in the order they are read rather than together.
+   The words inside the heading and the paragraph carry their own stagger from
+   the global system, so this only spaces the blocks apart. */
+html.ia-js .i404__eyebrow.is-in { transition-delay: 60ms; }
+html.ia-js .i404__title.is-in { transition-delay: 140ms; }
+html.ia-js .i404__copy.is-in { transition-delay: 260ms; }
+html.ia-js .i404__actions.is-in { transition-delay: 420ms; }
+html.ia-js .i404__title.is-in .ia-word { transition-delay: calc(140ms + var(--i, 0) * 30ms); }
+html.ia-js .i404__copy.is-in .ia-word { transition-delay: calc(260ms + var(--i, 0) * 14ms); }
