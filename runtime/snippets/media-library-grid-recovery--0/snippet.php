@@ -30,11 +30,30 @@ jQuery(function ($) {
 			}).open();
 		}
 
-		var state = frame && frame.state ? frame.state() : null;
-		var library = state && state.get ? state.get('library') : null;
-		if (library && !library.length && typeof library.more === 'function') {
-			library.more();
-		}
+		/*
+		 * A few admin/plugin combinations create the manage frame but leave its
+		 * attachment collection idle. In that state the grid keeps its spinner
+		 * forever and no query-attachments request reaches WordPress. Waiting one
+		 * tick lets core finish wiring the view, then fetch() starts the collection
+		 * through WordPress' own media sync adapter. The collection flag prevents
+		 * duplicate requests when core has already started loading normally.
+		 */
+		window.setTimeout(function () {
+			var state = frame && frame.state ? frame.state() : null;
+			var library = state && state.get ? state.get('library') : null;
+
+			if (!library || library.length || library._igcInitialFetchStarted) {
+				return;
+			}
+
+			library._igcInitialFetchStarted = true;
+
+			if (typeof library.fetch === 'function') {
+				library.fetch({ reset: true });
+			} else if (typeof library.more === 'function') {
+				library.more();
+			}
+		}, 250);
 	});
 });
 JS;
