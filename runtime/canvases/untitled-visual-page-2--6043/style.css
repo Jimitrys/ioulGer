@@ -567,8 +567,9 @@
 
   
   .igw-faq__title {
+    min-width: 0;
     color: var(--igw-ink) !important;
-    font-size: clamp(1.15rem, .6vw + .95rem, 2rem);
+    font-size: clamp(1.2rem, .7vw + 1rem, 2.3rem);
     font-weight: 400;
     letter-spacing: -.02em;
     line-height: 1.25;
@@ -787,7 +788,8 @@
     font-variant-numeric: tabular-nums;
   }
   .igw-tech__name {
-    font-size: clamp(1.15rem, .6vw + .95rem, 2rem);
+    min-width: 0;
+    font-size: clamp(1.2rem, .7vw + 1rem, 2.3rem);
     font-weight: 400;
     letter-spacing: -.02em;
     line-height: 1.25;
@@ -918,3 +920,14 @@
   .igw-location__phone a { color: var(--igw-ink); text-decoration: none; }
   .igw-location__phone a:hover { text-decoration: underline; text-underline-offset: 3px; }
   .igw-location__gmaps-btn { margin-top: clamp(1.4rem, 3vw, 2rem); }
+
+  @media (max-width: 900px) {
+    .igw-shared__heading,
+    .igw-shared__content {
+      grid-column: 1 / -1;
+      margin-top: 0;
+    }
+    .igw-shared__content { margin-top: clamp(1.5rem, 6vw, 2.5rem); }
+    .igw-faq__inner > h2 { margin-top: 0; }
+    .igw-faq__items { margin-top: clamp(1.5rem, 6vw, 2.5rem); }
+  }

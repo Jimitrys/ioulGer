@@ -73,10 +73,10 @@ body, .igw-page, .igw-page * {
   /* Each step keeps its floor for a phone and climbs to a ceiling a 2K screen
      can use. The middle term carries both a vw and a rem so it actually
      moves - a vw-only term sits on the floor at every width. */
-  --ioulia-body-lg: clamp(1.08rem, .5vw + .95rem, 1.5rem);
-  --ioulia-body: clamp(1rem, .42vw + .9rem, 1.32rem);
-  --ioulia-small: clamp(.9rem, .38vw + .8rem, 1.18rem);
-  --ioulia-micro: clamp(.82rem, .3vw + .74rem, 1.02rem);
+  --ioulia-body-lg: clamp(1.08rem, .58vw + .95rem, 1.62rem);
+  --ioulia-body: clamp(1rem, .5vw + .9rem, 1.44rem);
+  --ioulia-small: clamp(.9rem, .46vw + .8rem, 1.3rem);
+  --ioulia-micro: clamp(.82rem, .36vw + .74rem, 1.1rem);
 
   /* Smallest size any text on the site may be set at. Anything that wants to be
      quieter than this gets there with tone and weight, not by shrinking. */
