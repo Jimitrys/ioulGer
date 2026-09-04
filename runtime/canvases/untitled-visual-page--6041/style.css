@@ -16,7 +16,11 @@
 /* Full height, but never shorter than the title and the two paragraphs need:
    on a short laptop screen the fixed 100svh used to cut the copy off, and
    the hero clipped what did not fit. The image crops inside its own figure. */
-.ig-about { width: 100%; height: 100svh; min-height: calc(var(--about-nav) + 34rem); }
+/* The admin bar is not part of 100svh, so a logged-in editor was seeing the
+   hero end below the fold while a visitor saw it end on it. */
+.ig-about { width: 100%; height: 100svh; height: 100dvh; min-height: calc(var(--about-nav) + 34rem); }
+body.admin-bar .ig-about { height: calc(100dvh - 32px); }
+@media (max-width: 782px) { body.admin-bar .ig-about { height: calc(100dvh - 46px); } }
 .ig-about__inner { display: grid; width: 100%; height: 100%; padding: calc(var(--about-nav) + clamp(16px,2.5vh,32px)) var(--about-x) clamp(24px,4vh,40px); grid-template-columns: repeat(12,minmax(0,1fr)); grid-template-rows: 1fr auto; column-gap: clamp(18px,2vw,32px); row-gap: clamp(20px,3vh,40px); }
 .ig-about__title { z-index: 2; align-self: start; grid-column: 1/span 6; grid-row: 1; margin: 0; font-size: clamp(52px,5.5vw,92px); font-weight: 400; letter-spacing: -.055em; line-height: .98; }
 .ig-about__title span { display: block; opacity: 0; transform: translateY(.55em); animation: ig-about-reveal 900ms cubic-bezier(.16,1,.3,1) forwards; }

@@ -37,11 +37,18 @@
     position: relative;
     padding-block: clamp(5rem, 13vw, 13rem);
   }
+  /* Plain screen height, the way it was before sections became content-led -
+     the minimum I had added could push it past the fold on a short screen.
+     The admin bar is subtracted when there is one: 100svh does not know about
+     it, so a logged-in editor was seeing the hero end 32px below the fold
+     while a visitor saw it end exactly on it. */
   .igw-section.igw-hero {
     height: 100svh;
-    min-height: calc(var(--ioulia-header-h, 176px) + 34rem);
+    height: 100dvh;
     padding-block: 0;
   }
+  body.admin-bar .igw-section.igw-hero { height: calc(100dvh - 32px); }
+  @media (max-width: 782px) { body.admin-bar .igw-section.igw-hero { height: calc(100dvh - 46px); } }
   /* The strip brings its own breathing room, and it stacks: sections here are
      flex rows, which put the heading beside the strip instead of under it. */
   .igw-section.ia-gallery {
