@@ -107,8 +107,11 @@
     display: grid;
     width: 100%;
     height: 100%;
-    padding-top: calc(var(--ioulia-header-h, 176px) + clamp(3.5rem, 7vh, 6rem));
-    padding-bottom: clamp(70px, 10vh, 140px);
+    /* The same insets the about hero uses, so the picture runs from just
+       under the header to the bottom of the screen instead of floating in a
+       band of paper. */
+    padding-top: calc(var(--ioulia-header-h, 176px) + clamp(16px, 2.5vh, 32px));
+    padding-bottom: clamp(24px, 4vh, 40px);
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-rows: 1fr auto;
     column-gap: clamp(18px, 2vw, 32px);
@@ -338,73 +341,10 @@
     gap: clamp(30px, 4vw, 50px);
   }
 
-  .igw-tech__list {
-    border-top: 1px solid var(--igw-line);
-    width: 100%;
-  }
-
-  .igw-tech__item { border-bottom: 1px solid var(--igw-line); }
-
-  .igw-tech__trigger,
-  .igw-tech__trigger:hover,
-  .igw-tech__trigger:focus,
-  .igw-tech__trigger:focus-visible,
-  .igw-tech__trigger:active,
-  .igw-tech__trigger[aria-expanded="true"] {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    outline: none !important;
-    padding: 22px 0;
-    cursor: pointer;
-    text-align: left;
-    font-family: inherit;
-    color: var(--igw-ink) !important;
-    box-shadow: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-  }
-
-  .igw-tech__trigger:hover {
-    opacity: 0.7;
-  }
-
-  .igw-tech__num {
-    font-size: var(--ioulia-micro);
-    color: var(--igw-muted) !important;
-    width: 40px;
-    flex-shrink: 0;
-  }
-
-  .igw-tech__name {
-    font-size: clamp(18px, 1.6vw, 24px);
-    letter-spacing: -0.02em;
-    flex-grow: 1;
-    color: var(--igw-ink) !important;
-  }
-
-  .igw-tech__arrow {
-    font-size: 14px;
-    color: var(--igw-ink) !important;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .igw-tech__trigger[aria-expanded="true"] .igw-tech__arrow {
-    transform: rotate(180deg);
-  }
-
-  .igw-tech__drawer {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .igw-tech__trigger[aria-expanded="true"] + .igw-tech__drawer { grid-template-rows: 1fr; }
-
-  .igw-tech__drawer-inner { overflow: hidden; }
-  .igw-tech__drawer p { padding: 0 0 22px 40px; }
+  /* The programmes list is dressed further down, beside the FAQ it now
+     matches. The set that used to live here forced the old caret's colour
+     with !important, so the arrow glyph stayed visible underneath the new
+     disc - which is what made the hover look broken. */
 
   /* ==================================================
      6. LOCATION (FULLSCREEN SECTION & FLOATING LEFT SWISS CARD)
@@ -616,9 +556,6 @@
     -webkit-tap-highlight-color: transparent !important;
   }
 
-  .igw-faq__trigger:hover {
-    opacity: 0.7;
-  }
   
   .igw-faq__title {
     color: var(--igw-ink) !important;
