@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "Media Library grid recovery",
+    "slug": "media-library-grid-recovery",
+    "status": "publish",
+    "menu_order": 20,
+    "properties": {
+        "scope": "admin",
+        "enabled": true
+    }
+}
