@@ -7,9 +7,6 @@
  * Requires Plugins: woocommerce
  */
 
-
-
-
 /**
  * Format prices without a trailing .00 / ,00.
  * Non-integer prices keep the store's normal decimal precision.
@@ -295,46 +292,11 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				will-change: opacity, transform;
 			}
 
-			.mxl-iph__store-link,
-			.elementor .mxl-iph__store-link {
-				appearance: none !important;
-				display: inline-flex !important;
-				align-items: center;
-				justify-content: center;
-				min-height: 42px;
-				padding: 11px 18px !important;
-				border: 1px solid var(--mxl-iph-text) !important;
-				border-radius: 5px !important;
-				background: var(--mxl-iph-text) !important;
-				background-color: var(--mxl-iph-text) !important;
-				background-image: none !important;
-				color: var(--mxl-iph-edge) !important;
-				box-shadow: none !important;
-				font: inherit;
-				font-size: var(--ioulia-micro);
-				font-weight: 500;
-				line-height: 1;
-				letter-spacing: .025em;
-				text-decoration: none !important;
-				white-space: nowrap;
-				transition:
-					color .22s ease,
-					background-color .22s ease,
-					border-color .22s ease,
-					transform .36s cubic-bezier(.16, 1, .3, 1) !important;
-			}
-
-			.mxl-iph__store-link:hover,
-			.mxl-iph__store-link:focus-visible,
-			.elementor .mxl-iph__store-link:hover,
-			.elementor .mxl-iph__store-link:focus-visible {
-				border-color: var(--mxl-iph-text) !important;
-				background: var(--mxl-iph-edge) !important;
-				background-color: var(--mxl-iph-edge) !important;
-				color: var(--mxl-iph-text) !important;
-				box-shadow: none !important;
-				transform: translateY(-3px);
-				outline: none !important;
+			/* Layout only. This button is dressed by the site's button system; it
+			   used to carry its own 42px height and 5px corner, which is why it
+			   stopped matching every other button on the site. */
+			.mxl-iph__store-link {
+				align-self: flex-start;
 			}
 
 			.mxl-iph__store-link:focus-visible {
@@ -458,7 +420,6 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			.mxl-iph__price del { opacity: .55; }
 			.mxl-iph__price ins { text-decoration: none; }
 
-
 			.mxl-iph__cursor {
 				position: fixed;
 				top: 0;
@@ -523,7 +484,6 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				.mxl-iph__cursor { display: none !important; }
 				.mxl-iph__caption { font-size: var(--ioulia-micro); }
 			}
-
 
 			@media (prefers-reduced-motion: reduce) {
 				.mxl-iph__heading-line {

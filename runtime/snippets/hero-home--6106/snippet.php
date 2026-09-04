@@ -752,9 +752,24 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
         setProduct((productIndex + 1) % products.length);
     }
 
+    /* The viewport height is read once and kept. On a phone window.innerHeight
+       changes as the browser bars hide and show during the scroll, and using
+       it live made the distance - and so the whole animation - jump under the
+       finger. It is refreshed only when the width changes, which is an
+       orientation change or a real resize, never a scroll. */
+    var viewportHeight = window.innerHeight;
+    var viewportWidth = window.innerWidth;
+
+    function refreshViewport() {
+        if (window.innerWidth === viewportWidth) return false;
+        viewportWidth = window.innerWidth;
+        viewportHeight = window.innerHeight;
+        return true;
+    }
+
     function progress() {
         var rect = wrap.getBoundingClientRect();
-        var distance = Math.max(wrap.offsetHeight - window.innerHeight, 1);
+        var distance = Math.max(wrap.offsetHeight - viewportHeight, 1);
         return clamp(-rect.top / distance, 0, 1);
     }
 
@@ -1012,9 +1027,15 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     }, { passive: true });
 
     window.addEventListener("resize", function () {
+        refreshViewport();
         syncPointerPresence();
         requestRender();
     }, { passive: true });
+    window.addEventListener("orientationchange", function () {
+        viewportWidth = 0;
+        refreshViewport();
+        requestRender();
+    });
 
     setProduct(0);
     requestRender();

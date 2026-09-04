@@ -184,11 +184,18 @@
     .iznE-parallax__track, .iznE-parallax__content { min-height: calc(var(--izn-section-height-mobile) * 1svh); }
     .iznE-parallax__content { padding-top: 15svh; padding-bottom: 70px; }
     .iznE-parallax__copy { width: 100%; margin-left: 0; }
-    .iznE-parallax__title { font-size: clamp(48px, 16vw, 78px); line-height: 0.92; }
+    /* 16vw put this at 60px on a 375px screen, where the single word
+       "contemporary" is wider than the phone and ran off the side. The
+       indents were eating the width it needed as well. */
+    .iznE-parallax__title {
+      font-size: clamp(34px, 11vw, 60px);
+      line-height: 0.96;
+      overflow-wrap: break-word;
+    }
     .iznE-parallax__title-line:nth-child(2) { margin-left: 0; }
-    .iznE-parallax__title-line:nth-child(3) { margin-left: 12vw; }
-    .iznE-parallax__body, .iznE-parallax__button { margin-left: 12vw; }
-    .iznE-parallax__body { width: calc(100% - 12vw); font-size: 14px; line-height: 1.75; }
+    .iznE-parallax__title-line:nth-child(3) { margin-left: 6vw; }
+    .iznE-parallax__body, .iznE-parallax__button { margin-left: 0; }
+    .iznE-parallax__body { width: 100%; font-size: var(--ioulia-small); line-height: 1.75; }
   }
 
   /* === ELEMENTOR EDITOR PREVIEW FIXES === */

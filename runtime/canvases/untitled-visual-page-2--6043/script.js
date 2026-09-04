@@ -175,19 +175,26 @@
     const introSvg = document.querySelector("[data-igw-intro-svg]");
     const introSection = document.querySelector(".igw-intro");
 
-    if (introSvg && introSection && !reduceMotion.matches && !isElementor) {
+    /* Not on a phone, and not nearly as far as it used to travel. It moved up
+       to 360px each way, which on a 750px section is the drawing flying past
+       the words rather than drifting behind them - and it divided by a live
+       window.innerHeight, which changes under the finger as the browser bars
+       hide, so the movement stuttered as well. */
+    const roomForParallax = window.matchMedia("(min-width: 701px)");
+    let viewportHeight = window.innerHeight;
+    let viewportWidth = window.innerWidth;
+
+    if (introSvg && introSection && !reduceMotion.matches && !isElementor && roomForParallax.matches) {
       let ticking = false;
 
       const updateIntroParallax = () => {
         ticking = false;
         const rect = introSection.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
 
-        if (rect.top <= windowHeight && rect.bottom >= 0) {
+        if (rect.top <= viewportHeight && rect.bottom >= 0) {
           // Progress goes from 0 (entering from bottom) to 1 (exiting at top)
-          const progress = (windowHeight - rect.top) / (windowHeight + rect.height);
-          // High intensity parallax: travels across section height (~320px travel range)
-          const travelDistance = Math.min(360, rect.height * 0.45);
+          const progress = (viewportHeight - rect.top) / (viewportHeight + rect.height);
+          const travelDistance = Math.min(90, rect.height * 0.12);
           const translateY = (0.5 - progress) * (travelDistance * 2);
           introSvg.style.transform = `translate3d(0, ${translateY.toFixed(2)}px, 0)`;
         }
@@ -201,8 +208,16 @@
       };
 
       window.addEventListener("scroll", onScrollIntro, { passive: true });
-      window.addEventListener("resize", onScrollIntro);
+      window.addEventListener("resize", () => {
+        /* Only a real resize, never a scroll that moved the browser bars. */
+        if (window.innerWidth === viewportWidth) return;
+        viewportWidth = window.innerWidth;
+        viewportHeight = window.innerHeight;
+        onScrollIntro();
+      });
       updateIntroParallax();
+    } else if (introSvg) {
+      introSvg.style.transform = "";
     }
 
   });
