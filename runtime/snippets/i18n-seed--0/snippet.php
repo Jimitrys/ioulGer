@@ -273,6 +273,10 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Γράψε ένα έγκυρο email.' => 'Please enter a valid email address.',
 				'Χρειαζόμαστε τη συγκατάθεσή σου για να κρατήσουμε τα στοιχεία σου.' => 'We need your consent to keep your details for this booking.',
 				'Στις τιμές δεν συμπεριλαμβάνεται ΦΠΑ 24%.' => 'Prices exclude 24% VAT.',
+				/* ABOUT — the drag gallery under the hero */
+				'Λίγες στιγμές από το εργαστήριο' => 'A few moments from the studio',
+				'Σύρε για να δεις περισσότερα' => 'Drag to see more',
+
 				/* ABOUT — the sections added below the manifesto */
 				'Ένας χώρος που δουλεύει' => 'A room that works',
 				'Ράφια που γεμίζουν και αδειάζουν, πινέλα μέσα σε βάζα, σκόνη στο πάτωμα και γάτες που επιβλέπουν από ψηλά. Εδώ γίνονται όλα, από το πρώτο σκίτσο μέχρι το τελευταίο ψήσιμο.' => 'Shelves that fill and empty, brushes standing in jars, dust on the floor and cats supervising from above. Everything happens here, from the first sketch to the last firing.',

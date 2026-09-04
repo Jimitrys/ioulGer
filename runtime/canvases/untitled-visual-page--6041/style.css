@@ -38,8 +38,8 @@
 .ig-manifesto__word { display: inline; opacity: var(--manifesto-faint); will-change: opacity; }
 .ig-manifesto__illustration { position: absolute; z-index: 2; top: 82%; left: 50%; display: block; width: clamp(176px,16.8vw,225px); height: auto; pointer-events: none; transform: translate(-50%,-50%); transform-origin: center; }
 
-.ioulia-process { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(3rem,6vw,7rem) var(--about-x); }
-.ioulia-process__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem,6vw,6rem); align-items: start; }
+.ioulia-process { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(4rem, 11vw, 11rem) var(--about-x); }
+.ioulia-process__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem,6vw,6rem); align-items: start; max-width: 1240px; margin-inline: auto; }
 .ioulia-process__col-left, .ioulia-process__col-right { display: flex; flex-direction: column; }
 .ioulia-process__col-left .ioulia-section-title { margin-bottom: clamp(2.5rem,4vw,4.5rem); }
 .ioulia-process__img-left { width: 100%; height: auto; display: block; object-fit: cover; }
@@ -50,7 +50,7 @@
 .ioulia-process .ioulia-about-copy { max-width: 90%; margin-top: 2.2rem; }
 
 .ioulia-designs { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(4rem,8vw,8rem) var(--about-x); }
-.ioulia-designs__inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; width: 100%; }
+.ioulia-designs__inner { display: flex; justify-content: space-between; align-items: flex-start; gap: clamp(2rem, 6vw, 6rem); width: 100%; max-width: 1240px; margin-inline: auto; }
 .ioulia-designs__col-left { width: 100%; max-width: 440px; }
 .ioulia-designs__col-right { display: flex; flex-direction: column; align-items: flex-end; padding-top: clamp(2rem,5vw,6rem); }
 .ioulia-designs__svg { display: block; width: clamp(220px,25vw,340px); height: auto; margin-bottom: 1.2rem; }
@@ -127,8 +127,10 @@ html.ia-js .ioulia-about-page figure[data-ia-reveal].is-in img {
 
 /* --- The room --------------------------------------------------------- */
 
-.ia-room { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(4rem, 9vw, 9rem) var(--about-x); }
+.ia-room { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(5rem, 13vw, 13rem) var(--about-x); }
 .ia-room__inner {
+  max-width: 1400px;
+  margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: clamp(18px, 2vw, 32px);
@@ -144,9 +146,9 @@ html.ia-js .ioulia-about-page figure[data-ia-reveal].is-in img {
 
 /* --- The maker --------------------------------------------------------- */
 
-.ia-maker { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(3rem, 7vw, 7rem) var(--about-x); }
+.ia-maker { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(4rem, 11vw, 11rem) var(--about-x); }
 .ia-maker__title { margin-bottom: clamp(2rem, 4vw, 3.4rem); text-align: center; }
-.ia-maker__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 26px); align-items: start; }
+.ia-maker__row { max-width: 1400px; margin-inline: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 26px); align-items: start; }
 .ia-maker__frame { position: relative; overflow: hidden; aspect-ratio: 4 / 5; background: #e8e4d9; }
 /* The middle frame leads: taller, and the two beside it hang lower. */
 .ia-maker__frame--lead { aspect-ratio: 4 / 5.4; }
@@ -154,18 +156,13 @@ html.ia-js .ioulia-about-page figure[data-ia-reveal].is-in img {
 .ia-maker__img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .ia-maker__copy { max-width: 46ch; margin: clamp(2rem, 4vw, 3.4rem) auto 0; text-align: center; }
 
-/* --- The objects beside the designs ------------------------------------ */
-
-.ia-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 2vw, 30px); width: 100%; margin-top: clamp(2.5rem, 6vw, 5rem); align-items: start; }
-.ia-pair__frame { position: relative; overflow: hidden; background: #e8e4d9; }
-.ia-pair__frame--a { aspect-ratio: 4 / 5; }
-.ia-pair__frame--b { margin-top: clamp(1.5rem, 5vw, 4rem); aspect-ratio: 3 / 4; }
-.ia-pair__img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* --- After the studio --------------------------------------------------- */
 
-.ia-life { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(4rem, 9vw, 9rem) var(--about-x); }
+.ia-life { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(5rem, 13vw, 13rem) var(--about-x); }
 .ia-life__inner {
+  max-width: 1400px;
+  margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: clamp(18px, 2vw, 32px);
@@ -181,7 +178,7 @@ html.ia-js .ioulia-about-page figure[data-ia-reveal].is-in img {
 /* --- Visit --------------------------------------------------------------- */
 
 .ia-visit { width: 100%; max-width: var(--ioulia-shell); margin: 0 auto; padding: clamp(3rem, 7vw, 7rem) var(--about-x) clamp(5rem, 11vw, 11rem); }
-.ia-visit__inner { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
+.ia-visit__inner { max-width: 1240px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
 .ia-visit__frame { overflow: hidden; aspect-ratio: 3 / 2; background: #e8e4d9; }
 .ia-visit__img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .ia-visit__copy { max-width: 34ch; margin-top: clamp(1rem, 2vw, 1.5rem); }
@@ -201,7 +198,6 @@ html.ia-js .ioulia-about-page figure[data-ia-reveal].is-in img {
   .ia-maker__frame--lead { grid-column: 1 / -1; aspect-ratio: 4 / 4.6; }
   .ia-maker__frame--side { margin-top: 0; }
   .ia-maker__frame--side:first-child { order: 2; }
-  .ia-pair__frame--b { margin-top: 0; }
   .ia-room, .ia-life { padding-block: clamp(3rem, 12vw, 5rem); }
 }
 
@@ -212,4 +208,111 @@ html.ia-js .ioulia-about-page figure[data-ia-reveal].is-in img {
     transform: none !important;
     transition: none !important;
   }
+}
+
+/* ===========================================================================
+   THE DRAG GALLERY
+
+   A strip far wider than the screen that you pull sideways. Three things make
+   it read as a scatter rather than a carousel: the frames come in three sizes,
+   each sits at its own height, and each moves at its own rate, so they slide
+   past one another instead of marching. The strip is duplicated by the script
+   and wraps, so there is no end to reach.
+
+   Without the script it is an ordinary horizontal scroller with the same
+   frames in the same places - it just scrolls instead of being thrown.
+   ======================================================================== */
+
+.ia-gallery {
+  width: 100%;
+  padding: clamp(4rem, 10vh, 9rem) 0 clamp(3rem, 7vh, 6rem);
+  overflow: hidden;
+}
+.ia-gallery__title {
+  max-width: 20ch;
+  margin: 0 auto clamp(2.5rem, 6vw, 5rem);
+  padding-inline: var(--about-x);
+  font-size: clamp(1.6rem, 2.6vw, 2.6rem);
+  font-weight: 300;
+  letter-spacing: -.035em;
+  line-height: 1.15;
+  text-align: center;
+}
+.ia-gallery__viewport {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.ia-gallery__viewport::-webkit-scrollbar { display: none; }
+.ia-gallery__viewport.is-dragging { cursor: grabbing; }
+/* The script drives position itself, so the native scroller steps aside. */
+.ia-gallery__viewport.is-live { overflow-x: hidden; }
+
+.ia-gallery__track {
+  display: flex;
+  width: max-content;
+  padding-inline: var(--about-x);
+  gap: clamp(2rem, 5vw, 7rem);
+  align-items: center;
+  /* Room above and below for the frames to sit at different heights. */
+  padding-block: clamp(3rem, 9vw, 7rem);
+}
+.ia-gallery__item {
+  position: relative;
+  flex: 0 0 auto;
+  margin: 0;
+  overflow: hidden;
+  background: #e8e4d9;
+  transform: translateY(var(--lift, 0px));
+}
+.ia-gallery__item--lg { width: clamp(230px, 34vw, 560px); aspect-ratio: 4 / 5; }
+.ia-gallery__item--md { width: clamp(190px, 26vw, 430px); aspect-ratio: 3 / 2; }
+.ia-gallery__item--sm { width: clamp(140px, 18vw, 300px); aspect-ratio: 3 / 4; }
+.ia-gallery__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ia-gallery__hint {
+  margin: clamp(1rem, 3vw, 2rem) 0 0;
+  color: var(--about-muted);
+  font-size: var(--ioulia-micro);
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  .ia-gallery__track { padding-block: clamp(2rem, 8vw, 3.5rem); }
+  /* The lifts are gentler where there is less room to spend on them. */
+  .ia-gallery__item { transform: translateY(calc(var(--lift, 0px) * .35)); }
+}
+
+/* ===========================================================================
+   TEXT ENTRANCE
+
+   Every heading and paragraph on the page arrives the same quiet way: words
+   rise a few pixels, one just behind the other. It is deliberately small - at
+   this size it reads as the page settling rather than as an effect.
+   ======================================================================== */
+
+html.ia-js .ioulia-about-page .ia-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(.34em);
+}
+html.ia-js .ioulia-about-page .is-in .ia-word,
+html.ia-js .ioulia-about-page .ia-word.is-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity .5s ease, transform .62s cubic-bezier(.16, 1, .3, 1);
+  transition-delay: calc(var(--i, 0) * 26ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.ia-js .ioulia-about-page .ia-word {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .ia-gallery__item { transform: none !important; }
 }
