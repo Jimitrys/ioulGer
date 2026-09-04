@@ -273,6 +273,31 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Γράψε ένα έγκυρο email.' => 'Please enter a valid email address.',
 				'Χρειαζόμαστε τη συγκατάθεσή σου για να κρατήσουμε τα στοιχεία σου.' => 'We need your consent to keep your details for this booking.',
 				'Στις τιμές δεν συμπεριλαμβάνεται ΦΠΑ 24%.' => 'Prices exclude 24% VAT.',
+				/* ABOUT — the sections added below the manifesto */
+				'Ένας χώρος που δουλεύει' => 'A room that works',
+				'Ράφια που γεμίζουν και αδειάζουν, πινέλα μέσα σε βάζα, σκόνη στο πάτωμα και γάτες που επιβλέπουν από ψηλά. Εδώ γίνονται όλα, από το πρώτο σκίτσο μέχρι το τελευταίο ψήσιμο.' => 'Shelves that fill and empty, brushes standing in jars, dust on the floor and cats supervising from above. Everything happens here, from the first sketch to the last firing.',
+				'Πίσω από τον τροχό' => 'Behind the wheel',
+				'Η Ιουλία δουλεύει καθημερινά στο εργαστήριο: πλάθει, ζωγραφίζει, ψήνει και ξαναρχίζει. Ό,τι φεύγει από εδώ έχει περάσει από τα χέρια της.' => "Ioulia works in the studio every day: shaping, painting, firing and starting again. Everything that leaves here has passed through her hands.",
+				'Στα χέρια σου' => 'In your hands',
+				'Ένα κεραμικό τελειώνει όταν αρχίζει να χρησιμοποιείται. Στο τραπέζι, στην αυλή, σε μια βόλτα έξω από την πόλη. Εκεί παίρνει το νόημά του.' => 'A piece is only finished once it is being used. On the table, in the yard, on a day out of the city. That is where it finds its meaning.',
+				'Έλα από το εργαστήριο' => 'Come by the studio',
+				'Άνω Πατήσια, Αθήνα. Χτύπα την πόρτα, δες τη δουλειά από κοντά ή γράψου σε ένα μάθημα.' => 'Ano Patisia, Athens. Knock on the door, see the work up close, or sign up for a class.',
+				/* The button says 'Επικοινωνία', which the navigation above already carries. */
+
+				/* ABOUT — what the photographs show, for anyone who cannot see them */
+				'Το εργαστήριο με τα ράφια και το τραπέζι δουλειάς' => 'The studio, with its shelves and work table',
+				'Ο πάγκος με τα πινέλα και μια γάτα στο τραπέζι' => 'The bench, with brushes and a cat on the table',
+				'Χέρια ζωγραφίζουν ένα κεραμικό με πινέλο' => 'Hands painting a piece with a brush',
+				'Αντικείμενο πάνω στον τροχό' => 'A piece on the wheel',
+				'Η Ιουλία στο εργαστήριο' => 'Ioulia in the studio',
+				'Η Ιουλία στον τροχό' => 'Ioulia at the wheel',
+				'Η Ιουλία ανάμεσα στα κομμάτια της' => 'Ioulia among her pieces',
+				'Κούπα ζωγραφισμένη στο χέρι πάνω στον τροχό' => 'A hand-painted cup on the wheel',
+				'Γλάστρες σε σχήμα κεφαλιού με λουλούδια' => 'Head-shaped planters holding flowers',
+				'Κούπα σε χρήση έξω, στη φύση' => 'A cup in use outdoors',
+				'Δύο άνθρωποι πίνουν από χειροποίητες κούπες' => 'Two people drinking from handmade cups',
+				'Η βιτρίνα του εργαστηρίου' => 'The studio window from the street',
+
 				/* CART & CHECKOUT — the page headings. Everything else on these two
 				   screens is WooCommerce's own wording and comes from its language pack. */
 				'Το καλάθι σου' => 'Your cart',
