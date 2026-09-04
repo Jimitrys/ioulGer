@@ -237,7 +237,7 @@
   .igw-begin {
     position: relative;
     width: 100%;
-    height: 260vh;               /* scroll runway */
+    height: 260dvh;              /* scroll runway */
     background: var(--igw-ink);
     color: var(--igw-paper);
   }
@@ -271,12 +271,6 @@
     gap: clamp(28px, 5vh, 56px);
   }
 
-  .igw-begin__eyebrow {
-    font-size: var(--ioulia-micro);
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: rgba(255, 254, 247, .45);
-  }
 
   .igw-begin__statement {
     max-width: 26ch;
@@ -361,7 +355,7 @@
   .igw-location {
     position: relative;
     width: 100%;
-    height: 100vh;
+    height: 100dvh;
     min-height: clamp(680px, 85vh, 920px);
     background: var(--igw-paper);
     padding: 0;
@@ -687,15 +681,28 @@
       padding-top: clamp(3.5rem, 12vw, 5rem);
       padding-bottom: clamp(3.5rem, 12vw, 5rem);
     }
-    .igw-section.igw-hero { min-height: 100svh; }
-    /* The hero's own inset already clears the header; the section padding on
-       top of it left a band of empty paper above the title. */
-    .igw-hero { padding-top: 0; }
+    /* Height, not just min-height. The desktop rule pins the hero to one
+       screen, and on a phone the title, the picture and the two paragraphs do
+       not fit in one - so the rows collapsed and the picture sat on top of the
+       text. It is at least a screen tall here and grows past it when it has
+       to. */
+    .igw-section.igw-hero {
+      height: auto;
+      min-height: 100svh;
+      min-height: 100dvh;
+    }
+    body.admin-bar .igw-section.igw-hero { height: auto; min-height: calc(100dvh - 46px); }
+    .igw-hero { padding-top: 0; padding-bottom: clamp(2.5rem, 9vw, 4rem); }
     .igw-hero__inner {
-      padding-top: calc(var(--ioulia-header-h, 139px) + 1.5rem);
+      height: auto;
+      /* The fixed header is 140px on a phone. The title used to start 24px
+         under it, which is not clearance, it is a collision waiting for a
+         longer word. */
+      padding-top: calc(var(--ioulia-header-h, 140px) + clamp(1.75rem, 5vh, 2.75rem));
+      padding-bottom: 0;
       grid-template-columns: 1fr;
-      grid-template-rows: auto;
-      row-gap: 32px;
+      grid-template-rows: auto auto auto;
+      row-gap: clamp(24px, 6vw, 36px);
     }
     .igw-hero__title-group, .igw-hero__image, .igw-hero__text,
     .igw-intro h2, .igw-intro__text, .igw-intro__graphic,
@@ -710,9 +717,11 @@
       grid-row: auto;
     }
     .igw-hero__title { font-size: clamp(48px, 14vw, 76px); }
-    .igw-hero__image { aspect-ratio: 4 / 5; height: auto; }
+    .igw-hero__image { aspect-ratio: 4 / 3; height: auto; min-height: 0; }
     .igw-hero__text { grid-template-columns: 1fr; gap: 16px; }
-    .igw-intro__graphic { justify-content: flex-start; margin: 20px 0; }
+    .igw-intro__graphic { justify-content: flex-start; margin: 0; }
+    .igw-intro__svg { width: min(62vw, 260px); height: auto; }
+    .igw-intro__inner { row-gap: clamp(1.75rem, 6vw, 2.75rem); }
 
     .igw-location {
       height: auto;
@@ -724,7 +733,7 @@
       width: 100%;
     }
 
-    .igw-begin { height: 200vh; }
+    .igw-begin { height: 200dvh; }
     .igw-begin__statement { max-width: none; font-size: clamp(28px, 8vw, 44px); }
     .igw-begin__facts { flex-direction: column; gap: 8px; }
     
@@ -930,4 +939,41 @@
     .igw-shared__content { margin-top: clamp(1.5rem, 6vw, 2.5rem); }
     .igw-faq__inner > h2 { margin-top: 0; }
     .igw-faq__items { margin-top: clamp(1.5rem, 6vw, 2.5rem); }
+  }
+
+  /* ===========================================================================
+     MOBILE PASS
+
+     Everything below is about a phone held in one hand: nothing under the
+     fixed header, nothing wider than the screen, and nothing you have to aim
+     at. The header is 140px there, so anything that starts at the top of a
+     page leaves real room under it rather than a few pixels.
+     ======================================================================== */
+
+  @media (max-width: 700px) {
+    /* A tap target is at least 44px on its shortest side. */
+    .igw-tech__trigger,
+    .igw-faq__trigger { min-height: 56px; }
+    .igw-tech__arrow,
+    .igw-faq__icon { width: 44px; height: 44px; }
+
+    /* Phone numbers and map links are touched, not clicked. */
+    .igw-location__phone a { display: inline-block; padding-block: .35rem; }
+
+    /* The card sat against the edge of the photograph. */
+    .igw-location__panel-wrap { padding: clamp(1rem, 5vw, 1.5rem); }
+    .igw-location__card { width: 100%; }
+
+    /* The strip is dragged with a thumb, so it needs less to look at and more
+       to hold on to. */
+    .ia-gallery__track { padding-block: clamp(1.5rem, 7vw, 2.5rem); }
+
+    /* The statement is the whole screen on a phone; its notes sit under it
+       rather than beside it. */
+    .igw-begin__inner { gap: clamp(20px, 6vw, 32px); }
+    .igw-begin__facts { gap: 6px; }
+
+    /* Long Greek words in a narrow column break rather than push the layout
+       sideways. */
+    .igw-page :is(h1, h2, h3, p, li, a) { overflow-wrap: anywhere; }
   }

@@ -132,11 +132,8 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Μάθημα τροχού κεραμικής' => 'Wheel-throwing class',
 				'Στιγμιότυπο από το ceramic lab' => 'Inside the ceramic lab',
 				'Σύρε' => 'Drag',
-				'δεν χρειαζεται καμια προηγουμενη εμπειρια' => 'no previous experience needed',
 				'Κάθεσαι. Τα χέρια σου βυθίζονται στον πηλό. Καταρρέει μία, ίσως δύο φορές, και μετά κάτι στέκεται — μια κούπα, ένα μπολ, ένα σχήμα που δεν υπήρχε σήμερα το πρωί.' => 'You sit down and press your hands into the clay. It collapses once, perhaps twice, and then something takes shape — a cup, a bowl, a form that did not exist this morning.',
-				'πρώτη φορά ευπρόσδεκτοι' => 'first-timers welcome',
 				'στον δικό σου ρυθμό' => 'work at your own pace',
-				'ψημένο & έτοιμο για παραλαβή' => 'fired & ready to collect',
 				'τα προγράμματα' => 'our workshop',
 				'μας' => 'programme',
 				'Μπορείς να συμμετέχεις σε όσα workshops θέλεις μέσα στην εβδομάδα ή στον μήνα και σε όποιο γκρουπ σε βολεύει, αρκεί να κλείνεις τη θέση σου 3 ημέρες πριν. Όλα τα υλικά, τα εργαλεία και τα ψησίματα συμπεριλαμβάνονται.' => 'Join as many workshops as you like during the week or month, choosing whichever group suits you best. Simply reserve your place at least three days in advance. All materials, tools and firings are included.',
@@ -290,6 +287,10 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'111 43 Αθήνα' => '111 43 Athens',
 				'5 λεπτά με τα πόδια από τον σταθμό Άνω Πατήσια' => 'Five minutes on foot from Ano Patisia station',
 				'Οδηγίες' => 'Directions',
+				/* WORKSHOPS — the three notes under the statement */
+				'χωρίς εμπειρία' => 'no experience needed',
+				'το παίρνεις μαζί σου' => 'yours to take home',
+				'Η πρώτη φορά στον πηλό' => 'Your first time with clay',
 
 				/* ABOUT — the drag gallery under the hero */
 				'Λίγες στιγμές από το εργαστήριο' => 'A few moments from the studio',

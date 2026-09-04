@@ -72,7 +72,8 @@ body.admin-bar .ig-about { height: calc(100dvh - 32px); }
 
 @media (max-width: 900px) {
   .ig-about { height: auto; overflow: visible; }
-  .ig-about__inner { height: auto; padding: calc(var(--about-nav) + 24px) var(--about-x) 40px; grid-template-columns: 1fr; grid-template-rows: auto; row-gap: 28px; }
+  /* The header is 140px on a phone. 24px under it is not clearance. */
+  .ig-about__inner { height: auto; padding: calc(var(--about-nav) + clamp(1.75rem, 5vh, 2.75rem)) var(--about-x) 40px; grid-template-columns: 1fr; grid-template-rows: auto; row-gap: 28px; }
   .ig-about__title, .ig-about__visual, .ig-about__copy { grid-column: 1; grid-row: auto; }
   .ig-about__title { font-size: clamp(48px,15vw,76px); line-height: .96; }
   .ig-about__visual { height: auto; aspect-ratio: 4/5; }
