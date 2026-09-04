@@ -151,7 +151,9 @@ if ( ! function_exists( 'ioulia_lang' ) ) {
 		}
 
 		if ( wp_doing_ajax() ) {
-			$referer = wp_get_referer();
+			// wp_get_referer() validates against home_url(), whose language filter
+			// calls this function again before the AJAX language is resolved.
+			$referer = wp_get_raw_referer();
 			$lang    = $referer ? ioulia_lang_from_path( ioulia_relative_path( $referer ) ) : IOULIA_LANG_DEFAULT;
 
 			return $lang;

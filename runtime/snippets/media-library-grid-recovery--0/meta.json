@@ -8,6 +8,6 @@
     "menu_order": 20,
     "properties": {
         "scope": "admin",
-        "enabled": true
+        "enabled": false
     }
 }

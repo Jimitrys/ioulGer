@@ -190,7 +190,9 @@ final class IGC_I18N {
 		}
 
 		if ( wp_doing_ajax() ) {
-			$referer        = wp_get_referer();
+			// wp_get_referer() validates against home_url(), whose filter calls
+			// language() again before the language has been resolved.
+			$referer        = wp_get_raw_referer();
 			self::$language = $referer
 				? self::language_from_path( self::relative_path( $referer ) )
 				: self::default_language();
