@@ -104,10 +104,11 @@
 
   /* --- 1. HERO SECTION --- */
   .igw-hero { align-items: stretch; }
-  /* The hero and the statement below it run the full width of the page
-     rather than the reading column, and stand further apart. */
+  /* The hero and the statement below it take the shell, with no cap of their
+     own - the about hero has none, and on a 2K screen a 2100px ceiling put a
+     hand's width of empty paper down each side of it. */
   .igw-hero .igw-container,
-  .igw-intro .igw-container { max-width: min(var(--ioulia-shell), 2100px); }
+  .igw-intro .igw-container { max-width: var(--ioulia-shell); }
   .igw-intro { padding-block: clamp(6rem, 16vw, 16rem); }
 
   .igw-hero__inner {
@@ -148,7 +149,8 @@
 
   .igw-hero__image {
     position: relative;
-    grid-column: 8 / -1;
+    /* Half the grid, like the about hero, rather than five twelfths of it. */
+    grid-column: 7 / -1;
     grid-row: 1 / span 2;
     background: #e8e3d9;
     height: 100%;
