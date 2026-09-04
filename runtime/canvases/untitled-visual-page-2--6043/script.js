@@ -131,7 +131,7 @@
     const facts = document.querySelectorAll(".igw-begin__facts li");
 
     if (beginSection && wordsHost) {
-      const words = wordsHost.textContent.trim().split(/s+/);
+      const words = wordsHost.textContent.trim().split(/\s+/);
       wordsHost.textContent = "";
       words.forEach((w, i) => {
         const span = document.createElement("span");
