@@ -283,6 +283,7 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Κρατώντας ένα μεγάλο πιάτο' => 'Holding a large plate',
 				'Ράφια με άψητα κεραμικά' => 'Shelves of unfired pieces',
 				'Δουλειά στον πάγκο του εργαστηρίου' => 'Working at the studio bench',
+				'Η βιτρίνα του εργαστηρίου στα Άνω Πατήσια' => 'The studio window in Ano Patisia',
 
 				/* ABOUT — the drag gallery under the hero */
 				'Λίγες στιγμές από το εργαστήριο' => 'A few moments from the studio',

@@ -1,28 +1,5 @@
 // Initializer for Leaflet + CartoDB Positron Silver (No Labels) Map with "The Lab" & "Ano Patisia ISAP" Markers
   window.initIgwLeafletMap = function() {
-    const mapContainer = document.getElementById("igw-map-canvas");
-    if (!mapContainer || typeof L === "undefined") return;
-
-    if (mapContainer._leaflet_id) return;
-
-    const labCoords = [38.0289084, 23.7389517];
-    // Exact entrance & platform coordinates of Ano Patisia ISAP Metro Station
-    const isapCoords = [38.024080, 23.735180];
-
-    const map = L.map("igw-map-canvas", {
-      zoomControl: false,
-      scrollWheelZoom: false,
-      dragging: true,
-      attributionControl: true
-    });
-
-    // CartoDB Positron Light (No Labels) Vector Tile Layer
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: "abcd",
-      maxZoom: 19
-    }).addTo(map);
-
     // 1. "The Lab" Studio Marker — 2px Outline Circle Badge
     const labIcon = L.divIcon({
       className: "igw-marker-lab-wrap",

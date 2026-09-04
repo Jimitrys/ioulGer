@@ -41,7 +41,8 @@
     padding-block: clamp(5rem, 13vw, 13rem);
   }
   .igw-section.igw-hero {
-    min-height: 100svh;
+    height: 100svh;
+    min-height: calc(var(--ioulia-header-h, 176px) + 34rem);
     padding-block: 0;
   }
   /* The strip brings its own breathing room, and it stacks: sections here are
@@ -54,7 +55,7 @@
     width: 100%;
     /* The shell is the page's full width by design; a column of reading is
        not. */
-    max-width: min(var(--ioulia-shell), 1560px);
+    max-width: min(var(--ioulia-shell), 1860px);
     margin-inline: auto;
     padding-left: var(--igw-x);
     padding-right: var(--igw-x);
@@ -178,7 +179,7 @@
     position: relative;
   }
 
-  .igw-intro h2, .igw-shared__heading h2, .igw-faq > h2 {
+  .igw-intro h2, .igw-shared__heading h2, .igw-faq__inner > h2 {
     font-size: clamp(42px, 4.8vw, 76px);
     letter-spacing: -.057em;
     line-height: .98;
@@ -231,7 +232,22 @@
     height: 100svh;
     display: flex;
     align-items: center;
+    overflow: hidden;
   }
+  /* A photograph of the thing the sentence describes, held well back so the
+     words stay the loudest part of the screen. */
+  .igw-begin__sticky::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image:
+      linear-gradient(105deg, rgba(30, 30, 29, .93) 0%, rgba(30, 30, 29, .88) 45%, rgba(30, 30, 29, .74) 100%),
+      url("https://iouliageraskliceramics.com/wp-content/uploads/2026/09/IMG_9251-1536x1024.webp");
+    background-size: cover;
+    background-position: center;
+  }
+  .igw-begin__inner { position: relative; z-index: 1; }
 
   .igw-begin__inner {
     display: flex;
@@ -403,24 +419,26 @@
   }
 
   /* Fullscreen Section Map Frame */
-  .igw-map {
+  .igw-place {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
     z-index: 1;
+    margin: 0;
     overflow: hidden;
-    background: #f5f5f5;
-    border: 0;
+    background: #e8e4d9;
   }
-
-  .igw-map__canvas {
-    position: absolute;
-    inset: 0;
+  .igw-place__img {
+    display: block;
     width: 100%;
     height: 100%;
-    z-index: 1;
-    background: #f5f5f5;
+    object-fit: cover;
+  }
+  /* The card sits on the photograph, so the picture is dimmed under it. */
+  .igw-place::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, rgba(43, 43, 43, .5) 0%, rgba(43, 43, 43, .12) 46%, rgba(43, 43, 43, 0) 70%);
   }
 
   /* --- CUSTOM SWISS MAP MARKERS --- */
@@ -662,33 +680,6 @@
     flex-shrink: 0;
     transition: transform 0.3s ease;
   }
-  .igw-location__gmaps-btn:hover .igw-arrow-icon,
-  .igw-map__link:hover .igw-arrow-icon {
-    transform: translate(2px, -2px);
-  }
-
-  .igw-map__link,
-  .igw-map__link:hover,
-  .igw-map__link:focus {
-    position: absolute;
-    right: 20px; bottom: 20px;
-    z-index: 11;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 14px;
-    background: var(--igw-paper) !important;
-    color: var(--igw-ink) !important;
-    font-size: var(--ioulia-micro);
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    text-decoration: none !important;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    transition: transform .4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-  }
-  .igw-map__link em { font-style: normal; }
-  .igw-map__link:hover { opacity: 0.8; transform: translateY(-2px); }
-  .igw-map__link:focus-visible { outline: 2px solid var(--igw-ink); outline-offset: 2px; }
 
   /* --- 7. FAQ --- */
   .igw-faq__inner {
@@ -697,12 +688,19 @@
     column-gap: clamp(18px, 2vw, 32px);
     align-items: start;
   }
-  .igw-faq > h2 { grid-column: 1 / span 5; }
+  /* The two halves do not start on the same line: the heading sits high and
+     the questions hang below it, which is what stops the section reading as
+     two tidy columns. */
+  .igw-faq__inner > h2 {
+    grid-column: 1 / span 5;
+    margin-top: clamp(-2rem, -2vw, -0.5rem);
+  }
   .igw-faq__items {
     grid-column: 7 / -1;
+    margin-top: clamp(2.5rem, 7vw, 7rem);
     border-top: 1px solid var(--igw-line);
   }
-  
+
   .igw-faq__item { border-bottom: 1px solid var(--igw-line); }
 
   .igw-faq__trigger,
@@ -719,7 +717,8 @@
     background-color: transparent !important;
     border: none !important;
     outline: none !important;
-    padding: 26px 0;
+    padding: clamp(26px, 3.2vw, 44px) 0;
+    gap: clamp(1.5rem, 3vw, 3rem);
     cursor: pointer;
     font-family: inherit;
     font-size: clamp(15px, 1.1vw, 18px);
@@ -738,35 +737,66 @@
     color: var(--igw-ink) !important;
   }
 
+  /* A soft filled circle behind the mark, so the control has a body rather
+     than being two hairlines floating at the end of a line. */
   .igw-faq__icon {
     position: relative;
-    width: 22px;
-    height: 22px;
+    display: grid;
+    width: clamp(44px, 3.4vw, 56px);
+    height: clamp(44px, 3.4vw, 56px);
     flex-shrink: 0;
-    margin-left: 20px;
+    margin-left: auto;
+    border-radius: 999px;
+    background: var(--ioulia-ink-07, rgba(43, 43, 43, .07));
     color: var(--igw-ink) !important;
+    place-items: center;
+    transition: background-color .4s cubic-bezier(.16, 1, .3, 1), transform .5s cubic-bezier(.16, 1, .3, 1);
   }
+  .igw-faq__trigger:hover .igw-faq__icon { background: var(--ioulia-ink-12, rgba(43, 43, 43, .12)); }
   .igw-faq__icon::before,
   .igw-faq__icon::after {
     content: '';
     position: absolute;
-    top: 50%; left: 0;
-    width: 100%;
-    height: 1px;
+    top: 50%;
+    left: 50%;
+    width: 42%;
+    height: 1.5px;
+    border-radius: 2px;
     background: currentColor;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translate(-50%, -50%);
+    transition: transform .5s cubic-bezier(.16, 1, .3, 1), opacity .35s ease;
   }
-  .igw-faq__icon::after { transform: rotate(90deg); }
-  .igw-faq__trigger[aria-expanded="true"] .igw-faq__icon::after { transform: rotate(0deg); }
+  .igw-faq__icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+  /* Open: the upright stroke turns down into the flat one and fades as it
+     goes, so a plus becomes a minus in one movement rather than a snap. */
+  .igw-faq__trigger[aria-expanded="true"] .igw-faq__icon { transform: rotate(180deg); }
+  .igw-faq__trigger[aria-expanded="true"] .igw-faq__icon::after {
+    transform: translate(-50%, -50%) rotate(0deg);
+    opacity: 0;
+  }
 
+  /* The row opens by growing its own track, so there is no measured height to
+     go stale, and the answer follows a beat behind the opening rather than
+     being dragged down with it. */
   .igw-faq__content {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: grid-template-rows .62s cubic-bezier(.16, 1, .3, 1);
   }
   .igw-faq__trigger[aria-expanded="true"] + .igw-faq__content { grid-template-rows: 1fr; }
   .igw-faq__content-inner { overflow: hidden; }
-  .igw-faq__content p { padding-bottom: 26px; max-width: 60ch; }
+  .igw-faq__content p {
+    max-width: 60ch;
+    padding-bottom: clamp(26px, 3vw, 40px);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .35s ease, transform .5s cubic-bezier(.16, 1, .3, 1);
+  }
+  .igw-faq__trigger[aria-expanded="true"] + .igw-faq__content p {
+    opacity: 1;
+    transform: none;
+    transition-delay: .12s;
+  }
 
   /* --- ELEMENTOR EDITOR VISIBILITY OVERRIDES --- */
   body.elementor-editor-active .igw-reveal__inner,
@@ -831,7 +861,7 @@
     .igw-hero__title-group, .igw-hero__image, .igw-hero__text,
     .igw-intro h2, .igw-intro__text, .igw-intro__graphic,
     .igw-shared__heading, .igw-shared__content,
-    .igw-faq > h2, .igw-faq__items {
+    .igw-faq__inner > h2, .igw-faq__items {
       grid-column: 1 / -1;
     }
     /* The desktop hero places the image across both rows, beside the title.
@@ -856,12 +886,6 @@
     }
     .igw-location__info {
       width: 100%;
-    }
-    .igw-map {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      min-height: 360px;
     }
 
     .igw-begin { height: 200vh; }
