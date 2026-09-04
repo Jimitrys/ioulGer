@@ -14,21 +14,27 @@ if ( ! function_exists( 'ioulia_media_library_grid_recovery' ) ) {
 		$script = <<<'JS'
 jQuery(function ($) {
 	var $grid = $('#wp-media-grid');
-	if (!$grid.length || !window.wp || !wp.media || wp.media.frames.browse) {
+	if (!$grid.length || !window.wp || !wp.media) {
 		return;
 	}
 
 	window.requestAnimationFrame(function () {
-		if (wp.media.frames.browse) {
-			return;
+		var settings = window._wpMediaGridSettings || {};
+		var frame = wp.media.frames.browse;
+
+		if (!frame) {
+			frame = wp.media({
+				frame: 'manage',
+				container: $grid,
+				library: settings.queryVars || {}
+			}).open();
 		}
 
-		var settings = window._wpMediaGridSettings || {};
-		wp.media({
-			frame: 'manage',
-			container: $grid,
-			library: settings.queryVars || {}
-		}).open();
+		var state = frame && frame.state ? frame.state() : null;
+		var library = state && state.get ? state.get('library') : null;
+		if (library && !library.length && typeof library.more === 'function') {
+			library.more();
+		}
 	});
 });
 JS;
