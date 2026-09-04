@@ -273,6 +273,17 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Γράψε ένα έγκυρο email.' => 'Please enter a valid email address.',
 				'Χρειαζόμαστε τη συγκατάθεσή σου για να κρατήσουμε τα στοιχεία σου.' => 'We need your consent to keep your details for this booking.',
 				'Στις τιμές δεν συμπεριλαμβάνεται ΦΠΑ 24%.' => 'Prices exclude 24% VAT.',
+				/* WORKSHOPS — the drag gallery, and what its photographs show */
+				'μέσα στο εργαστήριο' => 'inside the studio',
+				'Χέρια στον τροχό με υγρό πηλό' => 'Hands at the wheel, working wet clay',
+				'Βάζα με χρώματα και υαλώματα στο εργαστήριο' => 'Jars of colour and glaze in the studio',
+				'Σχεδιασμός πάνω σε κεραμικό' => 'Drawing onto a piece',
+				'Το εργαστήριο από ψηλά, με τους πάγκους και τα ράφια' => 'The studio from above, benches and shelves',
+				'Ζωγραφική με πινέλο πάνω σε κεραμικό' => 'Painting a piece with a brush',
+				'Κρατώντας ένα μεγάλο πιάτο' => 'Holding a large plate',
+				'Ράφια με άψητα κεραμικά' => 'Shelves of unfired pieces',
+				'Δουλειά στον πάγκο του εργαστηρίου' => 'Working at the studio bench',
+
 				/* ABOUT — the drag gallery under the hero */
 				'Λίγες στιγμές από το εργαστήριο' => 'A few moments from the studio',
 

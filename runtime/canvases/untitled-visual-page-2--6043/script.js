@@ -81,6 +81,10 @@
       document.body.classList.add('is-loaded');
     } else {
       setTimeout(() => {
+  /* Arms the shared entrance system in the global script. Set here, inline,
+     so nothing is painted visible and then hidden. */
+  document.documentElement.classList.add('ia-js');
+
         document.body.classList.add('is-loaded');
       }, 100);
     }
@@ -188,75 +192,6 @@
         window.addEventListener("resize", onScroll);
         update();
       }
-    }
-
-    // 6. Marquee Logic (Cursor Follows System Pointer)
-    const viewport = document.querySelector("[data-igw-marquee]");
-    const cursor = document.querySelector("[data-igw-cursor]");
-    if (viewport) {
-      let dragging = false;
-      let hovering = false;
-      let startX = 0;
-      let startScroll = 0;
-      let frame = 0;
-      let previousTime = 0;
-
-      if (cursor && !isElementor) {
-        window.addEventListener("pointermove", (e) => {
-          const rect = viewport.getBoundingClientRect();
-          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
-            cursor.style.left = e.clientX + "px";
-            cursor.style.top = e.clientY + "px";
-          }
-        }, { passive: true });
-      }
-
-      const loopWidth = () => {
-        const items = viewport.querySelectorAll(".igw-marquee__item");
-        return items.length > 3 ? items[3].offsetLeft - items[0].offsetLeft : viewport.scrollWidth / 2;
-      };
-
-      const normalizeScroll = () => {
-        const width = loopWidth();
-        if (!width) return;
-        if (viewport.scrollLeft >= width) viewport.scrollLeft -= width;
-        if (viewport.scrollLeft < 0) viewport.scrollLeft += width;
-      };
-
-      const tick = (time) => {
-        const delta = previousTime ? Math.min(32, time - previousTime) : 0;
-        previousTime = time;
-        if (!dragging && !hovering && !reduceMotion.matches && !isElementor) {
-          viewport.scrollLeft += delta * 0.035;
-          normalizeScroll();
-        }
-        frame = window.requestAnimationFrame(tick);
-      };
-
-      viewport.addEventListener("pointerdown", (event) => {
-        dragging = true; startX = event.clientX; startScroll = viewport.scrollLeft;
-        viewport.classList.add("is-dragging"); viewport.setPointerCapture(event.pointerId);
-      });
-
-      viewport.addEventListener("pointermove", (event) => {
-        if (!dragging) return;
-        viewport.scrollLeft = startScroll - (event.clientX - startX);
-        normalizeScroll();
-      });
-
-      const stopDragging = (event) => {
-        if (!dragging) return;
-        dragging = false; viewport.classList.remove("is-dragging");
-        if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
-      };
-
-      viewport.addEventListener("pointerup", stopDragging);
-      viewport.addEventListener("pointercancel", stopDragging);
-      viewport.addEventListener("mouseenter", () => hovering = true);
-      viewport.addEventListener("mouseleave", () => hovering = false);
-      viewport.addEventListener("scroll", normalizeScroll, { passive: true });
-
-      frame = window.requestAnimationFrame(tick);
     }
 
     // 7. Full-Height Scroll Parallax on Intro SVG Graphic (slides UP from bottom to top of section)
