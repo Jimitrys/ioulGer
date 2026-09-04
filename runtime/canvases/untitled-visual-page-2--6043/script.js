@@ -131,7 +131,12 @@
     const facts = document.querySelectorAll(".igw-begin__facts li");
 
     if (beginSection && wordsHost) {
-      const words = wordsHost.textContent.trim().split(/\s+/);
+      /* Site Studio unslashes canvas JS on import, so a whitespace class
+         written here arrives with its backslash stripped and the sentence
+         splits on the letter s instead. The class is built from the
+         characters themselves so there is nothing to strip. */
+      const whitespace = new RegExp("[" + String.fromCharCode(32, 9, 10, 13) + "]+");
+      const words = wordsHost.textContent.trim().split(whitespace);
       wordsHost.textContent = "";
       words.forEach((w, i) => {
         const span = document.createElement("span");
