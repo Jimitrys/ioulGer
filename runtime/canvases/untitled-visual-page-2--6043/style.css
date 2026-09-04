@@ -1,12 +1,9 @@
-/* Import Leaflet Core Styles */
-  @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
-
   /* ==================================================
      IOULIA GERASKLI — WORKSHOPS SYSTEM
      ================================================== */
   .igw-page {
-    --igw-paper: var(--ioulia-cream, #FFFEF7);
-    --igw-ink: var(--ioulia-dark, #2B2B2B);
+    --igw-paper: var(--ioulia-paper, #FFFEF7);
+    --igw-ink: var(--ioulia-ink, #2B2B2B);
     --igw-muted: #76736d;
     --igw-line: rgba(43, 43, 43, .14);
     --igw-x: var(--ioulia-page-x, clamp(28px, 3.05vw, 46px));
@@ -100,11 +97,17 @@
 
   /* --- 1. HERO SECTION --- */
   .igw-hero { align-items: stretch; }
+  /* The hero and the statement below it run the full width of the page
+     rather than the reading column, and stand further apart. */
+  .igw-hero .igw-container,
+  .igw-intro .igw-container { max-width: min(var(--ioulia-shell), 2100px); }
+  .igw-intro { padding-block: clamp(6rem, 16vw, 16rem); }
+
   .igw-hero__inner {
     display: grid;
     width: 100%;
     height: 100%;
-    padding-top: calc(var(--ioulia-header-h, 176px) + 3.5rem);
+    padding-top: calc(var(--ioulia-header-h, 176px) + clamp(3.5rem, 7vh, 6rem));
     padding-bottom: clamp(70px, 10vh, 140px);
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-rows: 1fr auto;
@@ -175,6 +178,7 @@
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: clamp(18px, 2vw, 32px);
+    row-gap: clamp(2.5rem, 6vw, 5rem);
     align-items: center;
     position: relative;
   }
@@ -524,16 +528,6 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
 
-  .leaflet-container {
-    font-family: inherit;
-    background: #f5f5f5 !important;
-  }
-  .leaflet-control-attribution {
-    font-size: 8px !important;
-    background: rgba(255,254,247,0.7) !important;
-    color: #76736d !important;
-  }
-
   /* Floating Panel Wrapper with Equal Left / Top / Bottom Padding */
   .igw-location__panel-wrap {
     position: relative;
@@ -544,14 +538,6 @@
     display: flex;
     align-items: stretch;
     pointer-events: none;
-  }
-
-  .igw-location__info {
-    width: clamp(360px, 34vw, 500px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    pointer-events: auto;
   }
 
   /* Swiss Minimalist Card Layout with Frosted Backdrop Glass */
@@ -565,105 +551,6 @@
     flex-direction: column;
     gap: 22px;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
-  }
-
-  .igw-location__card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--igw-line);
-    font-size: var(--ioulia-micro);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .igw-location__status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--igw-ink);
-    font-weight: 500;
-  }
-
-  .igw-location__status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #2b2b2b;
-    display: inline-block;
-  }
-
-  .igw-location__city {
-    color: var(--igw-muted);
-  }
-
-  .igw-location__rows {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-
-  .igw-location__row {
-    display: grid;
-    grid-template-columns: 28px minmax(0, 1fr);
-    gap: 14px;
-    align-items: start;
-  }
-
-  .igw-location__tag {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 1px solid var(--igw-line);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--ioulia-micro);
-    font-weight: 500;
-    color: var(--igw-ink);
-    background: var(--igw-paper);
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .igw-location__label {
-    display: block;
-    font-size: var(--ioulia-micro);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--igw-muted);
-    margin-bottom: 4px;
-  }
-
-  .igw-location__val {
-    font-size: var(--ioulia-small);
-    line-height: 1.55;
-    color: var(--igw-ink);
-    font-style: normal;
-  }
-
-  .igw-location__val strong {
-    font-weight: 500;
-  }
-
-  .igw-location__phones a {
-    text-decoration: none;
-    color: var(--igw-ink);
-    transition: opacity 0.25s ease;
-  }
-  .igw-location__phones a:hover {
-    opacity: 0.6;
-  }
-
-  .igw-location__sep {
-    color: var(--igw-muted);
-    margin: 0 4px;
-  }
-
-  .igw-location__card-foot {
-    padding-top: 10px;
-    border-top: 1px solid var(--igw-line);
   }
 
   /* Layout only; this one is a full-width bar rather than a pill. */
@@ -735,6 +622,11 @@
   
   .igw-faq__title {
     color: var(--igw-ink) !important;
+    font-size: clamp(1.05rem, 1.35vw, 1.55rem);
+    font-weight: 400;
+    letter-spacing: -.02em;
+    line-height: 1.25;
+    text-align: left;
   }
 
   /* A soft filled circle behind the mark, so the control has a body rather
@@ -884,9 +776,6 @@
       padding: 24px var(--igw-x);
       width: 100%;
     }
-    .igw-location__info {
-      width: 100%;
-    }
 
     .igw-begin { height: 200vh; }
     .igw-begin__statement { max-width: none; font-size: clamp(28px, 8vw, 44px); }
@@ -908,3 +797,178 @@
     .igw-begin__facts li { opacity: 1 !important; transform: none !important; }
     .igw-begin__rail-fill { transform: scaleX(1) !important; }
   }
+
+  /* --- PROGRAMMES, IN THE FAQ'S MANNER ---------------------------------
+     The two lists do the same job on this page, so they read the same way:
+     a heading held high, the rows hanging below it, generous space between
+     them, and the same disc at the end of each. */
+
+  .igw-shared__inner {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(18px, 2vw, 32px);
+    align-items: start;
+  }
+  .igw-shared__heading {
+    grid-column: 1 / span 5;
+    margin-top: clamp(-2rem, -2vw, -0.5rem);
+  }
+  .igw-shared__content {
+    grid-column: 7 / -1;
+    margin-top: clamp(2.5rem, 7vw, 7rem);
+  }
+  .igw-shared__desc { margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+
+  .igw-tech__list { border-top: 1px solid var(--igw-line); }
+  .igw-tech__item { border-bottom: 1px solid var(--igw-line); }
+  .igw-tech__trigger {
+    display: flex;
+    width: 100%;
+    padding: clamp(26px, 3.2vw, 44px) 0;
+    border: 0;
+    background: none;
+    color: var(--igw-ink);
+    font: inherit;
+    gap: clamp(1rem, 2vw, 2rem);
+    align-items: center;
+    text-align: left;
+    cursor: pointer;
+  }
+  .igw-tech__num {
+    flex: 0 0 auto;
+    color: var(--igw-muted);
+    font-size: var(--ioulia-micro);
+    font-variant-numeric: tabular-nums;
+  }
+  .igw-tech__name {
+    font-size: clamp(1.05rem, 1.35vw, 1.55rem);
+    font-weight: 400;
+    letter-spacing: -.02em;
+    line-height: 1.25;
+  }
+  .igw-tech__arrow {
+    position: relative;
+    display: grid;
+    width: clamp(44px, 3.4vw, 56px);
+    height: clamp(44px, 3.4vw, 56px);
+    margin-left: auto;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: var(--ioulia-ink-07, rgba(43, 43, 43, .07));
+    color: transparent;
+    place-items: center;
+    transition: background-color .4s cubic-bezier(.16, 1, .3, 1), transform .5s cubic-bezier(.16, 1, .3, 1);
+  }
+  .igw-tech__trigger:hover .igw-tech__arrow { background: var(--ioulia-ink-12, rgba(43, 43, 43, .12)); }
+  .igw-tech__arrow::before,
+  .igw-tech__arrow::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 42%;
+    height: 1.5px;
+    border-radius: 2px;
+    background: var(--igw-ink);
+    transform: translate(-50%, -50%);
+    transition: transform .5s cubic-bezier(.16, 1, .3, 1), opacity .35s ease;
+  }
+  .igw-tech__arrow::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .igw-tech__trigger[aria-expanded="true"] .igw-tech__arrow { transform: rotate(180deg); }
+  .igw-tech__trigger[aria-expanded="true"] .igw-tech__arrow::after {
+    transform: translate(-50%, -50%) rotate(0deg);
+    opacity: 0;
+  }
+
+  .igw-tech__drawer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .62s cubic-bezier(.16, 1, .3, 1);
+  }
+  .igw-tech__trigger[aria-expanded="true"] + .igw-tech__drawer { grid-template-rows: 1fr; }
+  .igw-tech__drawer-inner { overflow: hidden; }
+  .igw-tech__drawer p {
+    max-width: 60ch;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .35s ease, transform .5s cubic-bezier(.16, 1, .3, 1);
+  }
+  .igw-tech__drawer p:last-child { padding-bottom: clamp(26px, 3vw, 40px); }
+  .igw-tech__trigger[aria-expanded="true"] + .igw-tech__drawer p {
+    opacity: 1;
+    transform: none;
+    transition-delay: .12s;
+  }
+
+  /* --- BUTTONS, IN THE BOOKING DIALOG'S MANNER ------------------------- */
+
+  .igw-page :is(.igw-btn, .igw-btn--hero, .igw-location__gmaps-btn) {
+    display: inline-flex;
+    width: auto;
+    min-height: clamp(50px, 1.4vw + 2.8rem, 58px);
+    padding: 0 1.5rem;
+    border: 0;
+    border-radius: 12px;
+    background: var(--igw-ink);
+    color: var(--igw-paper);
+    font: inherit;
+    font-size: var(--ioulia-small);
+    font-weight: 500;
+    text-decoration: none;
+    gap: .6em;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity .24s ease, transform .24s cubic-bezier(.2, 1.08, .32, 1), box-shadow .24s ease;
+  }
+  .igw-page :is(.igw-btn, .igw-btn--hero, .igw-location__gmaps-btn):is(:hover, :focus-visible) {
+    outline: none;
+    opacity: 1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(43, 43, 43, .16);
+  }
+  .igw-page :is(.igw-btn, .igw-btn--hero, .igw-location__gmaps-btn):active {
+    transform: translateY(0) scale(.99);
+    box-shadow: none;
+  }
+
+  /* --- THE CARD ON THE PHOTOGRAPH ---------------------------------------
+     Same corner and same restraint as the booking dialog: one place, one way
+     to reach it, one way to get there. */
+
+  .igw-location__card {
+    width: min(100%, 400px);
+    padding: clamp(1.6rem, 3vw, 2.4rem);
+    border-radius: 24px;
+    background: rgba(255, 254, 247, .94);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+    align-self: center;
+  }
+  .igw-location__eyebrow {
+    margin: 0 0 clamp(1.2rem, 2.5vw, 1.8rem);
+    color: var(--igw-muted);
+    font-size: var(--ioulia-micro);
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  .igw-location__address {
+    margin: 0 0 .6rem;
+    color: var(--igw-ink);
+    font-size: clamp(1.35rem, 2vw, 1.9rem);
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: -.03em;
+    line-height: 1.2;
+  }
+  .igw-location__near,
+  .igw-location__phone {
+    margin: 0 0 .5rem;
+    color: var(--igw-muted);
+    font-size: var(--ioulia-small);
+    line-height: 1.5;
+  }
+  .igw-location__phone a { color: var(--igw-ink); text-decoration: none; }
+  .igw-location__phone a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .igw-location__gmaps-btn { margin-top: clamp(1.4rem, 3vw, 2rem); }

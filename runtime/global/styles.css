@@ -267,7 +267,6 @@ a {
 =================================================== */
 .ioulia-button,
 .icph__button,
-.igw-btn,
 .iwb__book-button,
 .iwb__submit,
 .elementor a.ioulia-button,
@@ -305,7 +304,6 @@ a {
 
 .ioulia-button:hover,
 .icph__button:hover,
-.igw-btn:hover,
 .iwb__book-button:hover,
 .iwb__submit:hover,
 .elementor a.ioulia-button:hover,
@@ -323,7 +321,6 @@ a {
 
 .ioulia-button:focus-visible,
 .icph__button:focus-visible,
-.igw-btn:focus-visible,
 .elementor .elementor-button:focus-visible {
   outline: 1px solid var(--ioulia-accent) !important;
   outline-offset: 3px !important;
@@ -474,8 +471,7 @@ a {
    .ioulia-btn plus a variant to anything new; the selectors listed beside it are
    the buttons that existed before this system and keep their own class names. */
 
-:is(.ioulia-btn, .icph__button, .iznE-parallax__button, .igw-btn--hero,
-    .igw-location__gmaps-btn, .igc-btn, .igpa__trigger) {
+:is(.ioulia-btn, .icph__button, .iznE-parallax__button, .igc-btn, .igpa__trigger) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -505,22 +501,19 @@ a {
     border-color 220ms ease;
 }
 
-:is(.ioulia-btn, .icph__button, .iznE-parallax__button, .igw-btn--hero,
-    .igw-location__gmaps-btn, .igc-btn, .igpa__trigger):is(:hover, :focus-visible) {
+:is(.ioulia-btn, .icph__button, .iznE-parallax__button, .igc-btn, .igpa__trigger):is(:hover, :focus-visible) {
   transform: translateY(-3px);
   outline: none;
 }
 
 /* Filled */
-:is(.ioulia-btn--filled, .icph__button--filled, .iznE-parallax__button,
-    .igw-btn--hero, .igw-location__gmaps-btn, .igc-btn--primary) {
+:is(.ioulia-btn--filled, .icph__button--filled, .iznE-parallax__button, .igc-btn--primary) {
   border-color: var(--ioulia-ink);
   background: var(--ioulia-ink) !important;
   color: var(--ioulia-paper) !important;
 }
 
-:is(.ioulia-btn--filled, .icph__button--filled, .iznE-parallax__button,
-    .igw-btn--hero, .igw-location__gmaps-btn, .igc-btn--primary):is(:hover, :focus-visible) {
+:is(.ioulia-btn--filled, .icph__button--filled, .iznE-parallax__button, .igc-btn--primary):is(:hover, :focus-visible) {
   background: transparent !important;
   color: var(--ioulia-ink) !important;
 }

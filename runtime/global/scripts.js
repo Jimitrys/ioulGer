@@ -80,19 +80,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const splitIntoWords = (node) => {
     if (node.querySelector('.ia-word')) return;
-    const source = node.textContent.trim();
-    if (!source) return;
-    const words = source.split(whitespace);
-    if (words.length > 60) return;  /* a paragraph this long reads as flicker */
-    node.textContent = '';
-    words.forEach((word, index) => {
-      const span = document.createElement('span');
-      span.className = 'ia-word';
-      span.style.setProperty('--i', String(index));
-      span.textContent = word;
-      node.appendChild(span);
-      if (index < words.length - 1) node.appendChild(document.createTextNode(' '));
+    if (!node.textContent.trim()) return;
+    if (node.textContent.trim().split(whitespace).length > 60) return;  /* long enough to read as flicker */
+
+    /* Walk the children rather than reading textContent. A heading that
+       breaks its own line carries a <br>, which textContent drops - which is
+       how "τα προγράμματα<br>μας" came out as one word. Line breaks are kept
+       where the author put them and only the text between them is split. */
+    let index = 0;
+    const pieces = [];
+    node.childNodes.forEach((child) => {
+      if (child.nodeType === 1) { pieces.push(child.cloneNode(true)); return; }
+      if (child.nodeType !== 3) return;
+      const words = child.textContent.split(whitespace).filter(Boolean);
+      words.forEach((word, position) => {
+        const span = document.createElement('span');
+        span.className = 'ia-word';
+        span.style.setProperty('--i', String(index));
+        span.textContent = word;
+        pieces.push(span);
+        if (position < words.length - 1) pieces.push(document.createTextNode(' '));
+        index++;
+      });
     });
+    if (!index) return;
+    node.replaceChildren(...pieces);
+
     /* The words start hidden, so whatever holds them has to be something the
        observer will come back and reveal. */
     node.setAttribute('data-ia-reveal', '');

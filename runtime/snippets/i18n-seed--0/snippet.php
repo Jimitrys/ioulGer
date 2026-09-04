@@ -284,6 +284,12 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Ράφια με άψητα κεραμικά' => 'Shelves of unfired pieces',
 				'Δουλειά στον πάγκο του εργαστηρίου' => 'Working at the studio bench',
 				'Η βιτρίνα του εργαστηρίου στα Άνω Πατήσια' => 'The studio window in Ano Patisia',
+				/* WORKSHOPS — the card on that photograph */
+				'Άνω Πατήσια, Αθήνα' => 'Ano Patisia, Athens',
+				'Προμπονά 42' => 'Prompona 42',
+				'111 43 Αθήνα' => '111 43 Athens',
+				'5 λεπτά με τα πόδια από τον σταθμό Άνω Πατήσια' => 'Five minutes on foot from Ano Patisia station',
+				'Οδηγίες' => 'Directions',
 
 				/* ABOUT — the drag gallery under the hero */
 				'Λίγες στιγμές από το εργαστήριο' => 'A few moments from the studio',
