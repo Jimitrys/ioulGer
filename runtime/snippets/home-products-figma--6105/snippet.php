@@ -458,8 +458,20 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				.mxl-iph {
 					--mxl-iph-blend: clamp(70px, 11vh, 112px);
 					--mxl-iph-demo-x: -112px;
-					--mxl-iph-demo-y: 94px;
+					/* The plane only moves sideways on a touch screen, so the
+					   opening nudge only moves sideways too. */
+					--mxl-iph-demo-y: 0px;
 					cursor: grab;
+				}
+
+				/* touch-action: none took every gesture in this section,
+				   including the one that scrolls the page: a finger inside the
+				   products dragged the plane and the page stayed put. pan-y
+				   hands the vertical axis back to the browser, so a swipe up
+				   scrolls on past and only a sideways gesture reaches the drag
+				   handlers below. */
+				.mxl-iph__viewport {
+					touch-action: pan-y;
 				}
 
 				.mxl-iph__heading-wrap {
@@ -616,6 +628,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 		var GRID = 3;
 		var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		var coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+		var lockToX = coarsePointer;
 		var dragThreshold = coarsePointer ? 12 : 8;
 
 		var positionsDesktop = [
@@ -865,11 +878,15 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			}
 
 			velX = dx;
-			velY = dy;
+			velY = lockToX ? 0 : dy;
 			lastX = event.clientX;
 			lastY = event.clientY;
 			posX = event.clientX - startX;
-			posY = event.clientY - startY;
+			/* On a touch screen the vertical axis belongs to the page. The CSS
+			   above stops a mostly-vertical swipe from reaching here at all;
+			   this stops the vertical half of a diagonal one from dragging the
+			   plane while the page is already scrolling under it. */
+			if (!lockToX) posY = event.clientY - startY;
 			snap();
 			applyTransform();
 		}

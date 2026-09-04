@@ -981,26 +981,31 @@ function ioulia_custom_navbar_shortcode() {
             transform: translateY(0);
         }
 
+        /* The footer of the panel is set in the same cream as the pages above
+           it, and reads in sentence case like them. It used to be uppercase at
+           45% and 60% opacity - three different tones inside one small strip,
+           which is what made it look like leftover chrome rather than part of
+           the menu. Size, not colour, is what separates it from the pages. */
         .ioulia-privacy-links {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             align-items: center;
+            flex-wrap: wrap;
         }
         .ioulia-privacy-links a {
             font-family: var(--ioulia-font);
             font-size: var(--ioulia-micro);
             font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: rgba(254, 250, 228, 0.45);
+            letter-spacing: 0.01em;
+            color: var(--ioulia-cream);
             text-decoration: none;
             transition: color 0.3s ease;
         }
         .ioulia-privacy-links a:hover {
-            color: var(--ioulia-cream);
+            color: var(--ioulia-peach);
         }
         .ioulia-divider {
-            color: rgba(254, 250, 228, 0.2);
+            color: var(--ioulia-cream);
             font-size: var(--ioulia-micro);
         }
 
@@ -1009,14 +1014,14 @@ function ioulia_custom_navbar_shortcode() {
             gap: 2.5rem;
         }
         .ioulia-social-links a {
-            color: rgba(254, 250, 228, 0.6);
+            color: var(--ioulia-cream);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: color 0.3s ease, transform 0.3s ease;
         }
         .ioulia-social-links a:hover {
-            color: var(--ioulia-cream);
+            color: var(--ioulia-peach);
             transform: translateY(-3px);
         }
         .ioulia-social-links svg {
@@ -1082,14 +1087,26 @@ function ioulia_custom_navbar_shortcode() {
             #ioulia-menu-overlay.active .delay-4 { transition-delay: 0.22s; }
             #ioulia-menu-overlay.active .delay-5 { transition-delay: 0.26s; }
 
+            /* Four legal links and three pipes wrap into an uneven block on a
+               phone. Stacked, right-aligned under the list they belong to, they
+               read as the end of the menu; the pipes are only there to separate
+               a row, so at this width there is nothing for them to separate. */
             .ioulia-canvas-footer {
                 flex-direction: column;
                 align-items: flex-end;
-                gap: 1.5rem;
+                gap: 1.75rem;
                 padding-top: 2.5vh;
                 transition: opacity 0.35s ease, transform 0.4s var(--ioulia-snappy-ease);
                 transition-delay: 0s;
             }
+            .ioulia-social-links { order: -1; gap: 1.75rem; }
+            .ioulia-privacy-links {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 0.55rem;
+                flex-wrap: nowrap;
+            }
+            .ioulia-divider { display: none; }
             #ioulia-menu-overlay.active .ioulia-canvas-footer { transition-delay: 0.3s; }
             .ioulia-nav-right { gap: 1.5em; }
             .ioulia-lang-switcher { font-size: var(--ioulia-small); gap: .35em; }
@@ -1265,9 +1282,13 @@ function ioulia_custom_navbar_shortcode() {
 
             <div class="ioulia-canvas-footer">
                 <div class="ioulia-privacy-links">
-                    <a href="/privacy-policy">Πολιτική Απορρήτου</a>
-                    <span class="ioulia-divider">|</span>
-                    <a href="/data-protection">Προστασία Δεδομένων</a>
+                    <a href="/privacy-policy/">Πολιτική Απορρήτου</a>
+                    <span class="ioulia-divider" aria-hidden="true">|</span>
+                    <a href="/terms/">Όροι Χρήσης</a>
+                    <span class="ioulia-divider" aria-hidden="true">|</span>
+                    <a href="/shipping-returns/">Αποστολές και Επιστροφές</a>
+                    <span class="ioulia-divider" aria-hidden="true">|</span>
+                    <a href="/cookies/">Cookies</a>
                 </div>
                 <div class="ioulia-social-links">
                     <a href="https://instagram.com" target="_blank" aria-label="Instagram">

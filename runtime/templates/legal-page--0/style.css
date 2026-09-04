@@ -1,0 +1,117 @@
+/* Legal pages — one template, four documents.
+
+   The document itself is printed by the [ioulia_legal] shortcode in the legal
+   pages snippet, which picks the right one from the page being viewed and the
+   language of the request. Everything here is the room around it.
+
+   A legal page is read, not browsed: a single measured column, generous
+   leading, and headings that are found by scanning rather than by being loud.
+   No entrance animation - text somebody is looking for should be there when
+   the page is. */
+
+.ilegal {
+  width: 100%;
+  padding:
+    calc(var(--ioulia-header-h, 176px) + clamp(2rem, 6vh, 4.5rem))
+    var(--ioulia-page-x)
+    clamp(5rem, 12vh, 9rem);
+  background: var(--ioulia-paper);
+  color: var(--ioulia-ink);
+}
+
+/* A measure, not a container width. 780px at the body size is a little under
+   seventy characters a line - long enough not to feel like a column and short
+   enough to read a page of it. ch was tried first and gave 90, because the
+   zero in this face is wide. */
+.ilegal__inner {
+  width: 100%;
+  max-width: 780px;
+  margin-inline: auto;
+}
+
+.ilegal__updated {
+  margin: 0 0 clamp(1rem, 2.5vh, 1.5rem);
+  color: var(--ioulia-ink-45);
+  font-size: var(--ioulia-micro);
+  font-weight: 500;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.ilegal__title {
+  margin: 0 0 clamp(1.25rem, 3vh, 2rem);
+  font-size: var(--ioulia-h1);
+  font-weight: 400;
+  line-height: .96;
+  letter-spacing: -.05em;
+  text-wrap: balance;
+}
+
+.ilegal__lede {
+  margin: 0 0 clamp(3rem, 7vh, 4.5rem);
+  color: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
+  font-size: var(--ioulia-body-lg);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -.015em;
+  text-wrap: pretty;
+}
+
+/* A rule above each heading is what makes a long document scannable; it costs
+   nothing and it is the only decoration on the page. */
+.ilegal__section {
+  padding-top: clamp(2rem, 5vh, 3rem);
+  border-top: 1px solid var(--ioulia-ink-12);
+}
+.ilegal__section + .ilegal__section {
+  margin-top: clamp(2rem, 5vh, 3rem);
+}
+
+.ilegal__heading {
+  margin: 0 0 clamp(.9rem, 2vh, 1.25rem);
+  font-size: var(--ioulia-h4);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.025em;
+}
+
+.ilegal__doc p {
+  margin: 0 0 1.1em;
+  font-size: var(--ioulia-body);
+  line-height: 1.62;
+  letter-spacing: -.008em;
+  text-wrap: pretty;
+}
+.ilegal__doc p:last-child { margin-bottom: 0; }
+
+.ilegal__list {
+  margin: 0 0 1.1em;
+  padding: 0;
+  list-style: none;
+}
+.ilegal__list:last-child { margin-bottom: 0; }
+
+/* Hanging bullets, so the text of a wrapped item lines up with the text above
+   it rather than with the marker. */
+.ilegal__list li {
+  position: relative;
+  margin: 0 0 .6em;
+  padding-left: 1.15em;
+  font-size: var(--ioulia-body);
+  line-height: 1.55;
+  letter-spacing: -.008em;
+}
+.ilegal__list li:last-child { margin-bottom: 0; }
+.ilegal__list li::before {
+  content: "";
+  position: absolute;
+  top: .68em;
+  left: 0;
+  width: 5px;
+  height: 1px;
+  background: var(--ioulia-ink-45);
+}
+
+@media (max-width: 700px) {
+  .ilegal__inner { max-width: none; }
+}

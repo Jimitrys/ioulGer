@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "mail smtp",
+    "slug": "mail-smtp",
+    "status": "publish",
+    "menu_order": 5,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}

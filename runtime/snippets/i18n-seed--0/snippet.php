@@ -47,7 +47,6 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Ioulia Geraskli — αρχική' => 'Ioulia Geraskli home',
 				'Νομικές πληροφορίες' => 'Legal',
 				'Πολιτική Απορρήτου' => 'Privacy Policy',
-				'Προστασία Δεδομένων' => 'Data Protection',
 				'Αρχική σελίδα' => 'Home',
 				'Άνοιγμα καλαθιού' => 'Open cart',
 				'Άνοιγμα μενού' => 'Toggle menu',
@@ -400,6 +399,12 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				/* WORKSHOPS — dialog chrome */
 				'Δημοφιλές' => 'Popular',
 				'Επόμενο' => 'Next',
+
+				/* LEGAL — the links in the menu and the footer. The documents
+				   themselves are written in both languages in the legal pages
+				   snippet, so only their names pass through here. */
+				'Όροι Χρήσης' => 'Terms of Use',
+				'Αποστολές και Επιστροφές' => 'Shipping and Returns',
 
 				/* 404 */
 				'Σφάλμα 404' => 'Error 404',

@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_theme_template",
+    "title": "Legal Pages",
+    "slug": "legal-page",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "page",
+        "include": "privacy-policy,terms,shipping-returns,cookies",
+        "priority": 20
+    }
+}
