@@ -96,18 +96,25 @@
   if (reduceMotion.matches || !('IntersectionObserver' in window)) {
     showAll();
   } else {
+    let spoken = false;
     const seen = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
+        spoken = true;
         entry.target.classList.add('is-in');
         seen.unobserve(entry.target);
       });
     }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
     revealables.forEach((node) => seen.observe(node));
 
-    /* If the observer has not spoken by now something is wrong with it, and a
-       page of invisible sections is worse than a page with no animation. */
-    window.setTimeout(showAll, 2600);
+    /* The net is only for an observer that never speaks at all. An earlier
+       version revealed the whole page after a fixed delay, which meant every
+       section below the fold was already shown before it was reached - the
+       entrance only ever played for whatever happened to be on screen at
+       load. */
+    window.setTimeout(() => {
+      if (!spoken) showAll();
+    }, 2600);
   }
 
   /* ---------------------------------------------------------------------

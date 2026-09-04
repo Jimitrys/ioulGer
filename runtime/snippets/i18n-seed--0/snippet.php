@@ -275,7 +275,6 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Στις τιμές δεν συμπεριλαμβάνεται ΦΠΑ 24%.' => 'Prices exclude 24% VAT.',
 				/* ABOUT — the drag gallery under the hero */
 				'Λίγες στιγμές από το εργαστήριο' => 'A few moments from the studio',
-				'Σύρε για να δεις περισσότερα' => 'Drag to see more',
 
 				/* ABOUT — the sections added below the manifesto */
 				'Ένας χώρος που δουλεύει' => 'A room that works',
