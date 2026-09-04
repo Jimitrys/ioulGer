@@ -70,10 +70,13 @@ body, .igw-page, .igw-page * {
   --ioulia-h2: clamp(2.25rem, 3vw + 1.2rem, 5rem);
   --ioulia-h3: clamp(1.65rem, 1.8vw + .9rem, 3rem);
   --ioulia-h4: clamp(1.3rem, 1vw + .85rem, 1.9rem);
-  --ioulia-body-lg: clamp(1.08rem, .45vw + .95rem, 1.35rem);
-  --ioulia-body: clamp(1rem, .35vw + .9rem, 1.2rem);
-  --ioulia-small: clamp(.9rem, .3vw + .8rem, 1.05rem);
-  --ioulia-micro: clamp(.82rem, .25vw + .74rem, .95rem);
+  /* Each step keeps its floor for a phone and climbs to a ceiling a 2K screen
+     can use. The middle term carries both a vw and a rem so it actually
+     moves - a vw-only term sits on the floor at every width. */
+  --ioulia-body-lg: clamp(1.08rem, .5vw + .95rem, 1.5rem);
+  --ioulia-body: clamp(1rem, .42vw + .9rem, 1.32rem);
+  --ioulia-small: clamp(.9rem, .38vw + .8rem, 1.18rem);
+  --ioulia-micro: clamp(.82rem, .3vw + .74rem, 1.02rem);
 
   /* Smallest size any text on the site may be set at. Anything that wants to be
      quieter than this gets there with tone and weight, not by shrinking. */
@@ -1257,12 +1260,9 @@ html.ia-js .ia-word.is-in {
   .ia-gallery__item { transform: none !important; }
 }
 
-@media (min-width:1700px) {
-  :root {
-    --ioulia-small: .9rem;
-    --ioulia-micro: .82rem;
-  }
-}
+/* There used to be a block here that pinned --ioulia-small and --ioulia-micro
+   back to their floors above 1700px - the widest screens got the smallest
+   type. It is gone: the clamps below carry all the way up now. */
 
 @media (prefers-reduced-motion:reduce) {
   html { scroll-behavior: auto; }

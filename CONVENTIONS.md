@@ -64,12 +64,17 @@ stay where they are.
 Sizes come from the tokens in `runtime/global/styles.css`, not from a number
 typed into a component:
 
-| token | 375px | 1440px |
-| --- | --- | --- |
-| `--ioulia-body-lg` | 17.3px | 21.6px |
-| `--ioulia-body` | 16.0px | 19.2px |
-| `--ioulia-small` | 14.4px | 16.8px |
-| `--ioulia-micro` | 13.1px | 15.2px |
+| token | 375px | 1440px | 2560px |
+| --- | --- | --- | --- |
+| `--ioulia-body-lg` | 17.3px | 22.4px | 24.0px |
+| `--ioulia-body` | 16.0px | 20.4px | 21.1px |
+| `--ioulia-small` | 14.4px | 18.3px | 18.9px |
+| `--ioulia-micro` | 13.1px | 16.2px | 16.3px |
+
+The scale climbs all the way up. A media query used to pin `--ioulia-small`
+and `--ioulia-micro` back to their floors above 1700px, so the widest screens
+got the smallest type; it is gone. If reading feels small on a large monitor,
+check for a rule doing that again before adding a size to a component.
 
 Each clamp's middle term is written as `vw + rem`, never `vw` alone. With `vw`
 alone the term stays below the minimum until roughly 1900px, so every clamp sits
