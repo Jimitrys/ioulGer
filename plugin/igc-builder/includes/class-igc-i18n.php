@@ -36,6 +36,7 @@ final class IGC_I18N {
 		add_filter( 'get_canonical_url', array( self::class, 'canonical' ) );
 		add_filter( 'seopress_social_og_locale', array( self::class, 'og_locale' ) );
 		add_action( 'init', array( self::class, 'register_sitemaps' ), 20 );
+		add_action( 'template_redirect', array( self::class, 'redirect_legacy_sitemap' ), 0 );
 	}
 
 	/* ---------------------------------------------------------------------
@@ -453,6 +454,21 @@ final class IGC_I18N {
 			return;
 		}
 
-		wp_register_sitemap_provider( 'igc-i18n', new IGC_I18N_Sitemap() );
+		wp_register_sitemap_provider( 'ioulia', new IGC_I18N_Sitemap() );
+	}
+
+	/**
+	 * The first provider key contained a dash, which core sitemap rewrites cannot
+	 * parse. Redirect cached and bookmarked versions to the valid provider URL.
+	 */
+	public static function redirect_legacy_sitemap(): void {
+		$path = self::relative_path( self::request_uri() );
+
+		foreach ( array_keys( self::secondary_languages() ) as $code ) {
+			if ( in_array( $path, array( 'wp-sitemap-igc-i18n-' . $code . '-1.xml', 'wp-sitemap-igci18n-' . $code . '-1.xml' ), true ) ) {
+				wp_safe_redirect( home_url( '/wp-sitemap-ioulia-' . $code . '-1.xml' ), 301 );
+				exit;
+			}
+		}
 	}
 }

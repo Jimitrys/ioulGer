@@ -13,8 +13,9 @@ defined( 'ABSPATH' ) || exit;
 final class IGC_I18N_Sitemap extends WP_Sitemaps_Provider {
 
 	public function __construct() {
-		$this->name        = 'igc-i18n';
-		$this->object_type = 'igc-i18n';
+		// Core sitemap rewrite rules only accept letters in the provider segment.
+		$this->name        = 'ioulia';
+		$this->object_type = 'ioulia';
 	}
 
 	public function get_url_list( $page_num, $object_subtype = '' ): array {
