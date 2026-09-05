@@ -338,6 +338,22 @@ if ( ! function_exists( 'ioulia_dashboard_handle_post' ) ) {
 			return;
 		}
 
+		if ( 'programmes' === $action ) {
+			if ( ! ioulia_dashboard_authed() || ! function_exists( 'ioulia_programmes_handle_post' ) ) {
+				return;
+			}
+
+			$saved = ioulia_programmes_handle_post();
+
+			if ( is_wp_error( $saved ) ) {
+				ioulia_dashboard_notice( array( 'tone' => 'error', 'text' => $saved->get_error_message() ) );
+				return;
+			}
+
+			ioulia_dashboard_notice( array( 'tone' => 'ok', 'text' => 'Τα προγράμματα αποθηκεύτηκαν. Η σελίδα workshops και το popup κρατήσεων τα δείχνουν ήδη.' ) );
+			return;
+		}
+
 		if ( 'pin' === $action ) {
 			if ( ! ioulia_dashboard_authed() ) {
 				return;
@@ -774,6 +790,9 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 				<button type="button" class="iwd-tab" data-iwd-tab="calendar" role="tab" aria-selected="false">Ημερολόγιο</button>
 				<button type="button" class="iwd-tab" data-iwd-tab="past" role="tab" aria-selected="false">Περασμένες</button>
 				<button type="button" class="iwd-tab" data-iwd-tab="cancelled" role="tab" aria-selected="false">Ακυρωμένες</button>
+				<?php if ( function_exists( 'ioulia_programmes_panel' ) ) : ?>
+					<button type="button" class="iwd-tab" data-iwd-tab="programmes" role="tab" aria-selected="false">Προγράμματα</button>
+				<?php endif; ?>
 			</nav>
 
 			<div class="iwd-panel" data-iwd-panel="upcoming">
@@ -783,9 +802,10 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 				<div class="iwd-cal" data-iwd-calendar></div>
 
 				<ul class="iwd-key">
-					<li><span class="iwd-dot iwd-dot--free"></span>Άδεια ή σχεδόν</li>
+					<li><span class="iwd-dot iwd-dot--free"></span>Λίγες κρατήσεις</li>
 					<li><span class="iwd-dot iwd-dot--some"></span>Γεμίζει</li>
 					<li><span class="iwd-dot iwd-dot--full"></span>Γεμάτη</li>
+					<li class="iwd-key__note">Οι σβηστές μέρες δεν έχουν καμία κράτηση.</li>
 				</ul>
 			</div>
 
@@ -795,6 +815,12 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 			<div class="iwd-panel" data-iwd-panel="cancelled" hidden>
 				<?php ioulia_dashboard_list( $off, 'Καμία ακυρωμένη κράτηση.' ); ?>
 			</div>
+
+			<?php if ( function_exists( 'ioulia_programmes_panel' ) ) : ?>
+				<div class="iwd-panel" data-iwd-panel="programmes" hidden>
+					<?php echo ioulia_programmes_panel(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built in the editor snippet. ?>
+				</div>
+			<?php endif; ?>
 
 			<footer class="iwd-foot">
 				<details class="iwd-pin">
@@ -1242,6 +1268,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		flex-wrap: wrap;
 	}
 	.iwd-key li { display: flex; gap: .45rem; align-items: center; }
+	.iwd-key__note { flex-basis: 100%; }
 	.iwd-key .iwd-dot { margin: 0; }
 
 	/* The day the calendar sent us to, held for a moment so the eye finds it. */
@@ -1297,6 +1324,150 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		color: var(--iwd-muted);
 		font-size: var(--ioulia-small);
 		font-weight: 500;
+	}
+
+	/* --- The programmes editor ------------------------------------------- */
+
+	.iwe-item {
+		margin-bottom: .6rem;
+		border: 1px solid var(--iwd-line);
+		border-radius: 18px;
+		background: rgba(255, 255, 255, .55);
+	}
+
+	.iwe-item__summary {
+		display: flex;
+		padding: clamp(.9rem, 2.5vw, 1.2rem);
+		gap: .75rem;
+		align-items: center;
+		cursor: pointer;
+		list-style: none;
+	}
+	.iwe-item__summary::-webkit-details-marker { display: none; }
+
+	.iwe-item__num {
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.iwe-item__title {
+		font-size: var(--ioulia-body);
+		font-weight: 500;
+		letter-spacing: -.015em;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.iwe-item__body {
+		padding: 0 clamp(.9rem, 2.5vw, 1.2rem) clamp(1.1rem, 3vw, 1.4rem);
+	}
+
+	.iwe label,
+	.iwe legend {
+		display: block;
+		margin: 1rem 0 .4rem;
+		padding: 0;
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+		letter-spacing: .055em;
+		text-transform: uppercase;
+	}
+
+	.iwe input[type="text"],
+	.iwe input[type="number"],
+	.iwe input[type="time"],
+	.iwe select,
+	.iwe textarea {
+		width: 100%;
+		padding: .7rem .9rem;
+		border: 1px solid var(--iwd-line);
+		border-radius: 12px;
+		outline: none;
+		background: rgba(255, 255, 255, .7);
+		color: var(--ioulia-ink);
+		font-family: inherit;
+		/* Literal 16px: anything smaller makes iOS zoom the page on focus. */
+		font-size: 16px;
+		line-height: 1.4;
+		transition: border-color .22s ease, box-shadow .22s ease;
+	}
+	.iwe textarea { line-height: 1.55; resize: vertical; }
+	.iwe :is(input, select, textarea):focus {
+		border-color: var(--ioulia-ink);
+		box-shadow: 0 0 0 3px var(--ioulia-ink-07, rgba(43, 43, 43, .07));
+	}
+
+	.iwe-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 .75rem; }
+
+	.iwe-sessions { margin: 1.25rem 0 0; padding: 0; border: 0; }
+
+	/* Day, from, to, and a way to take the row away. The remove button sits at
+	   the end so the three fields stay in the order they are spoken. */
+	.iwe-session {
+		display: grid;
+		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 36px;
+		margin-bottom: .5rem;
+		gap: .4rem;
+		align-items: center;
+	}
+
+	.iwe-remove {
+		display: grid;
+		width: 36px;
+		height: 36px;
+		padding: 0;
+		border: 1px solid var(--iwd-line);
+		border-radius: 999px;
+		background: none;
+		color: var(--iwd-muted);
+		font: inherit;
+		font-size: 17px;
+		line-height: 1;
+		cursor: pointer;
+		place-items: center;
+		transition: border-color .22s ease, color .22s ease;
+	}
+	.iwe-remove:hover { border-color: var(--iwd-danger); color: var(--iwd-danger); }
+
+	.iwe-flags { margin-top: 1.25rem; }
+
+	.iwe-check {
+		display: flex;
+		margin: 0 0 .6rem;
+		gap: .6rem;
+		align-items: flex-start;
+		color: var(--ioulia-ink);
+		font-size: var(--ioulia-small);
+		font-weight: 500;
+		letter-spacing: 0;
+		text-transform: none;
+		cursor: pointer;
+	}
+	.iwe-check input { width: 18px; height: 18px; margin-top: .1rem; accent-color: var(--ioulia-ink); flex: 0 0 auto; }
+
+	.iwe-actions {
+		display: flex;
+		margin-top: 1.25rem;
+		gap: .6rem;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+
+	.iwe-hint {
+		margin: 1rem 0 0;
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+		line-height: 1.55;
+	}
+
+	@media (max-width: 480px) {
+		.iwe-pair { grid-template-columns: 1fr; }
+		.iwe-session { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px; }
+		.iwe-session select { grid-column: 1 / -1; }
 	}
 
 	/* --- The gate ------------------------------------------------------- */
@@ -1509,33 +1680,34 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 			number.textContent = String(day);
 			cell.appendChild(number);
 
-			if (info && info.state !== 'shut') {
-				cell.classList.add('is-open');
+			/* A day is solid when there is somebody on it, and faded otherwise.
+			   Every open day used to carry a dot, which meant a green dot on
+			   every empty Tuesday for the next two months: a calendar covered
+			   in green that said nothing. The dot is now what it sounds like -
+			   there are people that day, and this is how full it is. */
+			if (withBookings[date]) {
+				cell.classList.add('is-open', 'has-bookings');
 
 				var dot = document.createElement('span');
-				dot.className = 'iwd-dot iwd-dot--' + info.state;
+				dot.className = 'iwd-dot iwd-dot--' + ((info && info.state) || 'free');
 				cell.appendChild(dot);
 
-				cell.setAttribute(
-					'aria-label',
-					day + ' ' + (words.months[month] || '') + ' — ' + info.taken + ' από ' + info.capacity + ' θέσεις'
-				);
-				cell.title = info.taken + '/' + info.capacity + ' θέσεις';
+				if (info) {
+					cell.setAttribute(
+						'aria-label',
+						day + ' ' + (words.months[month] || '') + ' — ' + info.taken + ' από ' + info.capacity + ' θέσεις'
+					);
+					cell.title = info.taken + '/' + info.capacity + ' θέσεις';
+				}
+
+				cell.addEventListener('click', (function (target) {
+					return function () { goToDay(target); };
+				}(date)));
 			} else {
 				cell.disabled = true;
 			}
 
 			if (date === words.today) { cell.classList.add('is-today'); }
-
-			if (withBookings[date]) {
-				cell.classList.add('has-bookings');
-				cell.addEventListener('click', (function (target) {
-					return function () { goToDay(target); };
-				}(date)));
-			} else if (info && info.state !== 'shut') {
-				cell.disabled = true;
-				cell.style.cursor = 'default';
-			}
 
 			grid.appendChild(cell);
 		}
@@ -1547,6 +1719,90 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		cursor = new Date();
 		cursor.setDate(1);
 		drawMonth();
+	}
+
+	/* ---------------------------------------------------------------------
+	   The programmes editor: rows of times, and whole programmes, added and
+	   taken away without a round trip. The names are indexed, so a new one only
+	   has to take the next free index and PHP receives it like any other.
+	   ------------------------------------------------------------------ */
+
+	var editor = root.querySelector('[data-iwe]');
+
+	if (editor) {
+		var list = editor.querySelector('[data-iwe-list]');
+		var template = editor.querySelector('[data-iwe-template]');
+
+		function addSessionRow(box) {
+			var rows = box.querySelectorAll('[data-iwe-session]');
+			var last = rows[rows.length - 1];
+			if (!last) { return; }
+
+			var next = parseInt(box.getAttribute('data-next'), 10) || rows.length;
+			var copy = last.cloneNode(true);
+
+			/* Split rather than a regular expression: Site Studio unslashes this
+			   file on import, so an escaped bracket would arrive as a bare one
+			   and the pattern would become a character class. */
+			copy.querySelectorAll('[name]').forEach(function (field) {
+				var parts = field.name.split('[sessions][');
+				if (parts.length !== 2) { return; }
+
+				var tail = parts[1].substring(parts[1].indexOf(']') + 1);
+				field.name = parts[0] + '[sessions][' + next + ']' + tail;
+			});
+
+			box.appendChild(copy);
+			box.setAttribute('data-next', String(next + 1));
+		}
+
+		editor.addEventListener('click', function (event) {
+			if (event.target.hasAttribute('data-iwe-add-session')) {
+				addSessionRow(event.target.closest('.iwe-sessions').querySelector('[data-iwe-sessions]'));
+				return;
+			}
+
+			if (event.target.hasAttribute('data-iwe-remove')) {
+				var box = event.target.closest('[data-iwe-sessions]');
+				var row = event.target.closest('[data-iwe-session]');
+
+				/* Never take the last one away: a programme with no times is a
+				   programme nobody can book. */
+				if (box.querySelectorAll('[data-iwe-session]').length > 1) {
+					row.remove();
+				} else {
+					row.querySelectorAll('input[type="time"]').forEach(function (field) { field.value = ''; });
+				}
+				return;
+			}
+
+			if (event.target.hasAttribute('data-iwe-add') && list && template) {
+				var index = parseInt(list.getAttribute('data-next'), 10) || list.children.length;
+				var markup = template.innerHTML.split('__i__').join(String(index));
+
+				var holder = document.createElement('div');
+				holder.innerHTML = markup;
+
+				var item = holder.firstElementChild;
+				item.open = true;
+				list.appendChild(item);
+				list.setAttribute('data-next', String(index + 1));
+
+				var title = item.querySelector('[data-iwe-title]');
+				if (title) { title.focus(); }
+			}
+		});
+
+		/* The heading of a folded programme follows the title as it is typed, so
+		   a new one stops saying "Νέο πρόγραμμα" before it is saved. */
+		editor.addEventListener('input', function (event) {
+			if (!event.target.hasAttribute('data-iwe-title')) { return; }
+
+			var item = event.target.closest('[data-iwe-item]');
+			var label = item && item.querySelector('[data-iwe-label]');
+
+			if (label) { label.textContent = event.target.value || 'Νέο πρόγραμμα'; }
+		});
 	}
 
 	/* Cancelling */

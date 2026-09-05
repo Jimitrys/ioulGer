@@ -76,6 +76,22 @@ A template holds markup, CSS and JS exactly as a canvas does, so a small page
 like the 404 lives in the template itself rather than in a canvas the template
 then points at.
 
+## Content the studio edits lives in one place
+
+A workshop programme is one record. Three things read it — the editor at
+`/kratiseis/`, the picker in the booking popup, and the accordion under "τα
+προγράμματα μας" on `/workshops/` — and none of them keeps a copy.
+
+That page used to keep one: five accordion items with their days, times and
+prices typed out in the canvas, beside a PHP array saying the same thing. They
+had already drifted apart on one programme. The canvas holds
+`[ioulia_programmes]` now and the heading above it, nothing else.
+
+`ioulia_workshop_defaults()` is the seed and the fallback; what the studio
+actually offers is an option written by the editor. Anything else the studio
+should be able to change goes the same way: defaults in code, truth in an
+option, one shortcode for every place it appears.
+
 ## Type: one scale, one floor, and weight for quietness
 
 Sizes come from the tokens in `runtime/global/styles.css`, not from a number

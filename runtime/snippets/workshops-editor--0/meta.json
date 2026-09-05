@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "workshops editor",
+    "slug": "workshops-editor",
+    "status": "publish",
+    "menu_order": 45,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}
