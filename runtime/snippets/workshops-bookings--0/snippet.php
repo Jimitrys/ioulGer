@@ -421,7 +421,7 @@ if ( ! function_exists( 'ioulia_cancel_booking' ) ) {
 	/**
 	 * Cancel a booking and tell the visitor. The seat is released immediately.
 	 */
-	function ioulia_cancel_booking( $post_id, $reason = '', $by = 'studio' ) {
+	function ioulia_cancel_booking( $post_id, $reason = '', $by = 'studio', $notify = true ) {
 		$booking = ioulia_booking_fields( $post_id );
 
 		if ( ! $booking ) {
@@ -442,8 +442,13 @@ if ( ! function_exists( 'ioulia_cancel_booking' ) ) {
 
 		$booking['status'] = 'cancelled';
 
-		ioulia_email_visitor_cancellation( $booking, sanitize_textarea_field( $reason ), $by );
-		ioulia_email_studio_cancellation( $booking, sanitize_textarea_field( $reason ), $by );
+		/* A whole day being called off sends one letter of its own, with the
+		   offer of another date in it. Sending the ordinary cancellation as well
+		   would put two emails about the same thing in the same inbox. */
+		if ( $notify ) {
+			ioulia_email_visitor_cancellation( $booking, sanitize_textarea_field( $reason ), $by );
+			ioulia_email_studio_cancellation( $booking, sanitize_textarea_field( $reason ), $by );
+		}
 
 		return $booking;
 	}
@@ -987,6 +992,14 @@ if ( ! function_exists( 'ioulia_cancel_page_render' ) ) {
 	function ioulia_cancel_page_render() {
 		$id    = isset( $_REQUEST['b'] ) ? absint( $_REQUEST['b'] ) : 0;
 		$token = isset( $_REQUEST['t'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['t'] ) ) : '';
+		$offer = isset( $_REQUEST['o'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['o'] ) ) : '';
+
+		/* The same page answers two different letters: the cancel button on a
+		   confirmed booking, and the offer of another date after a day was
+		   called off. They are told apart by which token is in the link. */
+		if ( '' !== $offer ) {
+			return ioulia_offer_page_render( $id, $offer );
+		}
 
 		$booking = $id ? ioulia_booking_fields( $id ) : null;
 
@@ -1075,5 +1088,361 @@ if ( ! function_exists( 'ioulia_cancel_page_message' ) ) {
 			. '<p class="icp__lede">' . esc_html( $text ) . '</p>'
 			. '<div class="icp__actions"><a class="ioulia-btn" href="' . esc_url( home_url( '/workshops/' ) ) . '">Τα εργαστήρια</a></div>'
 			. '</div>';
+	}
+}
+
+/* -------------------------------------------------------------------------
+ * Calling off a whole day
+ *
+ * A kiln that will not fire, a closed road, an illness. The seats have to be
+ * freed at once, and every person booked on that day has to hear about it from
+ * the studio rather than by turning up.
+ *
+ * They are cancelled, not held: the seat is genuinely released. What each
+ * person gets instead is an offer - the next date the same programme runs, at
+ * the same price - which they can take or leave. Nothing is reserved for them
+ * while they decide, and the page they land on says so, because a seat quietly
+ * held for a week is a seat somebody else could not book.
+ * ---------------------------------------------------------------------- */
+
+if ( ! function_exists( 'ioulia_next_slot_for' ) ) {
+	/**
+	 * The next time this programme runs with room for this many people, after a
+	 * given moment and skipping a date that is off.
+	 */
+	function ioulia_next_slot_for( $slug, $after, $participants, $skip_date = '' ) {
+		$programme = ioulia_workshop_programme( $slug );
+
+		if ( ! $programme || empty( $programme['active'] ) || empty( $programme['sessions'] ) ) {
+			return '';
+		}
+
+		$settings = ioulia_workshop_settings();
+		$start    = max( strtotime( $after ), current_time( 'timestamp' ) );
+		$last     = current_time( 'timestamp' ) + ( (int) $settings['window_days'] * DAY_IN_SECONDS );
+
+		for ( $stamp = $start; $stamp <= $last; $stamp += DAY_IN_SECONDS ) {
+			$date = gmdate( 'Y-m-d', $stamp );
+
+			if ( $date === $skip_date ) {
+				continue;
+			}
+
+			$weekday = (int) gmdate( 'N', $stamp );
+
+			foreach ( $programme['sessions'] as $session ) {
+				if ( (int) $session['day'] !== $weekday ) {
+					continue;
+				}
+
+				$starts = $date . ' ' . $session['start'] . ':00';
+
+				if ( strtotime( $starts ) <= $start ) {
+					continue;
+				}
+
+				if ( ioulia_seats_left( $slug, $starts ) >= $participants ) {
+					return $starts;
+				}
+			}
+		}
+
+		return '';
+	}
+}
+
+if ( ! function_exists( 'ioulia_booking_offer_url' ) ) {
+	function ioulia_booking_offer_url( $booking_id, $token ) {
+		return add_query_arg(
+			array(
+				'b' => (int) $booking_id,
+				'o' => $token,
+			),
+			home_url( '/' . IOULIA_CANCEL_SLUG . '/' )
+		);
+	}
+}
+
+if ( ! function_exists( 'ioulia_booking_offer' ) ) {
+	/**
+	 * The offer attached to a cancelled booking, if it still stands. The slot is
+	 * re-checked on read: a week can pass between the email and the click, and by
+	 * then somebody else may have taken the last seat.
+	 */
+	function ioulia_booking_offer( $post_id, $token ) {
+		$booking = ioulia_booking_fields( $post_id );
+
+		if ( ! $booking || 'cancelled' !== $booking['status'] ) {
+			return null;
+		}
+
+		$expected = (string) get_post_meta( $post_id, '_ioulia_offer_token', true );
+
+		if ( '' === $expected || ! hash_equals( $expected, (string) $token ) ) {
+			return null;
+		}
+
+		$starts = (string) get_post_meta( $post_id, '_ioulia_offer_starts', true );
+
+		return array(
+			'booking' => $booking,
+			'starts'  => $starts,
+			'free'    => '' !== $starts && ioulia_seats_left( $booking['programme'], $starts ) >= $booking['participants'],
+		);
+	}
+}
+
+if ( ! function_exists( 'ioulia_accept_offer' ) ) {
+	/**
+	 * Take the offered slot. A new booking rather than a revived one, so the
+	 * cancelled record stays as it is and the new one is a booking like any
+	 * other - with its own cancellation link.
+	 */
+	function ioulia_accept_offer( $post_id, $token ) {
+		$offer = ioulia_booking_offer( $post_id, $token );
+
+		if ( ! $offer ) {
+			return new WP_Error( 'ioulia_offer', 'Αυτή η προσφορά δεν ισχύει πια.' );
+		}
+
+		if ( ! $offer['free'] ) {
+			return new WP_Error( 'ioulia_offer_taken', 'Δυστυχώς η θέση δεν είναι πια ελεύθερη.' );
+		}
+
+		$old       = $offer['booking'];
+		$starts    = $offer['starts'];
+		$programme = ioulia_workshop_programme( $old['programme'] );
+		$slot      = $programme ? ioulia_match_session( $programme, $starts ) : null;
+
+		if ( ! $slot ) {
+			return new WP_Error( 'ioulia_offer_slot', 'Αυτή η ώρα δεν είναι πια διαθέσιμη.' );
+		}
+
+		$new_id = wp_insert_post(
+			array(
+				'post_type'   => IOULIA_BOOKING_TYPE,
+				'post_status' => 'private',
+				'post_title'  => sprintf( '%s — %s — %s', $old['name'], $programme['title'], ioulia_format_session( $starts ) ),
+			),
+			true
+		);
+
+		if ( is_wp_error( $new_id ) ) {
+			return $new_id;
+		}
+
+		$meta = array(
+			'_ioulia_programme'    => $old['programme'],
+			'_ioulia_starts'       => $starts,
+			'_ioulia_ends'         => $slot['ends'],
+			'_ioulia_participants' => $old['participants'],
+			'_ioulia_name'         => $old['name'],
+			'_ioulia_email'        => $old['email'],
+			'_ioulia_phone'        => $old['phone'],
+			'_ioulia_note'         => $old['note'],
+			'_ioulia_status'       => 'confirmed',
+			/* The consent was given for the original booking and covers this one:
+			   same person, same purpose, moved date. */
+			'_ioulia_consent_at'   => $old['consent_at'],
+			'_ioulia_cancel_token' => wp_generate_password( 32, false, false ),
+			'_ioulia_moved_from'   => $old['starts'],
+		);
+
+		foreach ( $meta as $key => $value ) {
+			update_post_meta( $new_id, $key, $value );
+		}
+
+		/* Spent. Following the link again reaches a page that says so rather
+		   than booking a second seat. */
+		delete_post_meta( $post_id, '_ioulia_offer_token' );
+
+		$booking = ioulia_booking_fields( $new_id );
+
+		ioulia_email_studio_new_booking( $booking );
+		ioulia_email_visitor_confirmation( $booking );
+
+		return $booking;
+	}
+}
+
+if ( ! function_exists( 'ioulia_email_visitor_day_cancelled' ) ) {
+	function ioulia_email_visitor_day_cancelled( $booking, $reason, $offer_url, $offer_starts ) {
+		$buttons = array();
+
+		if ( '' !== $offer_url && '' !== $offer_starts ) {
+			$buttons[] = array(
+				'label' => 'Κλείσε ' . ioulia_format_session( $offer_starts ),
+				'url'   => $offer_url,
+			);
+		}
+
+		$buttons[] = array(
+			'label'   => 'Δες όλες τις ημερομηνίες',
+			'url'     => home_url( '/book-workshop/' ),
+			'variant' => 'outline',
+		);
+
+		$intro = array(
+			'Γεια σου ' . $booking['name'] . ', λυπόμαστε πολύ. Χρειάστηκε να ακυρώσουμε όλα τα μαθήματα εκείνης της ημέρας και η δική σου κράτηση ακυρώθηκε μαζί τους.',
+		);
+
+		if ( '' !== $offer_starts ) {
+			$intro[] = 'Η επόμενη φορά που τρέχει το ίδιο πρόγραμμα είναι ' . ioulia_format_session( $offer_starts ) . ', στην ίδια τιμή. Αν σε βολεύει, κράτησέ την με το κουμπί πιο κάτω — η θέση δεν είναι δεσμευμένη μέχρι να το πατήσεις.';
+		} else {
+			$intro[] = 'Δεν βρήκαμε επόμενη ημερομηνία με ελεύθερες θέσεις για το ίδιο πρόγραμμα. Δες τι υπάρχει και διάλεξε ό,τι σε βολεύει.';
+		}
+
+		$html = ioulia_email_html(
+			array(
+				'title'    => 'Χρειάστηκε να ακυρώσουμε αυτή τη μέρα.',
+				'intro'    => $intro,
+				'quote'    => $reason,
+				'rows'     => ioulia_booking_rows( $booking ),
+				'buttons'  => $buttons,
+				'footnote' => 'Αν είχες πληρώσει, γράψε μας και το τακτοποιούμε αμέσως. Λυπόμαστε για την αναστάτωση.',
+			)
+		);
+
+		ioulia_send_html_mail(
+			$booking['email'],
+			'Ακύρωση μαθήματος — ' . ioulia_format_session( $booking['starts'], false ),
+			$html,
+			ioulia_booking_reply_to()
+		);
+	}
+}
+
+if ( ! function_exists( 'ioulia_cancel_day' ) ) {
+	/**
+	 * Call off every confirmed booking on one date.
+	 */
+	function ioulia_cancel_day( $date, $reason = '' ) {
+		$date = trim( (string) $date );
+
+		if ( ! preg_match( '#^[0-9]{4}-[0-9]{2}-[0-9]{2}$#', $date ) ) {
+			return new WP_Error( 'ioulia_day', 'Δεν κατάλαβα ποια ημέρα.' );
+		}
+
+		$bookings = ioulia_get_bookings(
+			array(
+				'from'  => $date . ' 00:00:00',
+				'until' => $date . ' 23:59:59',
+				'limit' => 200,
+			)
+		);
+
+		$done = 0;
+
+		foreach ( $bookings as $booking ) {
+			if ( 'cancelled' === $booking['status'] ) {
+				continue;
+			}
+
+			/* Cancel first, so the seat this person held on the offered day - if
+			   the offer happens to fall on a date they are also booked for - is
+			   not counted against them. */
+			$cancelled = ioulia_cancel_booking( $booking['id'], $reason, 'day', false );
+
+			if ( is_wp_error( $cancelled ) ) {
+				continue;
+			}
+
+			$starts = ioulia_next_slot_for( $booking['programme'], $booking['starts'], $booking['participants'], $date );
+			$url    = '';
+
+			if ( '' !== $starts ) {
+				$token = wp_generate_password( 32, false, false );
+
+				update_post_meta( $booking['id'], '_ioulia_offer_token', $token );
+				update_post_meta( $booking['id'], '_ioulia_offer_starts', $starts );
+
+				$url = ioulia_booking_offer_url( $booking['id'], $token );
+			}
+
+			ioulia_email_visitor_day_cancelled( $cancelled, sanitize_textarea_field( $reason ), $url, $starts );
+
+			$done++;
+		}
+
+		return $done;
+	}
+}
+
+if ( ! function_exists( 'ioulia_offer_page_render' ) ) {
+	/**
+	 * The other side of a called-off day: here is the next date, do you want it.
+	 *
+	 * Like the cancel page, the decision happens on a POST. Mail providers open
+	 * every link in a message to scan it, and a link that booked a seat on sight
+	 * would book seats nobody asked for.
+	 */
+	function ioulia_offer_page_render( $id, $token ) {
+		$offer = $id ? ioulia_booking_offer( $id, $token ) : null;
+
+		if ( ! $offer ) {
+			return ioulia_cancel_page_message(
+				'Ο σύνδεσμος δεν ισχύει',
+				'Μπορεί να τον χρησιμοποίησες ήδη ή να πέρασε ο καιρός του. Δες τι υπάρχει και διάλεξε ό,τι σε βολεύει.'
+			);
+		}
+
+		$booking   = $offer['booking'];
+		$submitted = isset( $_POST['ioulia_offer_confirm'] );
+		$nonce     = isset( $_POST['ioulia_offer_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['ioulia_offer_nonce'] ) ) : '';
+
+		if ( $submitted && ! wp_verify_nonce( $nonce, 'ioulia_offer_' . $id ) ) {
+			return ioulia_cancel_page_message(
+				'Η σελίδα έληξε',
+				'Άνοιξε ξανά τον σύνδεσμο από το email σου και δοκίμασε άλλη μία φορά.'
+			);
+		}
+
+		if ( $submitted ) {
+			$booked = ioulia_accept_offer( $id, $token );
+
+			if ( is_wp_error( $booked ) ) {
+				return ioulia_cancel_page_message( 'Δεν προλάβαμε', $booked->get_error_message() );
+			}
+
+			return ioulia_cancel_page_message(
+				'Η θέση σου κρατήθηκε',
+				'Σε περιμένουμε ' . ioulia_format_session( $booked['starts'] ) . '. Σου στείλαμε επιβεβαίωση με email.'
+			);
+		}
+
+		if ( ! $offer['free'] ) {
+			return ioulia_cancel_page_message(
+				'Η θέση δεν είναι πια ελεύθερη',
+				'Κάποιος πρόλαβε. Λυπόμαστε — δες τις υπόλοιπες ημερομηνίες και διάλεξε ό,τι σε βολεύει.'
+			);
+		}
+
+		$rows = array(
+			'Πρόγραμμα'      => $booking['programme_title'],
+			'Νέα ημερομηνία' => ioulia_format_session( $offer['starts'] ),
+			'Άτομα'          => (string) $booking['participants'],
+		);
+
+		$list = '';
+
+		foreach ( $rows as $label => $value ) {
+			$list .= '<div class="icp__row"><span>' . esc_html( $label ) . '</span><strong>' . esc_html( $value ) . '</strong></div>';
+		}
+
+		$out  = '<div class="icp">';
+		$out .= '<p class="icp__eyebrow">Νέα ημερομηνία</p>';
+		$out .= '<h1 class="icp__title">Σε βολεύει αυτή η μέρα;</h1>';
+		$out .= '<p class="icp__lede">Ίδιο πρόγραμμα, ίδια τιμή. Η θέση δεν είναι δεσμευμένη μέχρι να την κλείσεις εδώ.</p>';
+		$out .= '<div class="icp__rows">' . $list . '</div>';
+		$out .= '<form method="post" class="icp__form">';
+		$out .= wp_nonce_field( 'ioulia_offer_' . $id, 'ioulia_offer_nonce', true, false );
+		$out .= '<input type="hidden" name="b" value="' . esc_attr( (string) $id ) . '">';
+		$out .= '<input type="hidden" name="o" value="' . esc_attr( $token ) . '">';
+		$out .= '<div class="icp__actions">';
+		$out .= '<button class="ioulia-btn" type="submit" name="ioulia_offer_confirm" value="1">Ναι, κράτησέ την</button>';
+		$out .= '<a class="icp__back" href="' . esc_url( home_url( '/book-workshop/' ) ) . '">Δες άλλες ημερομηνίες</a>';
+		$out .= '</div></form></div>';
+
+		return $out;
 	}
 }

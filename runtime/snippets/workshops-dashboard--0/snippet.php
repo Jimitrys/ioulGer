@@ -338,6 +338,59 @@ if ( ! function_exists( 'ioulia_dashboard_handle_post' ) ) {
 			return;
 		}
 
+		if ( 'seed' === $action || 'unseed' === $action ) {
+			if ( ! ioulia_dashboard_authed() ) {
+				return;
+			}
+
+			if ( 'unseed' === $action ) {
+				$gone = ioulia_dashboard_unseed_bookings();
+
+				ioulia_dashboard_notice( array( 'tone' => 'ok', 'text' => sprintf( 'Αφαιρέθηκαν %d δοκιμαστικές κρατήσεις.', $gone ) ) );
+				return;
+			}
+
+			$made = ioulia_dashboard_seed_bookings();
+
+			if ( is_wp_error( $made ) ) {
+				ioulia_dashboard_notice( array( 'tone' => 'error', 'text' => $made->get_error_message() ) );
+				return;
+			}
+
+			ioulia_dashboard_notice(
+				array(
+					'tone' => 'ok',
+					'text' => sprintf( 'Μπήκαν %d κρατήσεις στο %s. Ακύρωσε μία ή μια ολόκληρη μέρα για να δεις τα email.', $made, ioulia_dashboard_seed_email() ),
+				)
+			);
+			return;
+		}
+
+		if ( 'cancel_day' === $action ) {
+			if ( ! ioulia_dashboard_authed() ) {
+				return;
+			}
+
+			$date   = isset( $_POST['iwd_date'] ) ? sanitize_text_field( wp_unslash( $_POST['iwd_date'] ) ) : '';
+			$reason = isset( $_POST['iwd_reason'] ) ? sanitize_textarea_field( wp_unslash( $_POST['iwd_reason'] ) ) : '';
+			$done   = ioulia_cancel_day( $date, $reason );
+
+			if ( is_wp_error( $done ) ) {
+				ioulia_dashboard_notice( array( 'tone' => 'error', 'text' => $done->get_error_message() ) );
+				return;
+			}
+
+			ioulia_dashboard_notice(
+				array(
+					'tone' => 'ok',
+					'text' => 0 === $done
+						? 'Δεν υπήρχε ενεργή κράτηση εκείνη τη μέρα.'
+						: sprintf( 'Ακυρώθηκαν %d κρατήσεις. Ο καθένας πήρε email με την επόμενη διαθέσιμη ημερομηνία.', $done ),
+				)
+			);
+			return;
+		}
+
 		if ( 'programmes' === $action ) {
 			if ( ! ioulia_dashboard_authed() || ! function_exists( 'ioulia_programmes_handle_post' ) ) {
 				return;
@@ -523,6 +576,30 @@ if ( ! function_exists( 'ioulia_dashboard_calendar_words' ) ) {
  * Rendering
  * ---------------------------------------------------------------------- */
 
+if ( ! function_exists( 'ioulia_dashboard_demo_plan' ) ) {
+	/**
+	 * Days ahead, then who is on them. Written out rather than randomised so the
+	 * picture is the same every time it is looked at: a quiet start of the week,
+	 * a day that is full, and a couple in between.
+	 */
+	function ioulia_dashboard_demo_plan() {
+		return array(
+			array( 1, '11:00', 'Μαρία Παπαδοπούλου', 2, 'Είμαστε δύο, πρώτη φορά.' ),
+			array( 2, '18:00', 'Γιώργος Αντωνίου', 1, '' ),
+			array( 3, '11:00', 'Ελένη Κωνσταντίνου', 4, 'Παιδικά γενέθλια, αν γίνεται νωρίς.' ),
+			array( 3, '18:00', 'Νίκος Δ.', 2, '' ),
+			array( 5, '11:00', 'Άννα Βλάχου', 3, '' ),
+			array( 5, '11:00', 'Στέλιος Μ.', 2, '' ),
+			array( 5, '18:00', 'Ζωή Παπαδάκη', 3, 'Δώρο για την αδερφή μου.' ),
+			array( 5, '18:00', 'Κατερίνα Λ.', 5, '' ),
+			array( 6, '11:00', 'Θανάσης Ρ.', 1, '' ),
+			array( 8, '18:00', 'Δήμητρα Σ.', 2, 'Πρώτη φορά σε τροχό.' ),
+			array( 10, '11:00', 'Παύλος Γ.', 2, '' ),
+			array( 11, '11:00', 'Ιωάννα Κ.', 6, 'Ομάδα από τη δουλειά.' ),
+		);
+	}
+}
+
 if ( ! function_exists( 'ioulia_dashboard_is_demo' ) ) {
 	/**
 	 * /kratiseis/?demo=1 draws the page from invented bookings so the calendar
@@ -552,24 +629,7 @@ if ( ! function_exists( 'ioulia_dashboard_demo_bookings' ) ) {
 
 		$slugs = array_keys( $programmes );
 		$today = current_time( 'timestamp' );
-
-		/* Days ahead, then who is on them. Written out rather than randomised so
-		   the picture is the same every time it is looked at: an empty start of
-		   the week, a Saturday that is full, and a couple in between. */
-		$plan = array(
-			array( 1, '11:00', 'Μαρία Παπαδοπούλου', 2, 'Είμαστε δύο, πρώτη φορά.' ),
-			array( 2, '18:00', 'Γιώργος Αντωνίου', 1, '' ),
-			array( 3, '11:00', 'Ελένη Κωνσταντίνου', 4, 'Παιδικά γενέθλια, αν γίνεται νωρίς.' ),
-			array( 3, '18:00', 'Νίκος Δ.', 2, '' ),
-			array( 5, '11:00', 'Άννα Βλάχου', 3, '' ),
-			array( 5, '11:00', 'Στέλιος Μ.', 2, '' ),
-			array( 5, '18:00', 'Ζωή Παπαδάκη', 3, 'Δώρο για την αδερφή μου.' ),
-			array( 5, '18:00', 'Κατερίνα Λ.', 5, '' ),
-			array( 6, '11:00', 'Θανάσης Ρ.', 1, '' ),
-			array( 8, '18:00', 'Δήμητρα Σ.', 2, 'Πρώτη φορά σε τροχό.' ),
-			array( 10, '11:00', 'Παύλος Γ.', 2, '' ),
-			array( 11, '11:00', 'Ιωάννα Κ.', 6, 'Ομάδα από τη δουλειά.' ),
-		);
+		$plan  = ioulia_dashboard_demo_plan();
 
 		$bookings = array();
 		$id       = 900001;
@@ -602,6 +662,147 @@ if ( ! function_exists( 'ioulia_dashboard_demo_bookings' ) ) {
 		}
 
 		return $bookings;
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_seed_email' ) ) {
+	/**
+	 * Where a seeded booking's mail goes. One address, so the cancellation and
+	 * the day-called-off letters can be read as a customer receives them.
+	 */
+	function ioulia_dashboard_seed_email() {
+		$address = apply_filters( 'ioulia_dashboard_seed_email', 'dimitrisantoniou2000@gmail.com' );
+
+		return is_email( $address ) ? $address : get_option( 'admin_email' );
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_seed_bookings' ) ) {
+	/**
+	 * Write the sample week into the database as ordinary bookings.
+	 *
+	 * Ordinary is the point: they hold seats, they appear in the calendar, they
+	 * cancel, and cancelling them sends the same letters a real one would. The
+	 * only thing that marks them is a meta key nothing reads except the button
+	 * that removes them again - a way out, not a label.
+	 *
+	 * Creating them sends no mail. Twenty-four confirmations arriving at once
+	 * would bury the cancellation letters they exist to test.
+	 */
+	function ioulia_dashboard_seed_bookings() {
+		$programmes = ioulia_workshop_active_programmes();
+
+		if ( empty( $programmes ) ) {
+			return new WP_Error( 'ioulia_no_programmes', 'Δεν υπάρχει ενεργό πρόγραμμα.' );
+		}
+
+		$slugs = array_keys( $programmes );
+		$today = current_time( 'timestamp' );
+		$email = ioulia_dashboard_seed_email();
+		$made  = 0;
+
+		foreach ( ioulia_dashboard_demo_plan() as $index => $row ) {
+			list( $offset, $time, $name, $people, $note ) = $row;
+
+			$slug      = $slugs[ $index % count( $slugs ) ];
+			$programme = $programmes[ $slug ];
+			$date      = gmdate( 'Y-m-d', $today + ( (int) $offset * DAY_IN_SECONDS ) );
+			$starts    = $date . ' ' . $time . ':00';
+
+			/* The plan was written against no particular week, so a time on it
+			   may not be one this programme actually runs. Move to whatever the
+			   programme does run next - that keeps every seeded booking a real,
+			   bookable session rather than an hour that does not exist. */
+			$slot = ioulia_match_session( $programme, $starts );
+
+			if ( ! $slot ) {
+				$starts = ioulia_next_slot_for( $slug, $starts, $people );
+
+				if ( '' === $starts ) {
+					continue;
+				}
+
+				$slot = ioulia_match_session( $programme, $starts );
+			}
+
+			if ( ! $slot || ioulia_seats_left( $slug, $starts ) < $people ) {
+				continue;
+			}
+
+			$post_id = wp_insert_post(
+				array(
+					'post_type'   => IOULIA_BOOKING_TYPE,
+					'post_status' => 'private',
+					'post_title'  => sprintf( '%s — %s — %s', $name, $programme['title'], ioulia_format_session( $starts ) ),
+				),
+				true
+			);
+
+			if ( is_wp_error( $post_id ) ) {
+				continue;
+			}
+
+			$meta = array(
+				'_ioulia_programme'    => $slug,
+				'_ioulia_starts'       => $starts,
+				'_ioulia_ends'         => $slot['ends'],
+				'_ioulia_participants' => (int) $people,
+				'_ioulia_name'         => $name,
+				'_ioulia_email'        => $email,
+				'_ioulia_phone'        => '6940000000',
+				'_ioulia_note'         => $note,
+				'_ioulia_status'       => 'confirmed',
+				'_ioulia_consent_at'   => current_time( 'mysql', true ),
+				'_ioulia_cancel_token' => wp_generate_password( 32, false, false ),
+				'_ioulia_seeded'       => 1,
+			);
+
+			foreach ( $meta as $key => $value ) {
+				update_post_meta( $post_id, $key, $value );
+			}
+
+			$made++;
+		}
+
+		return $made;
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_unseed_bookings' ) ) {
+	function ioulia_dashboard_unseed_bookings() {
+		$ids = get_posts(
+			array(
+				'post_type'      => IOULIA_BOOKING_TYPE,
+				'post_status'    => 'any',
+				'posts_per_page' => 200,
+				'fields'         => 'ids',
+				'meta_key'       => '_ioulia_seeded',
+				'meta_value'     => '1',
+			)
+		);
+
+		foreach ( $ids as $id ) {
+			wp_delete_post( $id, true );
+		}
+
+		return count( $ids );
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_has_seeded' ) ) {
+	function ioulia_dashboard_has_seeded() {
+		$ids = get_posts(
+			array(
+				'post_type'      => IOULIA_BOOKING_TYPE,
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_key'       => '_ioulia_seeded',
+				'meta_value'     => '1',
+			)
+		);
+
+		return ! empty( $ids );
 	}
 }
 
@@ -704,7 +905,7 @@ if ( ! function_exists( 'ioulia_dashboard_card' ) ) {
 }
 
 if ( ! function_exists( 'ioulia_dashboard_list' ) ) {
-	function ioulia_dashboard_list( $bookings, $empty ) {
+	function ioulia_dashboard_list( $bookings, $empty, $can_cancel_day = false ) {
 		if ( empty( $bookings ) ) {
 			echo '<p class="iwd-empty">' . esc_html( $empty ) . '</p>';
 			return;
@@ -713,7 +914,27 @@ if ( ! function_exists( 'ioulia_dashboard_list' ) ) {
 		foreach ( ioulia_dashboard_group_by_day( $bookings ) as $date => $day ) {
 			?>
 			<section class="iwd-day" id="iwd-day-<?php echo esc_attr( $date ); ?>" data-iwd-day="<?php echo esc_attr( $date ); ?>">
-				<h2 class="iwd-day__label"><?php echo esc_html( ioulia_dashboard_day_label( $date ) ); ?></h2>
+				<div class="iwd-day__head">
+					<h2 class="iwd-day__label"><?php echo esc_html( ioulia_dashboard_day_label( $date ) ); ?></h2>
+					<?php if ( $can_cancel_day ) : ?>
+						<button type="button" class="iwd-link iwd-link--danger" data-iwd-day-cancel>Ακύρωση ημέρας</button>
+					<?php endif; ?>
+				</div>
+
+				<?php if ( $can_cancel_day ) : ?>
+					<form class="iwd-day__form" method="post" hidden>
+						<?php wp_nonce_field( 'ioulia_dashboard_cancel_day', 'iwd_nonce' ); ?>
+						<input type="hidden" name="iwd_action" value="cancel_day">
+						<input type="hidden" name="iwd_date" value="<?php echo esc_attr( $date ); ?>">
+						<label for="iwd-day-reason-<?php echo esc_attr( $date ); ?>">Τι να πούμε στον κόσμο;</label>
+						<textarea id="iwd-day-reason-<?php echo esc_attr( $date ); ?>" name="iwd_reason" rows="2" placeholder="π.χ. ο κλίβανος χάλασε και δεν προλαβαίνουμε"></textarea>
+						<p class="iwd-day__warn">Ακυρώνονται όλες οι κρατήσεις της ημέρας. Ο καθένας παίρνει email με την επόμενη διαθέσιμη ημερομηνία στην ίδια τιμή.</p>
+						<div class="iwd-cancel__buttons">
+							<button type="button" class="ioulia-btn ioulia-btn--outline ioulia-btn--sm" data-iwd-day-abort>Πίσω</button>
+							<button type="submit" class="ioulia-btn ioulia-btn--sm">Ακύρωση ημέρας και email</button>
+						</div>
+					</form>
+				<?php endif; ?>
 				<?php foreach ( $day as $booking ) : ?>
 					<?php ioulia_dashboard_card( $booking ); ?>
 				<?php endforeach; ?>
@@ -796,7 +1017,7 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 			</nav>
 
 			<div class="iwd-panel" data-iwd-panel="upcoming">
-				<?php ioulia_dashboard_list( $upcoming, 'Καμία επόμενη κράτηση.' ); ?>
+				<?php ioulia_dashboard_list( $upcoming, 'Καμία επόμενη κράτηση.', ! $demo ); ?>
 			</div>
 			<div class="iwd-panel" data-iwd-panel="calendar" hidden>
 				<div class="iwd-cal" data-iwd-calendar></div>
@@ -835,6 +1056,18 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 						<button class="ioulia-btn" type="submit">Αποθήκευση</button>
 					</form>
 				</details>
+
+				<form method="post" class="iwd-seed">
+					<?php if ( ioulia_dashboard_has_seeded() ) : ?>
+						<?php wp_nonce_field( 'ioulia_dashboard_unseed', 'iwd_nonce' ); ?>
+						<input type="hidden" name="iwd_action" value="unseed">
+						<button type="submit" class="iwd-link">Αφαίρεση δοκιμαστικών</button>
+					<?php else : ?>
+						<?php wp_nonce_field( 'ioulia_dashboard_seed', 'iwd_nonce' ); ?>
+						<input type="hidden" name="iwd_action" value="seed">
+						<button type="submit" class="iwd-link">Δοκιμαστικές κρατήσεις</button>
+					<?php endif; ?>
+				</form>
 
 				<form method="post" class="iwd-signout">
 					<?php wp_nonce_field( 'ioulia_dashboard_signout', 'iwd_nonce' ); ?>
@@ -991,6 +1224,38 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 	/* --- Days and cards -------------------------------------------------- */
 
 	.iwd-day { margin-bottom: clamp(2rem, 5vh, 3rem); }
+
+	.iwd-day__head {
+		display: flex;
+		margin-bottom: .85rem;
+		gap: 1rem;
+		align-items: baseline;
+		justify-content: space-between;
+	}
+	.iwd-day__head .iwd-day__label { margin: 0; }
+
+	.iwd-day__form {
+		margin: 0 0 .85rem;
+		padding: clamp(1rem, 2.5vw, 1.35rem);
+		border: 1px solid var(--iwd-line);
+		border-radius: 18px;
+		background: rgba(255, 255, 255, .55);
+	}
+	.iwd-day__form[hidden] { display: none; }
+	.iwd-day__form label {
+		display: block;
+		margin-bottom: .45rem;
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+	}
+	.iwd-day__warn {
+		margin: .8rem 0 0;
+		color: var(--iwd-danger);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+		line-height: 1.5;
+	}
 
 	.iwd-day__label {
 		margin: 0 0 .85rem;
@@ -1804,6 +2069,20 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 			if (label) { label.textContent = event.target.value || 'Νέο πρόγραμμα'; }
 		});
 	}
+
+	/* Calling off a whole day */
+	root.addEventListener('click', function (event) {
+		if (event.target.hasAttribute('data-iwd-day-cancel')) {
+			var open = event.target.closest('.iwd-day').querySelector('.iwd-day__form');
+			open.hidden = false;
+			open.querySelector('textarea').focus();
+			return;
+		}
+
+		if (event.target.hasAttribute('data-iwd-day-abort')) {
+			event.target.closest('.iwd-day__form').hidden = true;
+		}
+	});
 
 	/* Cancelling */
 	root.addEventListener('click', function (event) {
