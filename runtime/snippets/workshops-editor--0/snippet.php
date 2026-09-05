@@ -172,7 +172,7 @@ if ( ! function_exists( 'ioulia_programmes_panel' ) ) {
 				echo ioulia_editor_programme( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built above.
 					'__i__',
 					'',
-					ioulia_workshop_shape( array( 'active' => true, 'capacity' => 8, 'price' => 25 ) ),
+					ioulia_workshop_shape( array( 'active' => true, 'capacity' => 12, 'price' => 25 ) ),
 					true
 				);
 				?>
