@@ -185,6 +185,49 @@ if ( ! function_exists( 'ioulia_smtp_configure' ) ) {
 	add_action( 'phpmailer_init', 'ioulia_smtp_configure' );
 }
 
+if ( ! function_exists( 'ioulia_mail_alt_body' ) ) {
+	/**
+	 * A message sent as HTML only is worth fewer points to every spam filter
+	 * that looks at it, and is unreadable in a client that shows text. PHPMailer
+	 * sends both parts if it is given both; wp_mail never sets the second one,
+	 * so it is derived here from the first.
+	 *
+	 * Its own hook rather than a few lines inside the SMTP one, because this
+	 * matters whether or not SMTP is configured - and it covers WooCommerce's
+	 * order mail too, which is HTML and was going out with no text part at all.
+	 */
+	function ioulia_mail_alt_body( $mailer ) {
+		if ( 'text/html' !== strtolower( (string) $mailer->ContentType ) ) {
+			return;
+		}
+		if ( '' !== trim( (string) $mailer->AltBody ) ) {
+			return;
+		}
+
+		/* A link is the point of some of these messages. Stripping the tag would
+		   leave the label with nothing behind it, so the address comes with it. */
+		$text = preg_replace(
+			'#<a[^>]+href=["' . chr( 39 ) . ']([^"' . chr( 39 ) . ']+)["' . chr( 39 ) . '][^>]*>(.*?)</a>#is',
+			'$2: $1',
+			(string) $mailer->Body
+		);
+		$text = preg_replace( '#<br[^>]*>#i', chr( 10 ), $text );
+		$text = preg_replace( '#</(p|h1|h2|h3|tr|div)>#i', chr( 10 ), $text );
+		$text = preg_replace( '#</t[dh]>#i', '  ', $text );
+		$text = wp_strip_all_tags( $text );
+		$text = html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
+
+		/* Collapse what the tags left behind: runs of spaces, then runs of
+		   blank lines. */
+		$text = preg_replace( '#[ ' . chr( 9 ) . ']+#', ' ', $text );
+		$text = preg_replace( '#(' . chr( 10 ) . '[ ]*){3,}#', chr( 10 ) . chr( 10 ), $text );
+
+		$mailer->AltBody = trim( (string) $text );
+	}
+
+	add_action( 'phpmailer_init', 'ioulia_mail_alt_body', 20 );
+}
+
 if ( ! function_exists( 'ioulia_smtp_log_failure' ) ) {
 	/**
 	 * A failed order email is silent otherwise: WooCommerce completes the order

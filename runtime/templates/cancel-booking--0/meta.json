@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_theme_template",
+    "title": "Cancel Booking",
+    "slug": "cancel-booking-page",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "page",
+        "include": "cancel-booking",
+        "priority": 20
+    }
+}

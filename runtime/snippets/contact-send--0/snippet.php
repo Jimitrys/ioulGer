@@ -10,6 +10,9 @@
  * the sender, and that is the whole record of it — the least this site can
  * hold and still answer someone.
  *
+ * Requires the "mail design" snippet, which builds the HTML these two messages
+ * are sent as.
+ *
  * No backslashes anywhere in this file: Site Studio unslashes snippet code on
  * import, so chr( 10 ) stands in for a newline. See CONVENTIONS.md.
  */
@@ -127,48 +130,66 @@ if ( ! function_exists( 'ioulia_contact_send' ) ) {
 			wp_send_json_error( array( 'message' => 'incomplete' ), 400 );
 		}
 
-		$lines = array( $custom ? 'Αίτημα για κεραμικό κατά παραγγελία' : 'Γενική ερώτηση', '' );
+		/* What the visitor chose in the steps before the message itself. Empty
+		   answers are left out rather than printed as a dash. */
+		$answers = array();
 
 		if ( $custom ) {
 			$category = ioulia_contact_field( 'piece_category' );
 
 			if ( isset( $labels[ $category ] ) ) {
-				$lines[] = 'Κεραμικό: ' . $labels[ $category ];
+				$answers['Κεραμικό'] = $labels[ $category ];
 			}
 
 			$size = ioulia_contact_field( 'piece_size_label' );
 
 			if ( '' !== $size ) {
-				$lines[] = 'Μέγεθος: ' . $size;
+				$answers['Μέγεθος'] = $size;
 			}
 
 			$finish = ioulia_contact_field( 'color_finish' );
 
 			if ( '' !== $finish ) {
-				$lines[] = 'Υάλωμα: ' . $finish;
+				$answers['Υάλωμα'] = $finish;
 			}
 		} else {
 			$topic = ioulia_contact_field( 'inquiry_topic' );
 
 			if ( isset( $labels[ $topic ] ) ) {
-				$lines[] = 'Θέμα: ' . $labels[ $topic ];
+				$answers['Θέμα'] = $labels[ $topic ];
 			}
 		}
 
-		$lines[] = '';
-		$lines[] = $message;
-		$lines[] = '';
-		$lines[] = 'Από: ' . $name;
-		$lines[] = 'Email: ' . $email;
-
-		if ( '' !== $phone ) {
-			$lines[] = 'Τηλέφωνο: ' . $phone;
-		}
-
-		$headers = array( 'Content-Type: text/plain; charset=UTF-8', 'Reply-To: ' . $name . ' <' . $email . '>' );
 		$subject = ( $custom ? 'Παραγγελία κεραμικού από ' : 'Μήνυμα από ' ) . $name;
 
-		$delivered = wp_mail( ioulia_contact_notify_to(), $subject, implode( chr( 10 ), $lines ), $headers );
+		$rows = array_merge(
+			$answers,
+			array(
+				'Όνομα'    => $name,
+				'Email'    => $email,
+				'Τηλέφωνο' => '' !== $phone ? $phone : '—',
+			)
+		);
+
+		$html = ioulia_email_html(
+			array(
+				'eyebrow'  => $custom ? 'Παραγγελία κεραμικού' : 'Μήνυμα από τη φόρμα',
+				'title'    => $name . ' έγραψε.',
+				'quote'    => $message,
+				'rows'     => $rows,
+				'buttons'  => array(
+					array( 'label' => 'Απάντηση', 'url' => 'mailto:' . $email ),
+				),
+				'footnote' => 'Απαντώντας σε αυτό το email πηγαίνει κατευθείαν σε αυτόν που το έστειλε.',
+			)
+		);
+
+		$delivered = ioulia_send_html_mail(
+			ioulia_contact_notify_to(),
+			$subject,
+			$html,
+			$email
+		);
 
 		if ( ! $delivered ) {
 			wp_send_json_error( array( 'message' => 'mail failed' ), 500 );
@@ -180,33 +201,38 @@ if ( ! function_exists( 'ioulia_contact_send' ) ) {
 		   they were on when they wrote. */
 		$english = 'en' === ioulia_contact_field( 'lang' );
 
-		$reply = $english
-			? array(
-				'Thank you for getting in touch.',
-				'',
-				'Your message has reached the studio and Ioulia will answer it personally. A copy of what you sent is below.',
-			)
-			: array(
-				'Ευχαριστούμε που επικοινώνησες.',
-				'',
-				'Το μήνυμά σου έφτασε στο εργαστήριο και η Ιουλία θα σου απαντήσει προσωπικά. Πιο κάτω είναι ένα αντίγραφο.',
-			);
+		$intro = $english
+			? 'Your message has reached the studio and Ioulia will answer it personally. A copy of what you sent is below.'
+			: 'Το μήνυμά σου έφτασε στο εργαστήριο και η Ιουλία θα σου απαντήσει προσωπικά. Πιο κάτω είναι ένα αντίγραφο.';
 
-		$reply[] = '';
-		$reply[] = '---';
-		$reply[] = '';
-		$reply[] = $message;
-		$reply[] = '';
-		$reply[] = '---';
-		$reply[] = '';
-		$reply[] = 'Ioulia Geraskli Ceramics';
-		$reply[] = home_url( '/' );
+		/* The sender wrote from one side of the site and should be sent back to
+		   the same one. ioulia_url() unprefixes before it prefixes, so it cannot
+		   produce /en/en/shop/ however it is called. */
+		$shop = function_exists( 'ioulia_url' )
+			? ioulia_url( '/shop/', $english ? 'en' : 'el' )
+			: home_url( '/shop/' );
 
-		wp_mail(
+		ioulia_send_html_mail(
 			$email,
 			$english ? 'We received your message' : 'Λάβαμε το μήνυμά σου',
-			implode( chr( 10 ), $reply ),
-			array( 'Content-Type: text/plain; charset=UTF-8', 'Reply-To: ' . ioulia_contact_studio_email() )
+			ioulia_email_html(
+				array(
+					'eyebrow'  => $english ? 'Message received' : 'Το μήνυμά σου έφτασε',
+					'title'    => $english ? 'Thank you for writing.' : 'Ευχαριστούμε που επικοινώνησες.',
+					'intro'    => array( $intro ),
+					'quote'    => $message,
+					'buttons'  => array(
+						array(
+							'label' => $english ? 'See the pieces' : 'Δες τα κεραμικά',
+							'url'   => $shop,
+						),
+					),
+					'footnote' => $english
+						? 'This is a copy of what you sent. There is nothing you need to do.'
+						: 'Αυτό είναι ένα αντίγραφο του μηνύματός σου. Δεν χρειάζεται να κάνεις κάτι.',
+				)
+			),
+			ioulia_contact_studio_email()
 		);
 
 		wp_send_json_success( array( 'ok' => true ) );

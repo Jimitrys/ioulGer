@@ -20,7 +20,8 @@
  * automatically once the session is far enough in the past, per the retention
  * setting in the workshops data snippet.
  *
- * Requires the "workshops data" snippet.
+ * Requires the "workshops data" snippet, and the "mail design" snippet for the
+ * look of the four messages it sends.
  * No backslashes anywhere: Site Studio strips one level on import.
  */
 
@@ -97,6 +98,7 @@ if ( ! function_exists( 'ioulia_booking_fields' ) ) {
 			'note'            => (string) get_post_meta( $post->ID, '_ioulia_note', true ),
 			'status'          => (string) get_post_meta( $post->ID, '_ioulia_status', true ),
 			'consent_at'      => (string) get_post_meta( $post->ID, '_ioulia_consent_at', true ),
+			'cancel_token'    => (string) get_post_meta( $post->ID, '_ioulia_cancel_token', true ),
 			'created'         => $post->post_date,
 		);
 	}
@@ -304,6 +306,9 @@ if ( ! function_exists( 'ioulia_create_booking' ) ) {
 			'_ioulia_note'         => $note,
 			'_ioulia_status'       => 'confirmed',
 			'_ioulia_consent_at'   => current_time( 'mysql', true ),
+			/* What lets someone cancel from the link in their email without an
+			   account. It is per booking and it is the only secret in the URL. */
+			'_ioulia_cancel_token' => wp_generate_password( 32, false, false ),
 		);
 
 		foreach ( $meta as $key => $value ) {
@@ -359,11 +364,64 @@ if ( ! function_exists( 'ioulia_booking_earliest_start' ) ) {
  * Cancelling
  * ---------------------------------------------------------------------- */
 
+if ( ! function_exists( 'ioulia_booking_cancel_token' ) ) {
+	/**
+	 * Bookings made before this existed have no token. One is minted the first
+	 * time it is asked for, so an old booking still gets a working link.
+	 */
+	function ioulia_booking_cancel_token( $post_id ) {
+		$token = (string) get_post_meta( $post_id, '_ioulia_cancel_token', true );
+
+		if ( '' === $token ) {
+			$token = wp_generate_password( 32, false, false );
+			update_post_meta( $post_id, '_ioulia_cancel_token', $token );
+		}
+
+		return $token;
+	}
+}
+
+if ( ! function_exists( 'ioulia_booking_cancel_url' ) ) {
+	/**
+	 * Where the button in the email goes. Not to the cancellation itself: mail
+	 * providers open every link in a message to scan it, so a URL that cancels
+	 * on sight would cancel bookings nobody touched. This opens a page that
+	 * shows the booking and asks.
+	 */
+	function ioulia_booking_cancel_url( $booking ) {
+		return add_query_arg(
+			array(
+				'b' => (int) $booking['id'],
+				't' => ioulia_booking_cancel_token( $booking['id'] ),
+			),
+			home_url( '/cancel-booking/' )
+		);
+	}
+}
+
+if ( ! function_exists( 'ioulia_booking_by_token' ) ) {
+	function ioulia_booking_by_token( $post_id, $token ) {
+		$booking = ioulia_booking_fields( $post_id );
+
+		if ( ! $booking || '' === $token ) {
+			return null;
+		}
+
+		$expected = (string) get_post_meta( $post_id, '_ioulia_cancel_token', true );
+
+		if ( '' === $expected || ! hash_equals( $expected, (string) $token ) ) {
+			return null;
+		}
+
+		return $booking;
+	}
+}
+
 if ( ! function_exists( 'ioulia_cancel_booking' ) ) {
 	/**
 	 * Cancel a booking and tell the visitor. The seat is released immediately.
 	 */
-	function ioulia_cancel_booking( $post_id, $reason = '' ) {
+	function ioulia_cancel_booking( $post_id, $reason = '', $by = 'studio' ) {
 		$booking = ioulia_booking_fields( $post_id );
 
 		if ( ! $booking ) {
@@ -376,10 +434,16 @@ if ( ! function_exists( 'ioulia_cancel_booking' ) ) {
 
 		update_post_meta( $post_id, '_ioulia_status', 'cancelled' );
 		update_post_meta( $post_id, '_ioulia_cancelled_at', current_time( 'mysql', true ) );
+		update_post_meta( $post_id, '_ioulia_cancelled_by', 'visitor' === $by ? 'visitor' : 'studio' );
+
+		/* The link is spent. Following it again reaches a page that says the
+		   booking is already cancelled rather than one that offers to do it. */
+		delete_post_meta( $post_id, '_ioulia_cancel_token' );
 
 		$booking['status'] = 'cancelled';
 
-		ioulia_email_visitor_cancellation( $booking, sanitize_textarea_field( $reason ) );
+		ioulia_email_visitor_cancellation( $booking, sanitize_textarea_field( $reason ), $by );
+		ioulia_email_studio_cancellation( $booking, sanitize_textarea_field( $reason ), $by );
 
 		return $booking;
 	}
@@ -488,40 +552,71 @@ if ( ! function_exists( 'ioulia_mail' ) ) {
 	}
 }
 
-if ( ! function_exists( 'ioulia_booking_summary_lines' ) ) {
-	function ioulia_booking_summary_lines( $booking ) {
-		$lines = array(
-			'Πρόγραμμα: ' . $booking['programme_title'],
-			'Ημερομηνία: ' . ioulia_format_session( $booking['starts'] ),
-			'Άτομα: ' . $booking['participants'],
+if ( ! function_exists( 'ioulia_dashboard_url' ) ) {
+	/**
+	 * Ioulia never opens wp-admin - her bookings are a front-end page. The
+	 * constant belongs to the dashboard snippet, so this falls back rather than
+	 * requiring it.
+	 */
+	function ioulia_dashboard_url() {
+		$slug = defined( 'IOULIA_DASHBOARD_SLUG' ) ? IOULIA_DASHBOARD_SLUG : 'kratiseis';
+
+		return home_url( '/' . $slug . '/' );
+	}
+}
+
+if ( ! function_exists( 'ioulia_booking_rows' ) ) {
+	/**
+	 * The facts of a booking, in the order they answer "what did I book".
+	 */
+	function ioulia_booking_rows( $booking ) {
+		$rows = array(
+			'Πρόγραμμα'  => $booking['programme_title'],
+			'Ημερομηνία' => ioulia_format_session( $booking['starts'] ),
+			'Άτομα'      => (string) $booking['participants'],
 		);
 
 		if ( '' !== $booking['note'] ) {
-			$lines[] = 'Σημείωση: ' . $booking['note'];
+			$rows['Σημείωση'] = $booking['note'];
 		}
 
-		return $lines;
+		return $rows;
+	}
+}
+
+if ( ! function_exists( 'ioulia_booking_studio_rows' ) ) {
+	function ioulia_booking_studio_rows( $booking ) {
+		return array_merge(
+			ioulia_booking_rows( $booking ),
+			array(
+				'Όνομα'    => $booking['name'],
+				'Email'    => $booking['email'],
+				'Τηλέφωνο' => '' !== $booking['phone'] ? $booking['phone'] : '—',
+			)
+		);
 	}
 }
 
 if ( ! function_exists( 'ioulia_email_studio_new_booking' ) ) {
 	function ioulia_email_studio_new_booking( $booking ) {
-		$lines = array_merge(
-			array( 'Νέα κράτηση.', '' ),
-			ioulia_booking_summary_lines( $booking ),
+		$html = ioulia_email_html(
 			array(
-				'',
-				'Στοιχεία επικοινωνίας',
-				'Όνομα: ' . $booking['name'],
-				'Email: ' . $booking['email'],
-				'Τηλέφωνο: ' . ( '' !== $booking['phone'] ? $booking['phone'] : '—' ),
+				'eyebrow'  => 'Νέα κράτηση',
+				'title'    => $booking['name'] . ' κράτησε μια θέση.',
+				'intro'    => array( 'Η θέση είναι ήδη πιασμένη. Δεν χρειάζεται να εγκρίνεις τίποτα.' ),
+				'rows'     => ioulia_booking_studio_rows( $booking ),
+				'buttons'  => array(
+					array( 'label' => 'Άνοιγμα κρατήσεων', 'url' => ioulia_dashboard_url() ),
+					array( 'label' => 'Ακύρωση κράτησης', 'url' => ioulia_booking_cancel_url( $booking ), 'variant' => 'outline' ),
+				),
+				'footnote' => 'Η ακύρωση ζητά επιβεβαίωση πριν γίνει, και ειδοποιεί τον πελάτη.',
 			)
 		);
 
-		ioulia_mail(
+		ioulia_send_html_mail(
 			ioulia_studio_email(),
 			sprintf( 'Κράτηση: %s — %s', $booking['programme_title'], ioulia_format_session( $booking['starts'] ) ),
-			$lines,
+			$html,
 			$booking['email']
 		);
 	}
@@ -529,54 +624,90 @@ if ( ! function_exists( 'ioulia_email_studio_new_booking' ) ) {
 
 if ( ! function_exists( 'ioulia_email_visitor_confirmation' ) ) {
 	function ioulia_email_visitor_confirmation( $booking ) {
-		$lines = array_merge(
-			array( 'Γεια σου ' . $booking['name'] . ',', '', 'Η θέση σου κρατήθηκε.', '' ),
-			ioulia_booking_summary_lines( $booking ),
+		$html = ioulia_email_html(
 			array(
-				'',
-				'Θα σε περιμένουμε στο εργαστήριο:',
-				'Προμπονά 42, Άνω Πατήσια, 111 43 Αθήνα',
-				'',
-				'Αν χρειαστεί να αλλάξεις ή να ακυρώσεις, απάντησε σε αυτό το email.',
-				'',
-				'Ioulia Geraskli Ceramic Lab',
+				'eyebrow'  => 'Κράτηση εργαστηρίου',
+				'title'    => 'Η θέση σου κρατήθηκε.',
+				'intro'    => array(
+					'Γεια σου ' . $booking['name'] . ', σε περιμένουμε.',
+					'Το εργαστήριο είναι στην Προμπονά 42, Άνω Πατήσια, 111 43 Αθήνα. Έλα λίγα λεπτά νωρίτερα και φόρα κάτι που δεν σε πειράζει να λερωθεί.',
+				),
+				'rows'     => ioulia_booking_rows( $booking ),
+				'buttons'  => array(
+					array( 'label' => 'Ακύρωση κράτησης', 'url' => ioulia_booking_cancel_url( $booking ), 'variant' => 'outline' ),
+				),
+				'footnote' => 'Αν θέλεις απλώς να αλλάξεις ημέρα, απάντησε σε αυτό το email και το κανονίζουμε.',
 			)
 		);
 
-		ioulia_mail(
+		ioulia_send_html_mail(
 			$booking['email'],
 			'Η κράτησή σου — ' . $booking['programme_title'],
-			$lines,
+			$html,
 			ioulia_booking_reply_to()
 		);
 	}
 }
 
 if ( ! function_exists( 'ioulia_email_visitor_cancellation' ) ) {
-	function ioulia_email_visitor_cancellation( $booking, $reason = '' ) {
-		$lines = array( 'Γεια σου ' . $booking['name'] . ',', '', 'Η κράτησή σου ακυρώθηκε.', '' );
-		$lines = array_merge( $lines, ioulia_booking_summary_lines( $booking ) );
+	function ioulia_email_visitor_cancellation( $booking, $reason = '', $by = 'studio' ) {
+		$intro = 'visitor' === $by
+			? array( 'Γεια σου ' . $booking['name'] . ', ακυρώσαμε την κράτησή σου όπως ζήτησες. Η θέση ελευθερώθηκε.' )
+			: array( 'Γεια σου ' . $booking['name'] . ', λυπόμαστε αλλά χρειάστηκε να ακυρώσουμε αυτή την κράτηση.' );
 
-		if ( '' !== $reason ) {
-			$lines[] = '';
-			$lines[] = $reason;
-		}
-
-		$lines = array_merge(
-			$lines,
+		$html = ioulia_email_html(
 			array(
-				'',
-				'Αν θέλεις να κλείσεις άλλη ημέρα, απάντησε σε αυτό το email και το κανονίζουμε.',
-				'',
-				'Ioulia Geraskli Ceramic Lab',
+				'eyebrow'  => 'Ακύρωση κράτησης',
+				'title'    => 'Η κράτηση ακυρώθηκε.',
+				'intro'    => $intro,
+				'rows'     => ioulia_booking_rows( $booking ),
+				'quote'    => $reason,
+				'buttons'  => array(
+					array( 'label' => 'Κλείσε άλλη ημέρα', 'url' => home_url( '/book-workshop/' ) ),
+				),
+				'footnote' => 'Αν πλήρωσες ήδη, επικοινώνησε μαζί μας και το τακτοποιούμε.',
 			)
 		);
 
-		ioulia_mail(
+		ioulia_send_html_mail(
 			$booking['email'],
 			'Ακύρωση κράτησης — ' . $booking['programme_title'],
-			$lines,
+			$html,
 			ioulia_booking_reply_to()
+		);
+	}
+}
+
+if ( ! function_exists( 'ioulia_email_studio_cancellation' ) ) {
+	/**
+	 * The studio has to hear about a cancellation the visitor made themselves,
+	 * or a seat quietly frees up and nobody knows.
+	 */
+	function ioulia_email_studio_cancellation( $booking, $reason = '', $by = 'studio' ) {
+		$visitor = 'visitor' === $by;
+
+		$html = ioulia_email_html(
+			array(
+				'eyebrow'  => 'Ακύρωση κράτησης',
+				'title'    => $visitor
+					? $booking['name'] . ' ακύρωσε την κράτηση.'
+					: 'Η κράτηση του ' . $booking['name'] . ' ακυρώθηκε.',
+				'intro'    => array( $visitor
+					? 'Έγινε από τον σύνδεσμο στο email της κράτησης. Η θέση είναι ξανά ελεύθερη.'
+					: 'Ακυρώθηκε από το εργαστήριο. Ο πελάτης ειδοποιήθηκε.' ),
+				'rows'     => ioulia_booking_studio_rows( $booking ),
+				'quote'    => $reason,
+				'buttons'  => array(
+					array( 'label' => 'Άνοιγμα κρατήσεων', 'url' => ioulia_dashboard_url() ),
+				),
+			)
+		);
+
+		ioulia_send_html_mail(
+			ioulia_studio_email(),
+			sprintf( 'Ακυρώθηκε: %s — %s', $booking['programme_title'], ioulia_format_session( $booking['starts'] ) ),
+			$html,
+			$booking['email']
 		);
 	}
 }
@@ -792,5 +923,161 @@ if ( ! function_exists( 'ioulia_availability' ) ) {
 		}
 
 		return $out;
+	}
+}
+
+/* -------------------------------------------------------------------------
+ * The cancellation page
+ *
+ * Reached from the button in either email. It shows the booking and asks; the
+ * cancellation itself happens on a POST, never on the GET that opened it,
+ * because mail providers fetch every link in a message to scan it and a URL
+ * that cancels on sight would cancel bookings nobody touched.
+ * ---------------------------------------------------------------------- */
+
+if ( ! defined( 'IOULIA_CANCEL_SLUG' ) ) {
+	define( 'IOULIA_CANCEL_SLUG', 'cancel-booking' );
+}
+
+if ( ! function_exists( 'ioulia_ensure_cancel_page' ) ) {
+	/**
+	 * Created once, in the admin. Site Studio's importer makes canvases,
+	 * templates and snippets but never pages, so a page a link points at has to
+	 * be made here. Deleting it in WordPress keeps it deleted.
+	 */
+	function ioulia_ensure_cancel_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		if ( get_option( 'ioulia_cancel_page_created' ) ) {
+			return;
+		}
+
+		if ( ! get_page_by_path( IOULIA_CANCEL_SLUG, OBJECT, 'page' ) ) {
+			wp_insert_post(
+				array(
+					'post_type'      => 'page',
+					'post_name'      => IOULIA_CANCEL_SLUG,
+					'post_title'     => 'Ακύρωση κράτησης',
+					'post_status'    => 'publish',
+					'post_content'   => '',
+					'comment_status' => 'closed',
+					'ping_status'    => 'closed',
+				)
+			);
+		}
+
+		update_option( 'ioulia_cancel_page_created', 1, false );
+	}
+
+	add_action( 'admin_init', 'ioulia_ensure_cancel_page' );
+}
+
+if ( ! function_exists( 'ioulia_cancel_page_noindex' ) ) {
+	/**
+	 * Nothing here is worth indexing, and every URL that reaches it carries a
+	 * token belonging to one person.
+	 */
+	function ioulia_cancel_page_noindex() {
+		if ( is_page( IOULIA_CANCEL_SLUG ) ) {
+			echo '<meta name="robots" content="noindex, nofollow">';
+		}
+	}
+
+	add_action( 'wp_head', 'ioulia_cancel_page_noindex', 1 );
+}
+
+if ( ! function_exists( 'ioulia_cancel_page_render' ) ) {
+	function ioulia_cancel_page_render() {
+		$id    = isset( $_REQUEST['b'] ) ? absint( $_REQUEST['b'] ) : 0;
+		$token = isset( $_REQUEST['t'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['t'] ) ) : '';
+
+		$booking = $id ? ioulia_booking_fields( $id ) : null;
+
+		if ( ! $booking ) {
+			return ioulia_cancel_page_message(
+				'Δεν βρήκαμε αυτή την κράτηση',
+				'Ο σύνδεσμος μπορεί να έχει λήξει ή να αντιγράφηκε μισός. Γράψε μας και το κοιτάμε.'
+			);
+		}
+
+		if ( 'cancelled' === $booking['status'] ) {
+			return ioulia_cancel_page_message(
+				'Η κράτηση είναι ήδη ακυρωμένη',
+				'Δεν χρειάζεται να κάνεις κάτι άλλο. Η θέση είναι ελεύθερη.'
+			);
+		}
+
+		if ( ! ioulia_booking_by_token( $id, $token ) ) {
+			return ioulia_cancel_page_message(
+				'Ο σύνδεσμος δεν ισχύει',
+				'Άνοιξε τον ξανά από το email της κράτησης, ή γράψε μας και ακυρώνουμε εμείς.'
+			);
+		}
+
+		/* The POST is the actual decision. Its nonce is bound to the booking, so
+		   a form for one booking cannot be replayed against another. */
+		$submitted = isset( $_POST['ioulia_cancel_confirm'] );
+		$nonce     = isset( $_POST['ioulia_cancel_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['ioulia_cancel_nonce'] ) ) : '';
+
+		/* wp_verify_nonce rather than check_admin_referer: this is a visitor on
+		   the front end, and a failed check should say so on the page instead of
+		   dropping them onto a WordPress error screen. */
+		if ( $submitted && ! wp_verify_nonce( $nonce, 'ioulia_cancel_' . $id ) ) {
+			return ioulia_cancel_page_message(
+				'Η σελίδα έληξε',
+				'Άνοιξε ξανά τον σύνδεσμο από το email σου και δοκίμασε άλλη μία φορά.'
+			);
+		}
+
+		if ( $submitted ) {
+			$reason    = isset( $_POST['ioulia_cancel_reason'] ) ? sanitize_textarea_field( wp_unslash( $_POST['ioulia_cancel_reason'] ) ) : '';
+			$cancelled = ioulia_cancel_booking( $id, $reason, 'visitor' );
+
+			if ( is_wp_error( $cancelled ) ) {
+				return ioulia_cancel_page_message( 'Κάτι πήγε στραβά', $cancelled->get_error_message() );
+			}
+
+			return ioulia_cancel_page_message(
+				'Η κράτηση ακυρώθηκε',
+				'Σου στείλαμε επιβεβαίωση με email. Η θέση ελευθερώθηκε και το εργαστήριο ενημερώθηκε.'
+			);
+		}
+
+		$rows = '';
+		foreach ( ioulia_booking_rows( $booking ) as $label => $value ) {
+			$rows .= '<div class="icp__row"><span>' . esc_html( $label ) . '</span><strong>' . esc_html( $value ) . '</strong></div>';
+		}
+
+		$out  = '<div class="icp">';
+		$out .= '<p class="icp__eyebrow">Ακύρωση κράτησης</p>';
+		$out .= '<h1 class="icp__title">Να ακυρώσουμε αυτή την κράτηση;</h1>';
+		$out .= '<p class="icp__lede">Η θέση θα ελευθερωθεί αμέσως και δεν μπορεί να επιστραφεί με τον ίδιο σύνδεσμο.</p>';
+		$out .= '<div class="icp__rows">' . $rows . '</div>';
+		$out .= '<form method="post" class="icp__form">';
+		$out .= wp_nonce_field( 'ioulia_cancel_' . $id, 'ioulia_cancel_nonce', true, false );
+		$out .= '<input type="hidden" name="b" value="' . esc_attr( (string) $id ) . '">';
+		$out .= '<input type="hidden" name="t" value="' . esc_attr( $token ) . '">';
+		$out .= '<label class="icp__label" for="ioulia-cancel-reason">Θέλεις να μας πεις γιατί; (προαιρετικό)</label>';
+		$out .= '<textarea class="icp__textarea" id="ioulia-cancel-reason" name="ioulia_cancel_reason" rows="3"></textarea>';
+		$out .= '<div class="icp__actions">';
+		$out .= '<button class="ioulia-btn" type="submit" name="ioulia_cancel_confirm" value="1">Ναι, ακύρωσέ την</button>';
+		$out .= '<a class="icp__back" href="' . esc_url( home_url( '/workshops/' ) ) . '">Όχι, κράτα την</a>';
+		$out .= '</div></form></div>';
+
+		return $out;
+	}
+
+	add_shortcode( 'ioulia_cancel_booking', 'ioulia_cancel_page_render' );
+}
+
+if ( ! function_exists( 'ioulia_cancel_page_message' ) ) {
+	function ioulia_cancel_page_message( $title, $text ) {
+		return '<div class="icp icp--message">'
+			. '<p class="icp__eyebrow">Ακύρωση κράτησης</p>'
+			. '<h1 class="icp__title">' . esc_html( $title ) . '</h1>'
+			. '<p class="icp__lede">' . esc_html( $text ) . '</p>'
+			. '<div class="icp__actions"><a class="ioulia-btn" href="' . esc_url( home_url( '/workshops/' ) ) . '">Τα εργαστήρια</a></div>'
+			. '</div>';
 	}
 }

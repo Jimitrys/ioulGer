@@ -1,0 +1,131 @@
+/* The page the cancel button in a booking email opens.
+
+   One question, the booking it concerns, and two answers. The shortcode in the
+   workshop bookings snippet prints the content; this is the room around it. */
+
+.icp-page {
+  display: grid;
+  width: 100%;
+  min-height: 100svh;
+  padding:
+    calc(var(--ioulia-header-h, 176px) + clamp(2rem, 6vh, 4rem))
+    var(--ioulia-page-x)
+    clamp(4rem, 12vh, 8rem);
+  background: var(--ioulia-paper);
+  color: var(--ioulia-ink);
+  place-items: center;
+}
+
+.icp {
+  width: 100%;
+  max-width: 520px;
+}
+
+.icp__eyebrow {
+  margin: 0 0 clamp(1rem, 2.5vh, 1.5rem);
+  color: var(--ioulia-ink-45);
+  font-size: var(--ioulia-micro);
+  font-weight: 500;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.icp__title {
+  margin: 0 0 clamp(.9rem, 2vh, 1.25rem);
+  font-size: var(--ioulia-h2);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+
+.icp__lede {
+  margin: 0 0 clamp(2rem, 4vh, 2.75rem);
+  color: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
+  font-size: var(--ioulia-body);
+  font-weight: 500;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* The booking, stated plainly. Hairlines rather than a panel, the same way the
+   cart summary reads. */
+.icp__rows {
+  margin: 0 0 clamp(2rem, 4vh, 2.75rem);
+  border-top: 1px solid var(--ioulia-ink-12);
+}
+
+.icp__row {
+  display: flex;
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--ioulia-ink-12);
+  gap: 1.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.icp__row span {
+  color: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+  font-size: var(--ioulia-small);
+  font-weight: 500;
+}
+
+.icp__row strong {
+  font-size: var(--ioulia-body);
+  font-weight: 500;
+  text-align: right;
+}
+
+.icp__label {
+  display: block;
+  margin: 0 0 .55rem;
+  color: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+  font-size: var(--ioulia-small);
+  font-weight: 500;
+}
+
+.icp__textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: .85rem 1rem;
+  border: 1px solid var(--ioulia-ink-12);
+  border-radius: 12px;
+  outline: none;
+  background: rgba(255, 255, 255, .6);
+  color: var(--ioulia-ink);
+  font-family: inherit;
+  /* Literal 16px: anything smaller makes iOS zoom the page on focus. */
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color .22s ease, box-shadow .22s ease;
+}
+
+.icp__textarea:focus {
+  border-color: var(--ioulia-ink);
+  box-shadow: 0 0 0 3px var(--ioulia-ink-07);
+}
+
+.icp__actions {
+  display: flex;
+  margin-top: clamp(1.5rem, 3vh, 2rem);
+  gap: clamp(1rem, 3vw, 1.75rem);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Keeping the booking is a link, not a second button: the two answers are not
+   equally weighted and should not look as though they are. */
+.icp__back {
+  color: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+  font-size: var(--ioulia-small);
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 4px;
+  transition: color .22s ease;
+}
+
+.icp__back:is(:hover, :focus-visible) {
+  color: var(--ioulia-ink);
+  text-decoration: underline;
+}
