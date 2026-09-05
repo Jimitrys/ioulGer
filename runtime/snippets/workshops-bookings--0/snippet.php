@@ -601,7 +601,6 @@ if ( ! function_exists( 'ioulia_email_studio_new_booking' ) ) {
 	function ioulia_email_studio_new_booking( $booking ) {
 		$html = ioulia_email_html(
 			array(
-				'eyebrow'  => 'Νέα κράτηση',
 				'title'    => $booking['name'] . ' κράτησε μια θέση.',
 				'intro'    => array( 'Η θέση είναι ήδη πιασμένη. Δεν χρειάζεται να εγκρίνεις τίποτα.' ),
 				'rows'     => ioulia_booking_studio_rows( $booking ),
@@ -626,7 +625,6 @@ if ( ! function_exists( 'ioulia_email_visitor_confirmation' ) ) {
 	function ioulia_email_visitor_confirmation( $booking ) {
 		$html = ioulia_email_html(
 			array(
-				'eyebrow'  => 'Κράτηση εργαστηρίου',
 				'title'    => 'Η θέση σου κρατήθηκε.',
 				'intro'    => array(
 					'Γεια σου ' . $booking['name'] . ', σε περιμένουμε.',
@@ -636,7 +634,7 @@ if ( ! function_exists( 'ioulia_email_visitor_confirmation' ) ) {
 				'buttons'  => array(
 					array( 'label' => 'Ακύρωση κράτησης', 'url' => ioulia_booking_cancel_url( $booking ), 'variant' => 'outline' ),
 				),
-				'footnote' => 'Αν θέλεις απλώς να αλλάξεις ημέρα, απάντησε σε αυτό το email και το κανονίζουμε.',
+				'footnote' => 'Για άλλη ημέρα, ακύρωσε αυτή την κράτηση και κλείσε ξανά — έτσι ελευθερώνεται η θέση για κάποιον άλλο.',
 			)
 		);
 
@@ -657,7 +655,6 @@ if ( ! function_exists( 'ioulia_email_visitor_cancellation' ) ) {
 
 		$html = ioulia_email_html(
 			array(
-				'eyebrow'  => 'Ακύρωση κράτησης',
 				'title'    => 'Η κράτηση ακυρώθηκε.',
 				'intro'    => $intro,
 				'rows'     => ioulia_booking_rows( $booking ),
@@ -688,7 +685,6 @@ if ( ! function_exists( 'ioulia_email_studio_cancellation' ) ) {
 
 		$html = ioulia_email_html(
 			array(
-				'eyebrow'  => 'Ακύρωση κράτησης',
 				'title'    => $visitor
 					? $booking['name'] . ' ακύρωσε την κράτηση.'
 					: 'Η κράτηση του ' . $booking['name'] . ' ακυρώθηκε.',

@@ -1,0 +1,36 @@
+/* /kratiseis/ — the room around Ioulia's bookings.
+
+   Until now this page had no template, so WordPress served it through the
+   parent theme: the old theme's navigation across the top, its footer, and a
+   duplicate page title above a tool that already had its own heading. The
+   dashboard answered by hiding the header and footer with display:none and
+   drawing a palette of its own.
+
+   With a template it is simply one of the site's pages. The header, the footer,
+   the tokens and the button system all arrive on their own; the shortcode in
+   the workshops dashboard snippet prints the list. */
+
+.iwd-page {
+  width: 100%;
+  min-height: 100svh;
+  padding:
+    calc(var(--ioulia-header-h, 176px) + clamp(2rem, 6vh, 4rem))
+    var(--ioulia-page-x)
+    clamp(4rem, 10vh, 7rem);
+  background: var(--ioulia-paper);
+  color: var(--ioulia-ink);
+}
+
+.iwd-page__inner {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+/* On a phone the bottom of the list has to clear the home indicator, or the
+   last card sits under it. */
+@media (max-width: 700px) {
+  .iwd-page {
+    padding-bottom: calc(clamp(3rem, 8vh, 5rem) + env(safe-area-inset-bottom, 0px));
+  }
+}

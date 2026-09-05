@@ -28,7 +28,7 @@
 if ( ! function_exists( 'ioulia_email_palette' ) ) {
 	function ioulia_email_palette() {
 		return array(
-			'paper' => '#FFFEF7',
+			'paper' => '#FFFFFF',
 			'ink'   => '#2B2B2B',
 			'muted' => '#77746D',
 			'line'  => '#E6E3DA',
@@ -85,7 +85,7 @@ if ( ! function_exists( 'ioulia_email_masthead' ) ) {
 		/* width and height on the tag itself, not only in the style: Outlook
 		   reads the attributes and ignores the CSS. */
 		return sprintf(
-			'<a href="%1$s" style="display:inline-block;text-decoration:none;"><img src="%2$s" width="96" height="99" alt="Ioulia Geraskli Ceramic Lab" style="display:block;width:96px;height:auto;border:0;outline:none;text-decoration:none;"></a>',
+			'<a href="%1$s" style="display:inline-block;margin-left:-8px;text-decoration:none;"><img src="%2$s" width="84" height="87" alt="Ioulia Geraskli Ceramic Lab" style="display:block;width:84px;height:auto;border:0;outline:none;text-decoration:none;"></a>',
 			esc_url( home_url( '/' ) ),
 			esc_url( $url )
 		);
@@ -121,7 +121,6 @@ if ( ! function_exists( 'ioulia_email_button' ) ) {
 if ( ! function_exists( 'ioulia_email_html' ) ) {
 	/**
 	 * $args:
-	 *   eyebrow  - the small line above the heading
 	 *   title    - the heading
 	 *   intro    - one or more paragraphs
 	 *   rows     - label => value pairs, printed as a list of facts
@@ -135,7 +134,6 @@ if ( ! function_exists( 'ioulia_email_html' ) ) {
 
 		$args = array_merge(
 			array(
-				'eyebrow'  => '',
 				'title'    => '',
 				'intro'    => array(),
 				'rows'     => array(),
@@ -147,15 +145,6 @@ if ( ! function_exists( 'ioulia_email_html' ) ) {
 		);
 
 		$body = '';
-
-		if ( '' !== $args['eyebrow'] ) {
-			$body .= sprintf(
-				'<p style="margin:0 0 18px;color:%1$s;font-family:%2$s;font-size:11px;font-weight:600;line-height:1.2;letter-spacing:.14em;text-transform:uppercase;">%3$s</p>',
-				esc_attr( $c['muted'] ),
-				esc_attr( $font ),
-				esc_html( $args['eyebrow'] )
-			);
-		}
 
 		if ( '' !== $args['title'] ) {
 			$body .= sprintf(
@@ -202,7 +191,7 @@ if ( ! function_exists( 'ioulia_email_html' ) ) {
 				   multi-line string survives into the plain-text part, where it
 				   turns every row into three ragged lines. */
 				$rows .= sprintf(
-					'<tr><td style="padding:9px 12px 9px 0;color:%1$s;font-family:%2$s;font-size:13px;font-weight:500;line-height:1.4;vertical-align:top;white-space:nowrap;">%3$s</td><td style="padding:9px 0;color:%4$s;font-family:%2$s;font-size:15px;font-weight:500;line-height:1.4;text-align:right;vertical-align:top;">%5$s</td></tr>',
+					'<tr><td style="padding:7px 12px 7px 0;color:%1$s;font-family:%2$s;font-size:14px;font-weight:400;line-height:1.5;vertical-align:top;white-space:nowrap;">%3$s</td><td style="padding:7px 0;color:%4$s;font-family:%2$s;font-size:15px;font-weight:500;line-height:1.5;text-align:right;vertical-align:top;">%5$s</td></tr>',
 					esc_attr( $c['muted'] ),
 					esc_attr( $font ),
 					esc_html( $label ),
@@ -213,7 +202,7 @@ if ( ! function_exists( 'ioulia_email_html' ) ) {
 
 			if ( '' !== $rows ) {
 				$body .= sprintf(
-					'<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%%" style="width:100%%;margin:26px 0;border-top:1px solid %1$s;border-bottom:1px solid %1$s;border-collapse:collapse;">%2$s</table>',
+					'<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%%" style="width:100%%;margin:30px 0 34px;padding-top:22px;border-top:1px solid %1$s;border-collapse:collapse;">%2$s</table>',
 					esc_attr( $c['line'] ),
 					$rows
 				);
@@ -266,12 +255,16 @@ if ( ! function_exists( 'ioulia_email_html' ) ) {
 			. '<meta name="supported-color-schemes" content="light">'
 			. '</head>'
 			. '<body style="margin:0;padding:0;background:' . esc_attr( $c['paper'] ) . ';">'
+			/* One gutter, stated once, so the mark, the words and the sign-off all
+			   start on the same vertical line. The masthead and the sign-off are
+			   held apart by space rather than by rules: the only line in the
+			   message is the one above the facts. */
 			. '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;background:' . esc_attr( $c['paper'] ) . ';border-collapse:collapse;">'
-			. '<tr><td align="center" style="padding:40px 20px;">'
+			. '<tr><td align="center" style="padding:36px 16px 56px;">'
 			. '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="width:560px;max-width:100%;border-collapse:collapse;">'
-			. '<tr><td style="padding:0 0 30px;border-bottom:1px solid ' . esc_attr( $c['line'] ) . ';">' . ioulia_email_masthead() . '</td></tr>'
-			. '<tr><td style="padding:34px 0;">' . $body . '</td></tr>'
-			. '<tr><td style="padding:22px 0 0;border-top:1px solid ' . esc_attr( $c['line'] ) . ';">' . $signature . '</td></tr>'
+			. '<tr><td style="padding:0 28px;">' . ioulia_email_masthead() . '</td></tr>'
+			. '<tr><td style="padding:36px 28px 0;">' . $body . '</td></tr>'
+			. '<tr><td style="padding:44px 28px 0;">' . $signature . '</td></tr>'
 			. '</table>'
 			. '</td></tr></table>'
 			. '</body></html>';

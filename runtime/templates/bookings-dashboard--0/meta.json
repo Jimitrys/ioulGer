@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_theme_template",
+    "title": "Bookings Dashboard",
+    "slug": "bookings-dashboard",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "page",
+        "include": "kratiseis",
+        "priority": 20
+    }
+}

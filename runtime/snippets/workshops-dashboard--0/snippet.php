@@ -2,20 +2,42 @@
 /**
  * Bookings dashboard — Ioulia's own page, built for a phone.
  *
- * Lives at /kratiseis/ on the front end. She never opens wp-admin: she signs in
- * on this page and sees her bookings as a list of days, taps a phone number to
- * call, and cancels with a message that reaches the visitor by email.
+ * Lives at /kratiseis/. She sees her bookings as a list of days, taps a phone
+ * number to call, and cancels with a message that reaches the visitor by email.
  *
  * Greek only, on purpose. This is an internal tool, so it is left out of the
  * English site and out of search engines entirely.
  *
- * The page is created on first run if it is missing, so nothing has to be set up
- * by hand in WordPress. All the reading and writing goes through the workshops
- * bookings snippet.
+ * ---------------------------------------------------------------------------
+ * A PIN, not a WordPress account
  *
- * Actions go over AJAX rather than a form post. Site Studio's snippet validator
- * blocks exit, so a post-redirect-get round trip is not available to us, and a
- * phone wants an app-like response anyway.
+ * She was signing in through wp_login_form, which meant a username, a password
+ * and a password manager to reach a page she opens on her phone between two
+ * classes. It is a PIN now.
+ *
+ * A four-digit PIN is a weak secret and this page holds customers' names,
+ * addresses of a sort, phone numbers and email addresses. So it is not just
+ * stored and compared:
+ *
+ *   - Only a hash is kept, through wp_hash_password, never the digits.
+ *   - Attempts are counted per address and the door shuts for fifteen minutes
+ *     after five wrong ones, which is what makes ten thousand combinations
+ *     unreachable rather than an afternoon's work.
+ *   - The session is a random token in a cookie, checked against a transient.
+ *     The PIN itself is never stored anywhere the browser can reach.
+ *   - The page is never cached and never indexed.
+ *
+ * That is a fair trade for a tool one person opens on a phone. It is not the
+ * right protection for anything more than this. A longer PIN costs nothing:
+ * the field takes up to eight digits.
+ *
+ * The starting PIN is 1234 and it is meant to be changed - there is a button
+ * on the page for it.
+ * ---------------------------------------------------------------------------
+ *
+ * Actions go over AJAX or a plain form post. Site Studio's snippet validator
+ * blocks exit, so a post-redirect-get round trip is not available to us; the
+ * forms are written to be harmless when a phone re-sends them.
  *
  * Requires the "workshops data" and "workshops bookings" snippets.
  * No backslashes anywhere: Site Studio strips one level on import.
@@ -25,13 +47,157 @@ if ( ! defined( 'IOULIA_DASHBOARD_SLUG' ) ) {
 	define( 'IOULIA_DASHBOARD_SLUG', 'kratiseis' );
 }
 
+if ( ! defined( 'IOULIA_DASHBOARD_COOKIE' ) ) {
+	define( 'IOULIA_DASHBOARD_COOKIE', 'ioulia_kratiseis' );
+}
+
 if ( ! function_exists( 'ioulia_dashboard_capability' ) ) {
 	/**
-	 * Who may see bookings. Editors and administrators by default, so Ioulia does
-	 * not need a full administrator account to run the studio.
+	 * A signed-in editor or administrator still gets in without the PIN, so a
+	 * forgotten PIN is never a locked door.
 	 */
 	function ioulia_dashboard_capability() {
 		return apply_filters( 'ioulia_dashboard_capability', 'edit_others_posts' );
+	}
+}
+
+/* -------------------------------------------------------------------------
+ * The PIN
+ * ---------------------------------------------------------------------- */
+
+if ( ! function_exists( 'ioulia_dashboard_pin_hash' ) ) {
+	function ioulia_dashboard_pin_hash() {
+		$hash = (string) get_option( 'ioulia_dashboard_pin', '' );
+
+		if ( '' === $hash ) {
+			$hash = wp_hash_password( '1234' );
+			update_option( 'ioulia_dashboard_pin', $hash, false );
+		}
+
+		return $hash;
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_pin_matches' ) ) {
+	function ioulia_dashboard_pin_matches( $pin ) {
+		return wp_check_password( (string) $pin, ioulia_dashboard_pin_hash() );
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_set_pin' ) ) {
+	/**
+	 * Four to eight digits. Longer is better and costs the same to type once.
+	 */
+	function ioulia_dashboard_set_pin( $pin ) {
+		$pin = preg_replace( '#[^0-9]#', '', (string) $pin );
+
+		if ( strlen( $pin ) < 4 || strlen( $pin ) > 8 ) {
+			return new WP_Error( 'ioulia_pin_length', 'Το PIN θέλει από 4 έως 8 ψηφία.' );
+		}
+
+		update_option( 'ioulia_dashboard_pin', wp_hash_password( $pin ), false );
+
+		return true;
+	}
+}
+
+/* -------------------------------------------------------------------------
+ * Attempts
+ * ---------------------------------------------------------------------- */
+
+if ( ! function_exists( 'ioulia_dashboard_attempt_key' ) ) {
+	/**
+	 * Counting attempts needs to tell one caller from another without keeping
+	 * their address. A salted hash does that and means nothing on its own.
+	 */
+	function ioulia_dashboard_attempt_key() {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
+
+		return 'ioulia_pin_' . md5( wp_salt( 'nonce' ) . $ip );
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_locked' ) ) {
+	function ioulia_dashboard_locked() {
+		return (int) get_transient( ioulia_dashboard_attempt_key() ) >= 5;
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_note_failure' ) ) {
+	function ioulia_dashboard_note_failure() {
+		$key = ioulia_dashboard_attempt_key();
+
+		set_transient( $key, (int) get_transient( $key ) + 1, 15 * MINUTE_IN_SECONDS );
+	}
+}
+
+/* -------------------------------------------------------------------------
+ * The session
+ * ---------------------------------------------------------------------- */
+
+if ( ! function_exists( 'ioulia_dashboard_session_start' ) ) {
+	/**
+	 * The cookie holds a random token and nothing else. What it means is kept
+	 * server side, so a stolen cookie stops working the moment it is signed out
+	 * or the transient expires.
+	 */
+	function ioulia_dashboard_session_start() {
+		$token = wp_generate_password( 40, false, false );
+
+		set_transient( 'ioulia_dash_' . hash( 'sha256', $token ), 1, 30 * DAY_IN_SECONDS );
+
+		setcookie(
+			IOULIA_DASHBOARD_COOKIE,
+			$token,
+			array(
+				'expires'  => time() + ( 30 * DAY_IN_SECONDS ),
+				'path'     => '/',
+				'secure'   => is_ssl(),
+				'httponly' => true,
+				'samesite' => 'Lax',
+			)
+		);
+
+		$_COOKIE[ IOULIA_DASHBOARD_COOKIE ] = $token;
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_session_end' ) ) {
+	function ioulia_dashboard_session_end() {
+		if ( isset( $_COOKIE[ IOULIA_DASHBOARD_COOKIE ] ) ) {
+			$token = sanitize_text_field( wp_unslash( $_COOKIE[ IOULIA_DASHBOARD_COOKIE ] ) );
+			delete_transient( 'ioulia_dash_' . hash( 'sha256', $token ) );
+		}
+
+		setcookie(
+			IOULIA_DASHBOARD_COOKIE,
+			'',
+			array(
+				'expires'  => time() - DAY_IN_SECONDS,
+				'path'     => '/',
+				'secure'   => is_ssl(),
+				'httponly' => true,
+				'samesite' => 'Lax',
+			)
+		);
+
+		unset( $_COOKIE[ IOULIA_DASHBOARD_COOKIE ] );
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_authed' ) ) {
+	function ioulia_dashboard_authed() {
+		if ( is_user_logged_in() && current_user_can( ioulia_dashboard_capability() ) ) {
+			return true;
+		}
+
+		if ( empty( $_COOKIE[ IOULIA_DASHBOARD_COOKIE ] ) ) {
+			return false;
+		}
+
+		$token = sanitize_text_field( wp_unslash( $_COOKIE[ IOULIA_DASHBOARD_COOKIE ] ) );
+
+		return (bool) get_transient( 'ioulia_dash_' . hash( 'sha256', $token ) );
 	}
 }
 
@@ -85,8 +251,9 @@ if ( ! function_exists( 'ioulia_is_dashboard' ) ) {
 
 if ( ! function_exists( 'ioulia_dashboard_keep_private' ) ) {
 	/**
-	 * An internal tool has no business in search results, in the English site, or
-	 * behind the site's own chrome.
+	 * An internal tool has no business in search results or in a cache. The
+	 * site's own header and footer stay: it is one of her pages, and looking
+	 * like the rest of the site is the point.
 	 */
 	function ioulia_dashboard_keep_private() {
 		if ( ! ioulia_is_dashboard() ) {
@@ -95,8 +262,9 @@ if ( ! function_exists( 'ioulia_dashboard_keep_private' ) ) {
 
 		add_filter( 'wp_robots', 'wp_robots_no_robots' );
 		add_filter( 'show_admin_bar', '__return_false' );
+		nocache_headers();
 	}
-	add_action( 'template_redirect', 'ioulia_dashboard_keep_private' );
+	add_action( 'template_redirect', 'ioulia_dashboard_keep_private', 1 );
 }
 
 if ( ! function_exists( 'ioulia_dashboard_not_translatable' ) ) {
@@ -111,20 +279,106 @@ if ( ! function_exists( 'ioulia_dashboard_not_translatable' ) ) {
 }
 
 /* -------------------------------------------------------------------------
- * Actions
+ * Form posts
+ *
+ * Handled on template_redirect because a cookie has to be set before anything
+ * is printed. The outcome is left in a static for the shortcode to render,
+ * rather than redirecting: the validator blocks exit, so a redirect here would
+ * send a header and then carry on rendering the page underneath it.
+ * ---------------------------------------------------------------------- */
+
+if ( ! function_exists( 'ioulia_dashboard_notice' ) ) {
+	function ioulia_dashboard_notice( $set = null ) {
+		static $notice = array();
+
+		if ( null !== $set ) {
+			$notice = $set;
+		}
+
+		return $notice;
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_handle_post' ) ) {
+	function ioulia_dashboard_handle_post() {
+		if ( ! ioulia_is_dashboard() || empty( $_POST['iwd_action'] ) ) {
+			return;
+		}
+
+		$action = sanitize_key( wp_unslash( $_POST['iwd_action'] ) );
+		$nonce  = isset( $_POST['iwd_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['iwd_nonce'] ) ) : '';
+
+		if ( ! wp_verify_nonce( $nonce, 'ioulia_dashboard_' . $action ) ) {
+			ioulia_dashboard_notice( array( 'tone' => 'error', 'text' => 'Η σελίδα έληξε. Δοκίμασε ξανά.' ) );
+			return;
+		}
+
+		if ( 'signout' === $action ) {
+			ioulia_dashboard_session_end();
+			ioulia_dashboard_notice( array( 'tone' => 'ok', 'text' => 'Αποσυνδέθηκες.' ) );
+			return;
+		}
+
+		if ( 'signin' === $action ) {
+			if ( ioulia_dashboard_locked() ) {
+				ioulia_dashboard_notice( array( 'tone' => 'error', 'text' => 'Πολλές λάθος προσπάθειες. Δοκίμασε ξανά σε λίγο.' ) );
+				return;
+			}
+
+			$pin = isset( $_POST['iwd_pin'] ) ? preg_replace( '#[^0-9]#', '', (string) wp_unslash( $_POST['iwd_pin'] ) ) : '';
+
+			if ( '' !== $pin && ioulia_dashboard_pin_matches( $pin ) ) {
+				delete_transient( ioulia_dashboard_attempt_key() );
+				ioulia_dashboard_session_start();
+				return;
+			}
+
+			ioulia_dashboard_note_failure();
+			ioulia_dashboard_notice( array( 'tone' => 'error', 'text' => 'Λάθος PIN.' ) );
+			return;
+		}
+
+		if ( 'pin' === $action ) {
+			if ( ! ioulia_dashboard_authed() ) {
+				return;
+			}
+
+			$current = isset( $_POST['iwd_pin_current'] ) ? (string) wp_unslash( $_POST['iwd_pin_current'] ) : '';
+
+			if ( ! ioulia_dashboard_pin_matches( preg_replace( '#[^0-9]#', '', $current ) ) ) {
+				ioulia_dashboard_notice( array( 'tone' => 'error', 'text' => 'Το τρέχον PIN δεν είναι σωστό.' ) );
+				return;
+			}
+
+			$next   = isset( $_POST['iwd_pin_new'] ) ? (string) wp_unslash( $_POST['iwd_pin_new'] ) : '';
+			$result = ioulia_dashboard_set_pin( $next );
+
+			if ( is_wp_error( $result ) ) {
+				ioulia_dashboard_notice( array( 'tone' => 'error', 'text' => $result->get_error_message() ) );
+				return;
+			}
+
+			ioulia_dashboard_notice( array( 'tone' => 'ok', 'text' => 'Το PIN άλλαξε.' ) );
+		}
+	}
+	add_action( 'template_redirect', 'ioulia_dashboard_handle_post', 2 );
+}
+
+/* -------------------------------------------------------------------------
+ * Cancelling, over AJAX
  * ---------------------------------------------------------------------- */
 
 if ( ! function_exists( 'ioulia_dashboard_cancel_ajax' ) ) {
 	function ioulia_dashboard_cancel_ajax() {
 		check_ajax_referer( 'ioulia_dashboard', 'nonce' );
 
-		if ( ! current_user_can( ioulia_dashboard_capability() ) ) {
-			wp_send_json_error( array( 'message' => 'Δεν έχεις δικαίωμα.' ), 403 );
+		if ( ! ioulia_dashboard_authed() ) {
+			wp_send_json_error( array( 'message' => 'Η σύνδεση έληξε. Ξαναμπές με το PIN.' ), 403 );
 		}
 
 		$booking_id = isset( $_POST['booking'] ) ? absint( $_POST['booking'] ) : 0;
 		$reason     = isset( $_POST['reason'] ) ? (string) wp_unslash( $_POST['reason'] ) : '';
-		$cancelled  = ioulia_cancel_booking( $booking_id, $reason );
+		$cancelled  = ioulia_cancel_booking( $booking_id, $reason, 'studio' );
 
 		if ( is_wp_error( $cancelled ) ) {
 			wp_send_json_error( array( 'message' => $cancelled->get_error_message() ), 400 );
@@ -138,6 +392,7 @@ if ( ! function_exists( 'ioulia_dashboard_cancel_ajax' ) ) {
 		);
 	}
 	add_action( 'wp_ajax_ioulia_cancel_booking', 'ioulia_dashboard_cancel_ajax' );
+	add_action( 'wp_ajax_nopriv_ioulia_cancel_booking', 'ioulia_dashboard_cancel_ajax' );
 }
 
 /* -------------------------------------------------------------------------
@@ -194,20 +449,21 @@ if ( ! function_exists( 'ioulia_dashboard_card' ) ) {
 		$capacity  = $programme ? (int) $programme['capacity'] : 0;
 		$taken     = ioulia_seats_taken( $booking['programme'], $booking['starts'] );
 		$cancelled = 'cancelled' === $booking['status'];
-		$phone     = preg_replace( '/[^0-9+]/', '', $booking['phone'] );
+		$phone     = preg_replace( '#[^0-9+]#', '', $booking['phone'] );
 		?>
 		<article class="iwd-card<?php echo $cancelled ? ' is-cancelled' : ''; ?>" data-booking="<?php echo esc_attr( $booking['id'] ); ?>">
-			<header class="iwd-card__top">
+			<div class="iwd-card__line">
 				<span class="iwd-card__time"><?php echo esc_html( substr( $booking['starts'], 11, 5 ) ); ?></span>
-				<span class="iwd-card__programme"><?php echo esc_html( $booking['programme_title'] ); ?></span>
+				<h3 class="iwd-card__name"><?php echo esc_html( $booking['name'] ); ?></h3>
 				<?php if ( $capacity ) : ?>
 					<span class="iwd-card__seats"><?php echo esc_html( $taken . '/' . $capacity ); ?></span>
 				<?php endif; ?>
-			</header>
+			</div>
 
-			<p class="iwd-card__who">
-				<strong><?php echo esc_html( $booking['name'] ); ?></strong>
-				<span><?php echo esc_html( 1 === $booking['participants'] ? '1 άτομο' : $booking['participants'] . ' άτομα' ); ?></span>
+			<p class="iwd-card__meta">
+				<?php echo esc_html( $booking['programme_title'] ); ?>
+				<span aria-hidden="true">·</span>
+				<?php echo esc_html( 1 === $booking['participants'] ? '1 άτομο' : $booking['participants'] . ' άτομα' ); ?>
 			</p>
 
 			<?php if ( '' !== $booking['note'] ) : ?>
@@ -216,13 +472,13 @@ if ( ! function_exists( 'ioulia_dashboard_card' ) ) {
 
 			<div class="iwd-card__actions">
 				<?php if ( '' !== $phone ) : ?>
-					<a class="iwd-action" href="tel:<?php echo esc_attr( $phone ); ?>">Κλήση</a>
+					<a class="iwd-link" href="tel:<?php echo esc_attr( $phone ); ?>">Κλήση</a>
 				<?php endif; ?>
-				<a class="iwd-action" href="mailto:<?php echo esc_attr( $booking['email'] ); ?>">Email</a>
+				<a class="iwd-link" href="mailto:<?php echo esc_attr( $booking['email'] ); ?>">Email</a>
 				<?php if ( ! $cancelled ) : ?>
-					<button type="button" class="iwd-action iwd-action--danger" data-iwd-cancel>Ακύρωση</button>
+					<button type="button" class="iwd-link iwd-link--danger" data-iwd-cancel>Ακύρωση</button>
 				<?php else : ?>
-					<span class="iwd-action iwd-action--muted" data-iwd-status>Ακυρώθηκε</span>
+					<span class="iwd-link iwd-link--muted" data-iwd-status>Ακυρώθηκε</span>
 				<?php endif; ?>
 			</div>
 
@@ -230,8 +486,8 @@ if ( ! function_exists( 'ioulia_dashboard_card' ) ) {
 				<label for="iwd-reason-<?php echo esc_attr( $booking['id'] ); ?>">Μήνυμα στον πελάτη (προαιρετικό)</label>
 				<textarea id="iwd-reason-<?php echo esc_attr( $booking['id'] ); ?>" rows="2" data-iwd-reason placeholder="π.χ. το εργαστήριο είναι κλειστό εκείνη τη μέρα"></textarea>
 				<div class="iwd-cancel__buttons">
-					<button type="button" class="iwd-action" data-iwd-abort>Πίσω</button>
-					<button type="button" class="iwd-action iwd-action--danger" data-iwd-confirm>Ακύρωση και email</button>
+					<button type="button" class="iwd-link" data-iwd-abort>Πίσω</button>
+					<button type="button" class="ioulia-btn iwd-confirm" data-iwd-confirm>Ακύρωση και email</button>
 				</div>
 			</div>
 		</article>
@@ -259,11 +515,27 @@ if ( ! function_exists( 'ioulia_dashboard_list' ) ) {
 	}
 }
 
+if ( ! function_exists( 'ioulia_dashboard_flash' ) ) {
+	function ioulia_dashboard_flash() {
+		$notice = ioulia_dashboard_notice();
+
+		if ( empty( $notice['text'] ) ) {
+			return;
+		}
+
+		printf(
+			'<p class="iwd-notice iwd-notice--%1$s">%2$s</p>',
+			esc_attr( 'error' === $notice['tone'] ? 'error' : 'ok' ),
+			esc_html( $notice['text'] )
+		);
+	}
+}
+
 if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 	function ioulia_dashboard_shortcode() {
 		ob_start();
 
-		if ( ! is_user_logged_in() || ! current_user_can( ioulia_dashboard_capability() ) ) {
+		if ( ! ioulia_dashboard_authed() ) {
 			ioulia_dashboard_gate();
 
 			return ob_get_clean();
@@ -284,20 +556,18 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 			data-nonce="<?php echo esc_attr( wp_create_nonce( 'ioulia_dashboard' ) ); ?>">
 
 			<header class="iwd-head">
-				<div>
-					<h1>Κρατήσεις</h1>
-					<p><?php echo esc_html( sprintf( '%d κρατήσεις, %d άτομα', count( $upcoming ), $people ) ); ?></p>
-				</div>
-				<a class="iwd-signout" href="<?php echo esc_url( wp_logout_url( get_permalink() ) ); ?>">Έξοδος</a>
+				<h1 class="iwd-head__title">Κρατήσεις</h1>
+				<p class="iwd-head__count"><?php echo esc_html( sprintf( '%d κρατήσεις · %d άτομα', count( $upcoming ), $people ) ); ?></p>
 			</header>
 
-			<nav class="iwd-tabs" role="tablist">
+			<?php ioulia_dashboard_flash(); ?>
+			<p class="iwd-notice iwd-notice--ok" data-iwd-flash hidden></p>
+
+			<nav class="iwd-tabs" role="tablist" aria-label="Κρατήσεις">
 				<button type="button" class="iwd-tab is-current" data-iwd-tab="upcoming" role="tab" aria-selected="true">Επόμενες</button>
 				<button type="button" class="iwd-tab" data-iwd-tab="past" role="tab" aria-selected="false">Περασμένες</button>
 				<button type="button" class="iwd-tab" data-iwd-tab="cancelled" role="tab" aria-selected="false">Ακυρωμένες</button>
 			</nav>
-
-			<p class="iwd-flash" data-iwd-flash hidden></p>
 
 			<div class="iwd-panel" data-iwd-panel="upcoming">
 				<?php ioulia_dashboard_list( $upcoming, 'Καμία επόμενη κράτηση.' ); ?>
@@ -308,6 +578,27 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 			<div class="iwd-panel" data-iwd-panel="cancelled" hidden>
 				<?php ioulia_dashboard_list( $off, 'Καμία ακυρωμένη κράτηση.' ); ?>
 			</div>
+
+			<footer class="iwd-foot">
+				<details class="iwd-pin">
+					<summary class="iwd-link">Αλλαγή PIN</summary>
+					<form class="iwd-pin__form" method="post">
+						<?php wp_nonce_field( 'ioulia_dashboard_pin', 'iwd_nonce' ); ?>
+						<input type="hidden" name="iwd_action" value="pin">
+						<label for="iwd-pin-current">Τρέχον PIN</label>
+						<input id="iwd-pin-current" name="iwd_pin_current" type="password" inputmode="numeric" autocomplete="current-password" required>
+						<label for="iwd-pin-new">Νέο PIN (4 έως 8 ψηφία)</label>
+						<input id="iwd-pin-new" name="iwd_pin_new" type="password" inputmode="numeric" autocomplete="new-password" minlength="4" maxlength="8" required>
+						<button class="ioulia-btn" type="submit">Αποθήκευση</button>
+					</form>
+				</details>
+
+				<form method="post" class="iwd-signout">
+					<?php wp_nonce_field( 'ioulia_dashboard_signout', 'iwd_nonce' ); ?>
+					<input type="hidden" name="iwd_action" value="signout">
+					<button type="submit" class="iwd-link">Έξοδος</button>
+				</form>
+			</footer>
 		</div>
 		<?php
 		ioulia_dashboard_assets();
@@ -318,35 +609,33 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 }
 
 if ( ! function_exists( 'ioulia_dashboard_gate' ) ) {
-	/**
-	 * Signing in happens here rather than on wp-login.php, but the form still
-	 * posts to WordPress' own login, so none of its hardening is bypassed.
-	 */
 	function ioulia_dashboard_gate() {
-		$logged_in = is_user_logged_in();
+		$locked = ioulia_dashboard_locked();
 		?>
 		<div class="iwd iwd--gate">
 			<header class="iwd-head">
-				<div>
-					<h1>Κρατήσεις</h1>
-					<p><?php echo $logged_in ? 'Ο λογαριασμός σου δεν έχει πρόσβαση εδώ.' : 'Σύνδεση για να δεις τις κρατήσεις.'; ?></p>
-				</div>
+				<h1 class="iwd-head__title">Κρατήσεις</h1>
+				<p class="iwd-head__count">Βάλε το PIN για να δεις τις κρατήσεις.</p>
 			</header>
 
-			<?php
-			if ( ! $logged_in ) {
-				wp_login_form(
-					array(
-						'redirect'       => get_permalink(),
-						'label_username' => 'Όνομα χρήστη ή email',
-						'label_password' => 'Κωδικός',
-						'label_log_in'   => 'Σύνδεση',
-						'label_remember' => 'Να με θυμάσαι',
-						'remember'       => true,
-					)
-				);
-			}
-			?>
+			<?php ioulia_dashboard_flash(); ?>
+
+			<?php if ( ! $locked ) : ?>
+				<form class="iwd-gate__form" method="post">
+					<?php wp_nonce_field( 'ioulia_dashboard_signin', 'iwd_nonce' ); ?>
+					<input type="hidden" name="iwd_action" value="signin">
+					<label for="iwd-pin">PIN</label>
+					<input
+						id="iwd-pin"
+						name="iwd_pin"
+						type="password"
+						inputmode="numeric"
+						autocomplete="current-password"
+						autofocus
+						required>
+					<button class="ioulia-btn" type="submit">Σύνδεση</button>
+				</form>
+			<?php endif; ?>
 		</div>
 		<?php
 		ioulia_dashboard_assets();
@@ -355,6 +644,11 @@ if ( ! function_exists( 'ioulia_dashboard_gate' ) ) {
 
 /* -------------------------------------------------------------------------
  * Styles and behaviour
+ *
+ * The page sits inside the site's own shell now - header, footer, tokens and
+ * button system all come from the global stylesheet, so what is here is only
+ * what makes this a list of bookings. It used to hide the header and footer
+ * and re-declare a palette of its own.
  * ---------------------------------------------------------------------- */
 
 if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
@@ -368,198 +662,285 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		$printed = true;
 		?>
 <style id="ioulia-dashboard-css">
-	/* The theme's own header and footer are noise around a tool. */
-	body.page-kratiseis header.wp-block-template-part,
-	body.page-kratiseis footer.wp-block-template-part,
-	body.page-kratiseis .wp-block-post-title,
-	body.page-kratiseis #ioulia-header,
-	body.page-kratiseis .ioulia-footer { display: none !important; }
-
-	body.page-kratiseis { background: var(--ioulia-paper, #FFFEF7); }
-
-	body.page-kratiseis main,
-	body.page-kratiseis .wp-block-post-content,
-	body.page-kratiseis .entry-content { max-width: none; margin: 0; padding: 0; }
-
 	.iwd {
-		--iwd-ink: var(--ioulia-ink, #2B2B2B);
-		--iwd-paper: var(--ioulia-paper, #FFFEF7);
 		--iwd-line: var(--ioulia-ink-12, rgba(43, 43, 43, .12));
-		--iwd-muted: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
-		--iwd-danger: var(--ioulia-accent, #7C3737);
+		--iwd-muted: var(--ioulia-ink-65, rgba(43, 43, 43, .65));
+		--iwd-danger: #8F3939;
 
 		box-sizing: border-box;
 		width: 100%;
-		min-height: 100svh;
-		margin: 0 auto;
-		padding: 0 16px calc(32px + env(safe-area-inset-bottom));
-		background: var(--iwd-paper);
-		color: var(--iwd-ink);
-		font-family: var(--ioulia-font, system-ui, sans-serif);
-		font-size: 16px;
-		line-height: 1.45;
-		-webkit-text-size-adjust: 100%;
+		max-width: 720px;
+		margin-inline: auto;
+		color: var(--ioulia-ink);
 	}
 
-	.iwd *, .iwd *::before, .iwd *::after { box-sizing: inherit; }
+	.iwd *, .iwd *::before, .iwd *::after { box-sizing: border-box; }
 
-	.iwd-head {
-		position: sticky;
-		top: 0;
-		z-index: 5;
-		display: flex;
-		align-items: flex-end;
-		justify-content: space-between;
-		gap: 12px;
-		margin: 0 -16px;
-		padding: calc(20px + env(safe-area-inset-top)) 16px 12px;
-		background: var(--iwd-paper);
-		border-bottom: 1px solid var(--iwd-line);
+	.iwd-head { margin-bottom: clamp(1.75rem, 4vh, 2.5rem); }
+
+	.iwd-head__title {
+		margin: 0 0 .5rem;
+		font-size: var(--ioulia-h2);
+		font-weight: 400;
+		line-height: .98;
+		letter-spacing: -.045em;
 	}
-	.iwd-head h1 { margin: 0; font-size: 1.5rem; font-weight: 500; letter-spacing: -.02em; }
-	.iwd-head p { margin: 2px 0 0; color: var(--iwd-muted); font-size: var(--ioulia-small); }
-	.iwd-signout { color: var(--iwd-muted); font-size: var(--ioulia-small); text-decoration: none; padding: 8px 0; }
 
-	.iwd-tabs { display: flex; gap: 6px; margin: 14px 0 4px; }
-	.iwd-tab {
-		flex: 1 1 0;
-		min-height: 44px;
-		padding: 10px 8px;
+	.iwd-head__count {
+		margin: 0;
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-small);
+		font-weight: 500;
+	}
+
+	/* --- Notices --------------------------------------------------------- */
+
+	.iwd-notice {
+		margin: 0 0 1.25rem;
+		padding: .85rem 1.1rem;
 		border: 1px solid var(--iwd-line);
-		border-radius: var(--ioulia-radius, 5px);
-		background: transparent;
+		border-radius: 12px;
+		font-size: var(--ioulia-small);
+		font-weight: 500;
+		line-height: 1.45;
+	}
+	.iwd-notice[hidden] { display: none; }
+	.iwd-notice--error { border-color: rgba(143, 57, 57, .3); background: rgba(143, 57, 57, .06); color: var(--iwd-danger); }
+	.iwd-notice--ok { background: var(--ioulia-ink-07, rgba(43, 43, 43, .07)); }
+
+	/* --- Tabs. Words with a rule under the current one, not three buttons
+	       competing with the one button on the page. ---------------------- */
+
+	.iwd-tabs {
+		display: flex;
+		margin-bottom: clamp(1.5rem, 3vh, 2rem);
+		padding-bottom: .85rem;
+		border-bottom: 1px solid var(--iwd-line);
+		gap: clamp(1.1rem, 4vw, 1.75rem);
+		overflow-x: auto;
+		overflow-y: hidden;
+		touch-action: pan-x;
+		scrollbar-width: none;
+	}
+	.iwd-tabs::-webkit-scrollbar { display: none; }
+
+	.iwd-tab {
+		appearance: none;
+		padding: 0;
+		border: 0;
+		background: none;
 		color: var(--iwd-muted);
 		font: inherit;
 		font-size: var(--ioulia-small);
+		font-weight: 500;
+		white-space: nowrap;
 		cursor: pointer;
+		transition: color .22s ease;
 	}
-	.iwd-tab.is-current { border-color: var(--iwd-ink); background: var(--iwd-ink); color: var(--iwd-paper); }
-
-	.iwd-flash {
-		margin: 12px 0 0;
-		padding: 12px 14px;
-		border-radius: var(--ioulia-radius, 5px);
-		background: rgba(124, 55, 55, .08);
-		color: var(--iwd-danger);
-		font-size: var(--ioulia-small);
+	.iwd-tab:hover { color: var(--ioulia-ink); }
+	.iwd-tab.is-current {
+		color: var(--ioulia-ink);
+		text-decoration: underline;
+		text-underline-offset: 6px;
+		text-decoration-thickness: 1px;
 	}
 
-	.iwd-day { margin-top: 22px; }
+	/* --- Days and cards -------------------------------------------------- */
+
+	.iwd-day { margin-bottom: clamp(2rem, 5vh, 3rem); }
+
 	.iwd-day__label {
-		position: sticky;
-		top: 76px;
-		z-index: 4;
-		margin: 0 -16px 10px;
-		padding: 6px 16px;
-		background: var(--iwd-paper);
+		margin: 0 0 .35rem;
 		color: var(--iwd-muted);
 		font-size: var(--ioulia-micro);
 		font-weight: 500;
-		letter-spacing: .1em;
+		letter-spacing: .055em;
 		text-transform: uppercase;
 	}
 
+	/* A line, not a card. The boxes were what made this read as an admin
+	   screen rather than as part of the site. */
 	.iwd-card {
-		margin-bottom: 10px;
-		padding: 14px;
-		border: 1px solid var(--iwd-line);
-		border-radius: var(--ioulia-radius, 5px);
-		background: #fff;
+		padding: clamp(1rem, 2.5vw, 1.35rem) 0;
+		border-top: 1px solid var(--iwd-line);
 	}
-	.iwd-card.is-cancelled { opacity: .55; }
+	.iwd-card.is-cancelled { opacity: .5; }
 
-	.iwd-card__top { display: flex; align-items: baseline; gap: 10px; }
-	.iwd-card__time { font-size: var(--ioulia-body); font-weight: 500; font-variant-numeric: tabular-nums; }
-	.iwd-card__programme { flex: 1 1 auto; min-width: 0; color: var(--iwd-muted); font-size: var(--ioulia-small); }
-	.iwd-card__seats {
-		flex: 0 0 auto;
-		padding: 2px 8px;
-		border: 1px solid var(--iwd-line);
-		border-radius: 999px;
-		font-size: var(--ioulia-micro);
+	.iwd-card__line {
+		display: flex;
+		gap: .75rem;
+		align-items: baseline;
+	}
+
+	.iwd-card__time {
+		color: var(--ioulia-ink);
+		font-size: var(--ioulia-body);
+		font-weight: 500;
 		font-variant-numeric: tabular-nums;
 	}
 
-	.iwd-card__who { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 10px 0 0; }
-	.iwd-card__who strong { font-weight: 500; }
-	.iwd-card__who span { color: var(--iwd-muted); font-size: var(--ioulia-small); white-space: nowrap; }
-	.iwd-card__note { margin: 8px 0 0; color: var(--iwd-muted); font-size: var(--ioulia-small); }
+	.iwd-card__name {
+		margin: 0;
+		font-size: var(--ioulia-body);
+		font-weight: 500;
+		line-height: 1.3;
+		letter-spacing: -.015em;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
 
-	.iwd-card__actions { display: flex; gap: 8px; margin-top: 12px; }
-	.iwd-action {
-		display: inline-flex;
-		flex: 1 1 0;
+	.iwd-card__seats {
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+
+	.iwd-card__meta {
+		margin: .3rem 0 0;
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-small);
+		font-weight: 500;
+	}
+	.iwd-card__meta span { padding: 0 .35em; }
+
+	.iwd-card__note {
+		margin: .5rem 0 0;
+		color: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
+		font-size: var(--ioulia-small);
+		font-weight: 500;
+		line-height: 1.5;
+	}
+
+	.iwd-card__actions {
+		display: flex;
+		margin-top: .8rem;
+		gap: clamp(1rem, 4vw, 1.5rem);
 		align-items: center;
-		justify-content: center;
-		min-height: 44px;
-		padding: 8px 12px;
-		border: 1px solid var(--iwd-line);
-		border-radius: var(--ioulia-radius, 5px);
-		background: transparent;
-		color: var(--iwd-ink);
+		flex-wrap: wrap;
+	}
+
+	/* --- Links that do things. Not buttons: there is one button on this page
+	       and it is the one that sends an email. ------------------------- */
+
+	.iwd-link {
+		appearance: none;
+		display: inline-block;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--ioulia-ink);
 		font: inherit;
 		font-size: var(--ioulia-small);
-        text-decoration: none;
+		font-weight: 500;
+		text-decoration: none;
+		text-underline-offset: 4px;
 		cursor: pointer;
+		transition: color .22s ease;
 	}
-	.iwd-action--danger { border-color: var(--iwd-danger); color: var(--iwd-danger); }
-	.iwd-action--muted { color: var(--iwd-muted); cursor: default; }
+	.iwd-link:is(:hover, :focus-visible) { text-decoration: underline; }
+	.iwd-link--danger { color: var(--iwd-danger); }
+	.iwd-link--muted { color: var(--iwd-muted); cursor: default; }
+	.iwd-link--muted:hover { text-decoration: none; }
 
-	.iwd-cancel { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--iwd-line); }
+	/* --- Cancel --------------------------------------------------------- */
+
+	.iwd-cancel { margin-top: .9rem; }
 	.iwd-cancel[hidden] { display: none; }
-	.iwd-cancel label { display: block; margin-bottom: 6px; color: var(--iwd-muted); font-size: var(--ioulia-micro); }
-	.iwd-cancel textarea {
-		width: 100%;
-		padding: 10px;
-		border: 1px solid var(--iwd-line);
-		border-radius: var(--ioulia-radius, 5px);
-		font: inherit;
-		font-size: 16px;
-		resize: vertical;
-	}
-	.iwd-cancel__buttons { display: flex; gap: 8px; margin-top: 10px; }
 
-	.iwd-empty { margin: 28px 0; color: var(--iwd-muted); font-size: var(--ioulia-small); text-align: center; }
-
-	.iwd--gate form { margin-top: 24px; }
-	.iwd--gate label { display: block; margin-bottom: 14px; color: var(--iwd-muted); font-size: var(--ioulia-small); }
-	.iwd--gate input[type="text"],
-	.iwd--gate input[type="password"] {
+	.iwd-cancel label {
 		display: block;
+		margin-bottom: .45rem;
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+	}
+
+	.iwd textarea,
+	.iwd input[type="password"] {
 		width: 100%;
-		margin-top: 6px;
-		padding: 12px;
+		padding: .8rem 1rem;
 		border: 1px solid var(--iwd-line);
-		border-radius: var(--ioulia-radius, 5px);
-		font: inherit;
+		border-radius: 12px;
+		outline: none;
+		background: rgba(255, 255, 255, .6);
+		color: var(--ioulia-ink);
+		font-family: inherit;
+		/* Literal 16px: anything smaller makes iOS zoom the page on focus. */
 		font-size: 16px;
-		color: var(--iwd-ink);
+		line-height: 1.5;
+		transition: border-color .22s ease, box-shadow .22s ease;
 	}
-	.iwd--gate .login-remember label { display: flex; align-items: center; gap: 8px; }
-	.iwd--gate input[type="submit"] {
-		width: 100%;
-		min-height: 48px;
-		border: 1px solid var(--iwd-ink);
-		border-radius: var(--ioulia-radius, 5px);
-		background: var(--iwd-ink);
-		color: var(--iwd-paper);
-		font: inherit;
+	.iwd textarea { min-height: 76px; resize: vertical; }
+	.iwd textarea:focus,
+	.iwd input[type="password"]:focus {
+		border-color: var(--ioulia-ink);
+		box-shadow: 0 0 0 3px var(--ioulia-ink-07, rgba(43, 43, 43, .07));
+	}
+
+	.iwd-cancel__buttons {
+		display: flex;
+		margin-top: .8rem;
+		gap: 1.25rem;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+
+	.iwd-empty {
+		margin: 0;
+		padding: clamp(2rem, 6vh, 3rem) 0;
+		color: var(--iwd-muted);
 		font-size: var(--ioulia-small);
-		cursor: pointer;
+		font-weight: 500;
 	}
 
-	/* On a wide screen it stays a single readable column rather than stretching. */
-	@media (min-width: 720px) {
-		.iwd { max-width: 640px; padding-inline: 24px; }
-		.iwd-head { margin-inline: -24px; padding-inline: 24px; }
-		.iwd-day__label { margin-inline: -24px; padding-inline: 24px; }
+	/* --- The gate ------------------------------------------------------- */
+
+	.iwd--gate { max-width: 340px; }
+
+	.iwd-gate__form label,
+	.iwd-pin__form label {
+		display: block;
+		margin: 0 0 .45rem;
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+		letter-spacing: .055em;
+		text-transform: uppercase;
 	}
 
-	/* Muted tone always comes with more weight. Lower contrast must not also
-	   mean lighter strokes, or the text pays for the quietness twice. */
-	.iwd-head p, .iwd-signout, .iwd-tab, .iwd-card__programme,
-	.iwd-card__who span, .iwd-card__note, .iwd-empty,
-	.iwd-cancel label, .iwd-card__seats, .iwd-action { font-weight: 500; }
+	.iwd-gate__form input { margin-bottom: 1.25rem; letter-spacing: .3em; text-align: center; }
+	.iwd-gate__form .ioulia-btn { width: 100%; }
+
+	/* --- The foot: change the PIN, or leave ------------------------------ */
+
+	.iwd-foot {
+		display: flex;
+		margin-top: clamp(2.5rem, 6vh, 4rem);
+		padding-top: clamp(1.25rem, 3vh, 1.75rem);
+		border-top: 1px solid var(--iwd-line);
+		gap: 1.5rem;
+		align-items: flex-start;
+		justify-content: space-between;
+	}
+
+	.iwd-pin { min-width: 0; }
+	.iwd-pin summary { list-style: none; }
+	.iwd-pin summary::-webkit-details-marker { display: none; }
+
+	.iwd-pin__form { margin-top: 1.1rem; max-width: 280px; }
+	.iwd-pin__form input { margin-bottom: 1rem; }
+	.iwd-pin__form .ioulia-btn { width: 100%; }
+
+	.iwd-signout { margin: 0; }
+
+	@media (max-width: 600px) {
+		.iwd-foot { flex-direction: column; gap: 1.25rem; }
+		.iwd-card__line { flex-wrap: wrap; }
+		.iwd-card__name { flex: 1 1 100%; order: 3; }
+		.iwd-card__seats { margin-left: auto; }
+	}
 </style>
 
 <script id="ioulia-dashboard-js">
@@ -570,9 +951,10 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 
 	var flash = root.querySelector('[data-iwd-flash]');
 
-	function say(message) {
+	function say(message, bad) {
 		if (!flash) { return; }
 		flash.textContent = message;
+		flash.className = 'iwd-notice iwd-notice--' + (bad ? 'error' : 'ok');
 		flash.hidden = false;
 	}
 
@@ -590,8 +972,6 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 			root.querySelectorAll('[data-iwd-panel]').forEach(function (panel) {
 				panel.hidden = panel.getAttribute('data-iwd-panel') !== name;
 			});
-
-			window.scrollTo({ top: 0, behavior: 'smooth' });
 		});
 	});
 
@@ -631,20 +1011,20 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 				if (!result || !result.success) {
 					button.disabled = false;
 					button.textContent = 'Ακύρωση και email';
-					say((result && result.data && result.data.message) || 'Κάτι πήγε στραβά.');
+					say((result && result.data && result.data.message) || 'Κάτι πήγε στραβά.', true);
 					return;
 				}
 
 				panel.hidden = true;
 				card.classList.add('is-cancelled');
 				card.querySelector('.iwd-card__actions').innerHTML =
-					'<span class="iwd-action iwd-action--muted">Ακυρώθηκε</span>';
+					'<span class="iwd-link iwd-link--muted">Ακυρώθηκε</span>';
 				say(result.data.message);
 			})
 			.catch(function () {
 				button.disabled = false;
 				button.textContent = 'Ακύρωση και email';
-				say('Δεν υπάρχει σύνδεση. Δοκίμασε ξανά.');
+				say('Δεν υπάρχει σύνδεση. Δοκίμασε ξανά.', true);
 			});
 	});
 }());

@@ -173,7 +173,6 @@ if ( ! function_exists( 'ioulia_contact_send' ) ) {
 
 		$html = ioulia_email_html(
 			array(
-				'eyebrow'  => $custom ? 'Παραγγελία κεραμικού' : 'Μήνυμα από τη φόρμα',
 				'title'    => $name . ' έγραψε.',
 				'quote'    => $message,
 				'rows'     => $rows,
@@ -217,7 +216,6 @@ if ( ! function_exists( 'ioulia_contact_send' ) ) {
 			$english ? 'We received your message' : 'Λάβαμε το μήνυμά σου',
 			ioulia_email_html(
 				array(
-					'eyebrow'  => $english ? 'Message received' : 'Το μήνυμά σου έφτασε',
 					'title'    => $english ? 'Thank you for writing.' : 'Ευχαριστούμε που επικοινώνησες.',
 					'intro'    => array( $intro ),
 					'quote'    => $message,
