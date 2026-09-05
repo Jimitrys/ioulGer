@@ -296,7 +296,10 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 						'postalCode'      => '111 43',
 						'addressCountry'  => 'GR',
 					),
-					'sameAs'   => array( 'https://www.instagram.com/iouliageraskli/' ),
+					'sameAs'   => array(
+						'https://www.instagram.com/iouliageraskli/',
+						'https://www.facebook.com/p/Ioulia-Geraskli-Ceramic-Lab-100068617400520/',
+					),
 					'priceRange' => '€€',
 				),
 				array(
