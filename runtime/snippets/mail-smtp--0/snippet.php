@@ -97,6 +97,54 @@ if ( ! function_exists( 'ioulia_smtp_sender' ) ) {
 	add_filter( 'wp_mail_from_name', 'ioulia_smtp_sender_name', 20 );
 }
 
+if ( ! function_exists( 'ioulia_studio_recipients' ) ) {
+	/**
+	 * Who hears about it when someone writes, books a workshop, or orders.
+	 *
+	 * There used to be two answers to that question in two snippets - a filter
+	 * defaulting to info@ for the contact form, and a settings key defaulting to
+	 * the WordPress admin address for bookings - so adding a person meant
+	 * remembering both. This is the one list, and it takes more than one address
+	 * because Ioulia will want these as well as Dimitris.
+	 *
+	 * To add her, put her address in the array below. To change it without
+	 * touching this file, filter it:
+	 *
+	 *     add_filter( 'ioulia_studio_recipients', function ( $to ) {
+	 *         $to[] = 'ioulia@example.com';
+	 *         return $to;
+	 *     } );
+	 *
+	 * WooCommerce order emails are NOT covered here - it keeps its own recipient
+	 * fields under WooCommerce > Settings > Emails, and it is the one place a
+	 * change has to be made twice.
+	 */
+	function ioulia_studio_recipients() {
+		$addresses = apply_filters(
+			'ioulia_studio_recipients',
+			array(
+				'dimitrisantoniou2000@gmail.com',
+			)
+		);
+
+		$addresses = array_values( array_unique( array_filter( (array) $addresses, 'is_email' ) ) );
+
+		return $addresses ? $addresses : array( get_option( 'admin_email' ) );
+	}
+}
+
+if ( ! function_exists( 'ioulia_studio_address' ) ) {
+	/**
+	 * The studio's own public address - what a visitor should reply to, which is
+	 * not the same question as who gets notified internally.
+	 */
+	function ioulia_studio_address() {
+		$address = apply_filters( 'ioulia_studio_address', 'info@iouliageraskliceramics.com' );
+
+		return is_email( $address ) ? $address : get_option( 'admin_email' );
+	}
+}
+
 if ( ! function_exists( 'ioulia_smtp_configure' ) ) {
 	/**
 	 * PHPMailer is handed to us already built, so this only switches the

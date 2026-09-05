@@ -435,10 +435,41 @@ if ( ! function_exists( 'ioulia_format_session' ) ) {
  * ---------------------------------------------------------------------- */
 
 if ( ! function_exists( 'ioulia_studio_email' ) ) {
+	/**
+	 * Who is told about a new booking. The shared list in the mail snippet is
+	 * the answer wherever it is loaded; notify_email in the workshop settings
+	 * still overrides it, for the case where bookings should go somewhere the
+	 * enquiries do not.
+	 */
 	function ioulia_studio_email() {
 		$settings = ioulia_workshop_settings();
 
-		return is_email( $settings['notify_email'] ) ? $settings['notify_email'] : get_option( 'admin_email' );
+		if ( is_email( $settings['notify_email'] ) ) {
+			return $settings['notify_email'];
+		}
+
+		if ( function_exists( 'ioulia_studio_recipients' ) ) {
+			return ioulia_studio_recipients();
+		}
+
+		return get_option( 'admin_email' );
+	}
+}
+
+if ( ! function_exists( 'ioulia_booking_reply_to' ) ) {
+	/**
+	 * What a customer replies to on their own confirmation. This used to be
+	 * ioulia_studio_email(), which is now a list of internal recipients - a
+	 * customer would have been replying to somebody's personal inbox.
+	 */
+	function ioulia_booking_reply_to() {
+		if ( function_exists( 'ioulia_studio_address' ) ) {
+			return ioulia_studio_address();
+		}
+
+		$to = ioulia_studio_email();
+
+		return is_array( $to ) ? reset( $to ) : $to;
 	}
 }
 
@@ -516,7 +547,7 @@ if ( ! function_exists( 'ioulia_email_visitor_confirmation' ) ) {
 			$booking['email'],
 			'Η κράτησή σου — ' . $booking['programme_title'],
 			$lines,
-			ioulia_studio_email()
+			ioulia_booking_reply_to()
 		);
 	}
 }
@@ -545,7 +576,7 @@ if ( ! function_exists( 'ioulia_email_visitor_cancellation' ) ) {
 			$booking['email'],
 			'Ακύρωση κράτησης — ' . $booking['programme_title'],
 			$lines,
-			ioulia_studio_email()
+			ioulia_booking_reply_to()
 		);
 	}
 }

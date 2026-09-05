@@ -15,10 +15,27 @@
  */
 
 if ( ! function_exists( 'ioulia_contact_studio_email' ) ) {
+	/**
+	 * The address a sender replies to. Separate from who gets notified: the
+	 * acknowledgement points at the studio, while the enquiry itself goes to
+	 * whoever is on the notification list.
+	 */
 	function ioulia_contact_studio_email() {
+		if ( function_exists( 'ioulia_studio_address' ) ) {
+			return ioulia_studio_address();
+		}
+
 		$address = apply_filters( 'ioulia_contact_recipient', 'info@iouliageraskliceramics.com' );
 
 		return is_email( $address ) ? $address : get_option( 'admin_email' );
+	}
+}
+
+if ( ! function_exists( 'ioulia_contact_notify_to' ) ) {
+	function ioulia_contact_notify_to() {
+		return function_exists( 'ioulia_studio_recipients' )
+			? ioulia_studio_recipients()
+			: ioulia_contact_studio_email();
 	}
 }
 
@@ -151,7 +168,7 @@ if ( ! function_exists( 'ioulia_contact_send' ) ) {
 		$headers = array( 'Content-Type: text/plain; charset=UTF-8', 'Reply-To: ' . $name . ' <' . $email . '>' );
 		$subject = ( $custom ? 'Παραγγελία κεραμικού από ' : 'Μήνυμα από ' ) . $name;
 
-		$delivered = wp_mail( ioulia_contact_studio_email(), $subject, implode( chr( 10 ), $lines ), $headers );
+		$delivered = wp_mail( ioulia_contact_notify_to(), $subject, implode( chr( 10 ), $lines ), $headers );
 
 		if ( ! $delivered ) {
 			wp_send_json_error( array( 'message' => 'mail failed' ), 500 );
