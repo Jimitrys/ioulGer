@@ -117,6 +117,8 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 
 				/* WORKSHOPS — page */
 				'Workshops Κεραμικής Αθήνα' => 'Pottery Workshops in Athens',
+				'Μαθήματα κεραμικής στην Αθήνα' => 'Pottery classes in Athens',
+				'Δεν απαιτείται προηγούμενη εμπειρία.' => 'No previous experience is required.',
 				'Κεραμικής' => 'Pottery',
 				'Αθήνα' => 'Athens',
 				'Κλείσε Θέση' => 'Book your place',

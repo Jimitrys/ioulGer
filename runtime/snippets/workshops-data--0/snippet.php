@@ -373,10 +373,10 @@ if ( ! function_exists( 'ioulia_programmes_shortcode' ) ) {
 
 		$out = '<div class="igw-tech__list">';
 
-		foreach ( $programmes as $programme ) {
+		foreach ( $programmes as $slug => $programme ) {
 			list( $price, $note ) = ioulia_workshop_price_label( $programme );
 
-			$out .= '<div class="igw-tech__item">'
+			$out .= '<div class="igw-tech__item" id="workshop-' . esc_attr( $slug ) . '">'
 				. '<button class="igw-tech__trigger" aria-expanded="false" type="button">'
 				. '<span class="igw-tech__num">' . esc_html( $programme['number'] ) . '</span>'
 				. '<span class="igw-tech__name">' . esc_html( $programme['title'] ) . '</span>'

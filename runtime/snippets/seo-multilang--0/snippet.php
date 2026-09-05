@@ -274,33 +274,218 @@ if ( ! function_exists( 'ioulia_seo_sitemap_status' ) ) {
 }
 
 if ( ! function_exists( 'ioulia_seo_schema' ) ) {
+	function ioulia_seo_schema_translate( $text ) {
+		if ( ! function_exists( 'ioulia_lang' ) || 'en' !== ioulia_lang() || ! function_exists( 'ioulia_lookup_translation' ) ) {
+			return $text;
+		}
+
+		$translated = ioulia_lookup_translation( 'en', $text );
+
+		return '' !== $translated ? $translated : $text;
+	}
+
+	function ioulia_seo_workshop_faq() {
+		$entries = array(
+			array(
+				'Χρειάζομαι προηγούμενη εμπειρία;',
+				'Όχι, καθόλου. Όλα τα workshops μας είναι ανοιχτά τόσο σε απόλυτα αρχάριους όσο και σε άτομα που έχουν ήδη εξοικείωση με τον πηλό.',
+			),
+			array(
+				'Πώς κάνω κράτηση και πόσο νωρίτερα;',
+				'Επιλέγετε το πρόγραμμα και την ώρα που σας εξυπηρετεί στη σελίδα κρατήσεων. Για την καλύτερη οργάνωση του εργαστηρίου, είναι απαραίτητο να κλείνετε τη θέση σας τουλάχιστον 3 ημέρες πριν. Η επιβεβαίωση αποστέλλεται με email.',
+			),
+			array(
+				'Τι περιλαμβάνεται στην τιμή;',
+				'Στο κόστος περιλαμβάνονται όλα τα υλικά (πηλός, χρώματα, υαλώματα), η χρήση των εργαλείων και του τροχού, καθώς και τα ψησίματα στο καμίνι μας. (Στις αναγραφόμενες τιμές δεν συμπεριλαμβάνεται ΦΠΑ 24%).',
+			),
+			array(
+				'Πότε παραλαμβάνω τα κεραμικά μου;',
+				'Τα αντικείμενα που φτιάχνετε χρειάζονται χρόνο για να στεγνώσουν αργά, να ψηθούν (μπισκουί), να υαλωθούν και να ψηθούν ξανά σε υψηλή θερμοκρασία. Θα είναι έτοιμα και πλήρως λειτουργικά για παραλαβή σε περίπου 1–2 εβδομάδες (στο Κυριακάτικο σε 1 εβδομάδα).',
+			),
+			array(
+				'Μπορώ να κλείσω θέση για περισσότερα άτομα;',
+				'Ναι. Στη φόρμα κράτησης μπορείτε να επιλέξετε τον αριθμό των συμμετεχόντων. Η διαθεσιμότητα εξαρτάται από τον μέγιστο αριθμό θέσεων της εκάστοτε συνάντησης.',
+			),
+		);
+		$questions = array();
+
+		foreach ( $entries as $entry ) {
+			$questions[] = array(
+				'@type'          => 'Question',
+				'name'           => ioulia_seo_schema_translate( $entry[0] ),
+				'acceptedAnswer' => array(
+					'@type' => 'Answer',
+					'text'  => ioulia_seo_schema_translate( $entry[1] ),
+				),
+			);
+		}
+
+		return array(
+			'@type'      => 'FAQPage',
+			'@id'        => ioulia_seo_canonical() . '#faq',
+			'inLanguage' => function_exists( 'ioulia_lang' ) && 'en' === ioulia_lang() ? 'en-US' : 'el-GR',
+			'mainEntity' => $questions,
+		);
+	}
+
+	function ioulia_seo_workshop_courses() {
+		if ( ! function_exists( 'ioulia_workshop_active_programmes' ) ) {
+			return array();
+		}
+
+		$day_names = array(
+			1 => 'https://schema.org/Monday',
+			2 => 'https://schema.org/Tuesday',
+			3 => 'https://schema.org/Wednesday',
+			4 => 'https://schema.org/Thursday',
+			5 => 'https://schema.org/Friday',
+			6 => 'https://schema.org/Saturday',
+			7 => 'https://schema.org/Sunday',
+		);
+		$language   = function_exists( 'ioulia_lang' ) && 'en' === ioulia_lang() ? 'en-US' : 'el-GR';
+		$workshops  = function_exists( 'ioulia_url' ) ? ioulia_url( 'workshops/' ) : home_url( '/workshops/' );
+		$booking    = function_exists( 'ioulia_url' ) ? ioulia_url( 'book-workshop/' ) : home_url( '/book-workshop/' );
+		$items      = array();
+		$position   = 1;
+
+		foreach ( ioulia_workshop_active_programmes() as $slug => $programme ) {
+			$instances = array();
+
+			foreach ( (array) $programme['sessions'] as $session ) {
+				if ( ! isset( $day_names[ $session['day'] ] ) ) {
+					continue;
+				}
+
+				$instances[] = array(
+					'@type'          => 'CourseInstance',
+					'courseMode'     => 'onsite',
+					'location'       => array( '@id' => untrailingslashit( (string) get_option( 'home' ) ) . '/#studio' ),
+					'courseSchedule' => array(
+						'@type'           => 'Schedule',
+						'repeatFrequency' => 'P1W',
+						'byDay'           => $day_names[ $session['day'] ],
+						'startTime'       => $session['start'],
+						'endTime'         => $session['end'],
+						'scheduleTimezone'=> 'Europe/Athens',
+					),
+					'offers'          => array(
+						'@type'         => 'Offer',
+						'url'           => $booking,
+						'price'         => (string) $programme['price'],
+						'priceCurrency' => 'EUR',
+						'availability'  => 'https://schema.org/InStock',
+					),
+				);
+			}
+
+			$course = array(
+				'@type'               => 'Course',
+				'@id'                 => $workshops . '#workshop-' . $slug,
+				'name'                => ioulia_seo_schema_translate( $programme['title'] ),
+				'description'         => ioulia_seo_schema_translate( $programme['summary'] ),
+				'url'                 => $workshops . '#workshop-' . $slug,
+				'inLanguage'          => $language,
+				'provider'            => array( '@id' => untrailingslashit( (string) get_option( 'home' ) ) . '/#organization' ),
+				'coursePrerequisites' => ioulia_seo_schema_translate( 'Δεν απαιτείται προηγούμενη εμπειρία.' ),
+				'educationalLevel'    => 'Beginner',
+				'isAccessibleForFree' => false,
+				'offers'              => array(
+					'@type'         => 'Offer',
+					'url'           => $booking,
+					'price'         => (string) $programme['price'],
+					'priceCurrency' => 'EUR',
+					'availability'  => 'https://schema.org/InStock',
+				),
+			);
+
+			if ( ! empty( $instances ) ) {
+				$course['hasCourseInstance'] = $instances;
+			}
+
+			$items[] = array(
+				'@type'    => 'ListItem',
+				'position' => $position,
+				'url'      => $course['url'],
+				'item'     => $course,
+			);
+			$position++;
+		}
+
+		return array(
+			'@type'           => 'ItemList',
+			'@id'             => $workshops . '#workshop-programmes',
+			'name'            => ioulia_seo_schema_translate( 'Μαθήματα κεραμικής στην Αθήνα' ),
+			'numberOfItems'   => count( $items ),
+			'itemListElement' => $items,
+		);
+	}
+
 	function ioulia_seo_schema() {
 		if ( is_admin() || is_404() || is_search() ) {
 			return;
 		}
 
-		$home   = untrailingslashit( (string) get_option( 'home' ) ) . '/';
+		$home      = untrailingslashit( (string) get_option( 'home' ) ) . '/';
+		$canonical = ioulia_seo_canonical();
+		$language  = function_exists( 'ioulia_lang' ) && 'en' === ioulia_lang() ? 'en-US' : 'el-GR';
+		$booking   = function_exists( 'ioulia_url' ) ? ioulia_url( 'book-workshop/' ) : home_url( '/book-workshop/' );
 		$schema = array(
 			'@context' => 'https://schema.org',
 			'@graph'   => array(
 				array(
-					'@type'    => array( 'Organization', 'Store' ),
+					'@type'    => array( 'Organization', 'LocalBusiness', 'Store' ),
 					'@id'      => $home . '#organization',
 					'name'     => 'Ioulia Geraskli Ceramics',
 					'url'      => $home,
 					'email'    => 'info@iouliageraskliceramics.com',
 					'address'  => array(
 						'@type'           => 'PostalAddress',
+						'@id'             => $home . '#address',
 						'streetAddress'   => 'Προμπονά 42',
 						'addressLocality' => 'Αθήνα',
 						'postalCode'      => '111 43',
 						'addressCountry'  => 'GR',
+					),
+					'geo'      => array(
+						'@type'     => 'GeoCoordinates',
+						'latitude'  => 38.0289084,
+						'longitude' => 23.7389517,
+					),
+					'hasMap'   => 'https://www.google.com/maps/search/?api=1&query=38.0289084,23.7389517',
+					'areaServed'=> array(
+						'@type' => 'City',
+						'name'  => 'Athens',
 					),
 					'sameAs'   => array(
 						'https://www.instagram.com/iouliageraskli/',
 						'https://www.facebook.com/p/Ioulia-Geraskli-Ceramic-Lab-100068617400520/',
 					),
 					'priceRange' => '€€',
+					'currenciesAccepted' => 'EUR',
+					'knowsAbout' => array( 'Handmade ceramics', 'Pottery workshops', 'Handbuilding', 'Wheel throwing', 'Ceramic painting' ),
+					'potentialAction' => array(
+						'@type'  => 'ReserveAction',
+						'target' => array(
+							'@type'      => 'EntryPoint',
+							'urlTemplate'=> $booking,
+							'actionPlatform' => array(
+								'https://schema.org/DesktopWebPlatform',
+								'https://schema.org/MobileWebPlatform',
+							),
+						),
+						'result' => array( '@type' => 'Reservation' ),
+					),
+				),
+				array(
+					'@type'   => 'Place',
+					'@id'     => $home . '#studio',
+					'name'    => 'Ioulia Geraskli Ceramic Lab',
+					'address' => array( '@id' => $home . '#address' ),
+					'geo'     => array(
+						'@type'     => 'GeoCoordinates',
+						'latitude'  => 38.0289084,
+						'longitude' => 23.7389517,
+					),
 				),
 				array(
 					'@type'       => 'WebSite',
@@ -310,8 +495,30 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 					'inLanguage'  => array( 'el-GR', 'en-US' ),
 					'publisher'   => array( '@id' => $home . '#organization' ),
 				),
+				array(
+					'@type'      => 'WebPage',
+					'@id'        => $canonical . '#webpage',
+					'url'        => $canonical,
+					'name'       => ioulia_seo_title( wp_get_document_title() ),
+					'description'=> ioulia_seo_value( 'desc' ),
+					'inLanguage' => $language,
+					'isPartOf'   => array( '@id' => $home . '#website' ),
+					'about'      => array( '@id' => $home . '#organization' ),
+				),
 			),
 		);
+
+		if ( in_array( ioulia_seo_page_key(), array( 'workshops', 'book-workshop' ), true ) ) {
+			$courses = ioulia_seo_workshop_courses();
+
+			if ( ! empty( $courses['itemListElement'] ) ) {
+				$schema['@graph'][] = $courses;
+			}
+		}
+
+		if ( 'workshops' === ioulia_seo_page_key() ) {
+			$schema['@graph'][] = ioulia_seo_workshop_faq();
+		}
 
 		echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>' . chr( 10 );
 	}
