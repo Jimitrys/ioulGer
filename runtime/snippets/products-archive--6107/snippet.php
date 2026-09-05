@@ -111,6 +111,32 @@ function igpa_render_product_archive( $atts = array() ) {
 		$categories = array();
 	}
 
+	/*
+	 * The whole tree, not just its top. The row of subcategories beside the
+	 * filters shows one level at a time - the children of whatever category is
+	 * selected - so it needs every term and the slug of each one's parent. Cards
+	 * already carry their ancestors' slugs, so filtering by a term at any depth
+	 * works with the matcher that is already there.
+	 */
+	$category_tree = get_terms(
+		array(
+			'taxonomy'   => 'product_cat',
+			'hide_empty' => true,
+			'exclude'    => array_filter( array( absint( get_option( 'default_product_cat' ) ) ) ),
+			'orderby'    => 'menu_order',
+			'order'      => 'ASC',
+		)
+	);
+
+	if ( is_wp_error( $category_tree ) ) {
+		$category_tree = array();
+	}
+
+	$category_slug_by_id = array();
+	foreach ( $category_tree as $term ) {
+		$category_slug_by_id[ $term->term_id ] = $term->slug;
+	}
+
 	$collections = get_terms(
 		array(
 			'taxonomy'   => 'product_collection',
@@ -206,7 +232,7 @@ function igpa_render_product_archive( $atts = array() ) {
 				border: 0;
 				background: transparent;
 				align-items: center;
-				justify-content: end;
+				justify-content: space-between;
 				gap: 24px;
 				pointer-events: none;
 			}
@@ -229,6 +255,53 @@ function igpa_render_product_archive( $atts = array() ) {
 				display: flex;
 				align-items: center;
 				gap: clamp(18px, 2.2vw, 34px);
+			}
+
+			/* The subcategories are words, not controls. They read as a line of
+			   text beside the two filters, and the one in use is the one set in
+			   ink - no borders, no fills, nothing that competes with the buttons
+			   it sits next to. */
+			#<?php echo esc_attr( $instance_id ); ?> .igpa__subs {
+				display: flex;
+				min-width: 0;
+				align-items: baseline;
+				gap: clamp(14px, 1.6vw, 26px);
+				pointer-events: auto;
+				flex-wrap: wrap;
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igpa__sub {
+				appearance: none;
+				display: inline-block;
+				padding: 0;
+				border: 0;
+				border-radius: 0;
+				background: none;
+				color: var(--igpa-muted);
+				font-size: var(--ioulia-small);
+				font-weight: 500;
+				line-height: 1.2;
+				letter-spacing: .01em;
+				text-transform: lowercase;
+				white-space: nowrap;
+				cursor: pointer;
+				transition: color 220ms ease;
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igpa__sub:hover {
+				color: var(--igpa-ink);
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igpa__sub.is-active {
+				color: var(--igpa-ink);
+				text-decoration: underline;
+				text-underline-offset: 5px;
+				text-decoration-thickness: 1px;
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igpa__sub:focus-visible {
+				outline: 1px solid var(--igpa-accent);
+				outline-offset: 4px;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__picker {
@@ -501,6 +574,34 @@ function igpa_render_product_archive( $atts = array() ) {
 					display: none;
 				}
 
+				/* The toolbar becomes two rows: the subcategories, then the two
+				   filters under them. The row scrolls sideways rather than
+				   wrapping, so the toolbar keeps one height however many terms
+				   the level holds - and overflow-y is named, because a lone
+				   overflow-x: auto makes the browser compute the other axis as
+				   auto too and the row scrolls vertically as well. */
+				#<?php echo esc_attr( $instance_id ); ?> .igpa__toolbar {
+					flex-wrap: wrap;
+					row-gap: 10px;
+				}
+
+				#<?php echo esc_attr( $instance_id ); ?> .igpa__subs {
+					width: 100%;
+					margin: 0 calc(var(--igpa-x) * -1);
+					padding: 2px var(--igpa-x);
+					overflow-x: auto;
+					overflow-y: hidden;
+					gap: 18px;
+					flex-wrap: nowrap;
+					touch-action: pan-x;
+					scrollbar-width: none;
+					-webkit-overflow-scrolling: touch;
+				}
+
+				#<?php echo esc_attr( $instance_id ); ?> .igpa__subs::-webkit-scrollbar {
+					display: none;
+				}
+
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__controls {
 					width: 100%;
 					gap: 0;
@@ -554,7 +655,31 @@ function igpa_render_product_archive( $atts = array() ) {
 		</header>
 
 		<nav class="igpa__toolbar" aria-label="shop filters">
-			
+			<?php if ( ! empty( $category_tree ) ) : ?>
+				<div class="igpa__subs" data-subs role="group" aria-label="subcategories">
+					<button
+						class="igpa__sub is-active"
+						type="button"
+						data-sub
+						data-sub-value="*"
+						data-sub-parent=""
+						aria-pressed="true"
+					>all</button>
+
+					<?php foreach ( $category_tree as $term ) : ?>
+						<?php $parent_slug = isset( $category_slug_by_id[ $term->parent ] ) ? $category_slug_by_id[ $term->parent ] : ''; ?>
+						<button
+							class="igpa__sub"
+							type="button"
+							data-sub
+							data-sub-value="<?php echo esc_attr( $term->slug ); ?>"
+							data-sub-parent="<?php echo esc_attr( $parent_slug ); ?>"
+							aria-pressed="false"
+							hidden
+						><?php echo esc_html( $term->name ); ?></button>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 
 			<div class="igpa__controls">
 				<div class="igpa__picker" data-picker data-kind="category">
@@ -938,6 +1063,103 @@ function igpa_render_product_archive( $atts = array() ) {
 				});
 			}
 
+			/* ---------------------------------------------------------------
+			   The row of subcategories.
+
+			   One level is shown at a time: the children of whatever category is
+			   selected. Choosing one filters by it and steps down into its own
+			   children; a term with no children keeps its siblings on screen so
+			   the row never empties and there is always a way sideways. "all"
+			   returns to the top.
+			   -------------------------------------------------------------- */
+
+			var subButtons = Array.prototype.slice.call(
+				root.querySelectorAll("[data-sub]")
+			);
+			var subAll = subButtons.filter(function (button) {
+				return button.dataset.subValue === "*";
+			})[0];
+			var subTerms = subButtons.filter(function (button) {
+				return button.dataset.subValue !== "*";
+			});
+
+			function subParentOf(slug) {
+				for (var i = 0; i < subTerms.length; i++) {
+					if (subTerms[i].dataset.subValue === slug) {
+						return subTerms[i].dataset.subParent || "";
+					}
+				}
+				return "";
+			}
+
+			function subChildrenOf(slug) {
+				return subTerms.filter(function (button) {
+					return (button.dataset.subParent || "") === slug;
+				});
+			}
+
+			function renderSubs() {
+				if (!subTerms.length) return;
+
+				var shown;
+
+				if (activeCategory === "*") {
+					shown = subChildrenOf("");
+				} else {
+					shown = subChildrenOf(activeCategory);
+					/* A leaf has nothing below it, so the row stays on its level. */
+					if (!shown.length) shown = subChildrenOf(subParentOf(activeCategory));
+					if (!shown.length) shown = subChildrenOf("");
+				}
+
+				subTerms.forEach(function (button) {
+					var visible = shown.indexOf(button) !== -1;
+					var current = button.dataset.subValue === activeCategory;
+					button.hidden = !visible && !current;
+					button.classList.toggle("is-active", current);
+					button.setAttribute("aria-pressed", current ? "true" : "false");
+				});
+
+				if (subAll) {
+					subAll.classList.toggle("is-active", activeCategory === "*");
+					subAll.setAttribute("aria-pressed", activeCategory === "*" ? "true" : "false");
+				}
+			}
+
+			/* The dropdown and this row set the same thing, so whichever is used
+			   the other has to follow. */
+			function setCategory(value) {
+				activeCategory = value || "*";
+				renderSubs();
+				updateView();
+
+				var picker = root.querySelector("[data-kind='category']");
+				if (!picker) return;
+
+				var label = picker.querySelector("[data-picker-label]");
+				var chosen = picker.querySelector("[data-option-value='" + activeCategory + "']");
+
+				Array.prototype.slice.call(
+					picker.querySelectorAll("[data-option-value]")
+				).forEach(function (option) {
+					option.setAttribute("aria-selected", option === chosen ? "true" : "false");
+				});
+
+				if (label) {
+					label.textContent = chosen
+						? (chosen.dataset.optionLabel || chosen.textContent.trim())
+						: "category";
+				}
+			}
+
+			subButtons.forEach(function (button) {
+				button.addEventListener("click", function () {
+					setCategory(button.dataset.subValue);
+				});
+			});
+
+			renderSubs();
+
 			pickers.forEach(function (picker) {
 				var trigger = picker.querySelector("[data-picker-trigger]");
 				var label = picker.querySelector("[data-picker-label]");
@@ -972,6 +1194,7 @@ function igpa_render_product_archive( $atts = array() ) {
 
 						if (kind === "category") {
 							activeCategory = value;
+							renderSubs();
 							updateView();
 						} else if (kind === "collection") {
 							activeCollection = value;

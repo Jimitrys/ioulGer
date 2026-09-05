@@ -100,8 +100,11 @@
     padding: clamp(100px, 15svh, 200px) var(--izn-page-padding);
   }
 
+  /* Wide enough for the three lines of the statement to each stay one line.
+     At 900px every one of them wrapped, so a heading written as three staggered
+     lines was rendering as six ragged ones. */
   .iznE-parallax__copy {
-    width: min(900px, 82vw);
+    width: min(1120px, 82vw);
     margin-left: clamp(120px, 16vw, 240px);
     pointer-events: auto;
   }
@@ -128,11 +131,13 @@
   }
 
   .iznE-parallax__title {
-    max-width: 1050px;
+    max-width: none;
     margin: 0;
     color: inherit;
-    
-    font-size: clamp(50px, 8.2vw, 116px);
+
+    /* 116px was more than the longest line could hold beside its own indent.
+       The size is set by what the sentence needs, not the other way round. */
+    font-size: clamp(46px, 6.4vw, 100px);
     font-weight: 300 ;
     line-height: 0.88;
     letter-spacing: -0.02em;
@@ -142,17 +147,20 @@
     display: block;
   }
 
+  /* The stagger is kept, at the depth the shorter measure can afford. */
   .iznE-parallax__title-line:nth-child(2) {
-    margin-left: clamp(0px, 5vw, 90px);
+    margin-left: clamp(0px, 3.4vw, 62px);
   }
 
   .iznE-parallax__title-line:nth-child(3) {
-    margin-left: clamp(20px, 13vw, 220px);
+    margin-left: clamp(14px, 7vw, 128px);
   }
 
+  /* Indented to sit under the third line of the statement, so the two indents
+     have to move together. */
   .iznE-parallax__body {
     width: min(560px, 100%);
-    margin: clamp(34px, 5vw, 66px) 0 0 clamp(0px, 13vw, 220px);
+    margin: clamp(34px, 5vw, 66px) 0 0 clamp(0px, 7vw, 128px);
     font-family: Arial, Helvetica, sans-serif;
     font-size: clamp(14px, 1.05vw, 17px);
     font-weight: 400;
@@ -168,7 +176,7 @@
 
   /* Placement only; the skin comes from the global button system. */
   .iznE-parallax__button {
-    margin: clamp(28px, 4vw, 48px) 0 0 clamp(0px, 13vw, 220px);
+    margin: clamp(28px, 4vw, 48px) 0 0 clamp(0px, 7vw, 128px);
   }
 
   /* Active State (Όταν το κείμενο γίνεται κρεμ) */
@@ -184,9 +192,10 @@
     .iznE-parallax__track, .iznE-parallax__content { min-height: calc(var(--izn-section-height-mobile) * 1svh); }
     .iznE-parallax__content { padding-top: 15svh; padding-bottom: 70px; }
     .iznE-parallax__copy { width: 100%; margin-left: 0; }
-    /* 16vw put this at 60px on a 375px screen, where the single word
-       "contemporary" is wider than the phone and ran off the side. The
-       indents were eating the width it needed as well. */
+    /* 16vw put this at 60px on a 375px screen, wider than the phone itself for
+       a single long word, and the indents were eating the width it needed as
+       well. The statement is short now, but the ceiling stays: it is what keeps
+       a long English line inside the screen. */
     .iznE-parallax__title {
       font-size: clamp(34px, 11vw, 60px);
       line-height: 0.96;
