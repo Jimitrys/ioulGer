@@ -510,6 +510,12 @@ if ( ! function_exists( 'ioulia_head_alternates' ) ) {
 			return;
 		}
 
+		// The installed IGC Builder plugin owns these tags when its multilingual
+		// module is enabled. Avoid emitting an identical second hreflang set.
+		if ( class_exists( 'IGC_I18N' ) && is_callable( array( 'IGC_I18N', 'is_enabled' ) ) && IGC_I18N::is_enabled() ) {
+			return;
+		}
+
 		$output = '';
 
 		foreach ( ioulia_languages() as $code => $language ) {
