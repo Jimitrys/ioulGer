@@ -133,6 +133,7 @@ if ( ! function_exists( 'ioulia_book_ajax' ) ) {
 				'phone'        => isset( $_POST['phone'] ) ? wp_unslash( $_POST['phone'] ) : '',
 				'note'         => isset( $_POST['note'] ) ? wp_unslash( $_POST['note'] ) : '',
 				'consent'      => ! empty( $_POST['consent'] ),
+				'language'     => isset( $_POST['language'] ) ? wp_unslash( $_POST['language'] ) : 'el',
 			)
 		);
 
@@ -1506,6 +1507,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 		data.append('programme', picked.programme.slug);
 		data.append('starts', picked.time.starts);
 		data.append('participants', picked.people);
+		data.append('language', document.body.classList.contains('ioulia-lang-en') ? 'en' : 'el');
 
 		var submit = el.next;
 		submit.disabled = true;
@@ -1522,8 +1524,7 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 					return;
 				}
 
-				/* The server keeps booking records and emails in Greek. The public
-				   confirmation reuses the already-localised selection on screen. */
+				/* The public confirmation reuses the already-localised selection on screen. */
 				el.summary.textContent = picked.programme.title + '  ·  ' + picked.date.full + ', ' + picked.time.label;
 				goTo('done');
 			})

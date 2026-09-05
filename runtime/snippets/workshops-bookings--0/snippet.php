@@ -99,6 +99,7 @@ if ( ! function_exists( 'ioulia_booking_fields' ) ) {
 			'status'          => (string) get_post_meta( $post->ID, '_ioulia_status', true ),
 			'consent_at'      => (string) get_post_meta( $post->ID, '_ioulia_consent_at', true ),
 			'cancel_token'    => (string) get_post_meta( $post->ID, '_ioulia_cancel_token', true ),
+			'language'        => 'en' === get_post_meta( $post->ID, '_ioulia_language', true ) ? 'en' : 'el',
 			'created'         => $post->post_date,
 		);
 	}
@@ -269,6 +270,7 @@ if ( ! function_exists( 'ioulia_create_booking' ) ) {
 		$email = sanitize_email( isset( $input['email'] ) ? $input['email'] : '' );
 		$phone = sanitize_text_field( isset( $input['phone'] ) ? $input['phone'] : '' );
 		$note  = sanitize_textarea_field( isset( $input['note'] ) ? $input['note'] : '' );
+		$lang  = isset( $input['language'] ) && 'en' === sanitize_key( $input['language'] ) ? 'en' : 'el';
 
 		if ( '' === $name ) {
 			return new WP_Error( 'ioulia_name', ioulia_booking_public_message( 'Γράψε το ονοματεπώνυμό σου.' ) );
@@ -305,6 +307,7 @@ if ( ! function_exists( 'ioulia_create_booking' ) ) {
 			'_ioulia_phone'        => $phone,
 			'_ioulia_note'         => $note,
 			'_ioulia_status'       => 'confirmed',
+			'_ioulia_language'     => $lang,
 			'_ioulia_consent_at'   => current_time( 'mysql', true ),
 			/* What lets someone cancel from the link in their email without an
 			   account. It is per booking and it is the only secret in the URL. */
@@ -389,12 +392,16 @@ if ( ! function_exists( 'ioulia_booking_cancel_url' ) ) {
 	 * shows the booking and asks.
 	 */
 	function ioulia_booking_cancel_url( $booking ) {
+		$base = function_exists( 'ioulia_url' )
+			? ioulia_url( '/cancel-booking/', isset( $booking['language'] ) ? $booking['language'] : 'el' )
+			: home_url( '/cancel-booking/' );
+
 		return add_query_arg(
 			array(
 				'b' => (int) $booking['id'],
 				't' => ioulia_booking_cancel_token( $booking['id'] ),
 			),
-			home_url( '/cancel-booking/' )
+			$base
 		);
 	}
 }
@@ -574,18 +581,55 @@ if ( ! function_exists( 'ioulia_booking_rows' ) ) {
 	/**
 	 * The facts of a booking, in the order they answer "what did I book".
 	 */
-	function ioulia_booking_rows( $booking ) {
+	function ioulia_booking_rows( $booking, $language = 'el' ) {
+		$english = 'en' === $language;
+		$title   = $booking['programme_title'];
+
+		if ( $english && function_exists( 'ioulia_lookup_translation' ) ) {
+			$translated = ioulia_lookup_translation( 'en', $title );
+			$title      = '' !== $translated ? $translated : $title;
+		}
+
 		$rows = array(
-			'Πρόγραμμα'  => $booking['programme_title'],
-			'Ημερομηνία' => ioulia_format_session( $booking['starts'] ),
-			'Άτομα'      => (string) $booking['participants'],
+			$english ? 'Workshop' : 'Πρόγραμμα' => $title,
+			$english ? 'Date' : 'Ημερομηνία'     => $english ? ioulia_format_session_en( $booking['starts'] ) : ioulia_format_session( $booking['starts'] ),
+			$english ? 'Guests' : 'Άτομα'         => (string) $booking['participants'],
 		);
 
 		if ( '' !== $booking['note'] ) {
-			$rows['Σημείωση'] = $booking['note'];
+			$rows[ $english ? 'Note' : 'Σημείωση' ] = $booking['note'];
 		}
 
 		return $rows;
+	}
+}
+
+if ( ! function_exists( 'ioulia_booking_programme_title' ) ) {
+	function ioulia_booking_programme_title( $booking, $language = 'el' ) {
+		$title = $booking['programme_title'];
+
+		if ( 'en' === $language && function_exists( 'ioulia_lookup_translation' ) ) {
+			$translated = ioulia_lookup_translation( 'en', $title );
+			$title      = '' !== $translated ? $translated : $title;
+		}
+
+		return $title;
+	}
+}
+
+if ( ! function_exists( 'ioulia_format_session_en' ) ) {
+	function ioulia_format_session_en( $starts, $with_weekday = true ) {
+		$stamp = strtotime( $starts );
+
+		if ( ! $stamp ) {
+			return $starts;
+		}
+
+		$weekdays = array( 1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday' );
+		$months   = array( 1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December' );
+		$prefix   = $with_weekday ? $weekdays[ (int) gmdate( 'N', $stamp ) ] . ', ' : '';
+
+		return sprintf( '%s%s %d at %s', $prefix, $months[ (int) gmdate( 'n', $stamp ) ], (int) gmdate( 'j', $stamp ), gmdate( 'H:i', $stamp ) );
 	}
 }
 
@@ -628,24 +672,32 @@ if ( ! function_exists( 'ioulia_email_studio_new_booking' ) ) {
 
 if ( ! function_exists( 'ioulia_email_visitor_confirmation' ) ) {
 	function ioulia_email_visitor_confirmation( $booking ) {
+		$english = isset( $booking['language'] ) && 'en' === $booking['language'];
 		$html = ioulia_email_html(
 			array(
-				'title'    => 'Η θέση σου κρατήθηκε.',
-				'intro'    => array(
-					'Γεια σου ' . $booking['name'] . ', σε περιμένουμε.',
-					'Το εργαστήριο είναι στην Προμπονά 42, Άνω Πατήσια, 111 43 Αθήνα. Έλα λίγα λεπτά νωρίτερα και φόρα κάτι που δεν σε πειράζει να λερωθεί.',
-				),
-				'rows'     => ioulia_booking_rows( $booking ),
+				'title'    => $english ? 'Your place is booked.' : 'Η θέση σου κρατήθηκε.',
+				'intro'    => $english
+					? array(
+						'Hi ' . $booking['name'] . ', we look forward to welcoming you.',
+						'The studio is at 42 Prompona Street, Ano Patissia, 111 43 Athens. Please arrive a few minutes early and wear something you do not mind getting a little clay on.',
+					)
+					: array(
+						'Γεια σου ' . $booking['name'] . ', σε περιμένουμε.',
+						'Το εργαστήριο είναι στην Προμπονά 42, Άνω Πατήσια, 111 43 Αθήνα. Έλα λίγα λεπτά νωρίτερα και φόρα κάτι που δεν σε πειράζει να λερωθεί.',
+					),
+				'rows'     => ioulia_booking_rows( $booking, $english ? 'en' : 'el' ),
 				'buttons'  => array(
-					array( 'label' => 'Ακύρωση κράτησης', 'url' => ioulia_booking_cancel_url( $booking ), 'variant' => 'outline' ),
+					array( 'label' => $english ? 'Cancel booking' : 'Ακύρωση κράτησης', 'url' => ioulia_booking_cancel_url( $booking ), 'variant' => 'outline' ),
 				),
-				'footnote' => 'Για άλλη ημέρα, ακύρωσε αυτή την κράτηση και κλείσε ξανά — έτσι ελευθερώνεται η θέση για κάποιον άλλο.',
+				'footnote' => $english
+					? 'Need a different day? Cancel this booking and make a new one, so the place becomes available to someone else.'
+					: 'Για άλλη ημέρα, ακύρωσε αυτή την κράτηση και κλείσε ξανά — έτσι ελευθερώνεται η θέση για κάποιον άλλο.',
 			)
 		);
 
 		ioulia_send_html_mail(
 			$booking['email'],
-			'Η κράτησή σου — ' . $booking['programme_title'],
+			( $english ? 'Your workshop booking — ' : 'Η κράτησή σου — ' ) . ioulia_booking_programme_title( $booking, $english ? 'en' : 'el' ),
 			$html,
 			ioulia_booking_reply_to()
 		);
@@ -654,26 +706,31 @@ if ( ! function_exists( 'ioulia_email_visitor_confirmation' ) ) {
 
 if ( ! function_exists( 'ioulia_email_visitor_cancellation' ) ) {
 	function ioulia_email_visitor_cancellation( $booking, $reason = '', $by = 'studio' ) {
-		$intro = 'visitor' === $by
+		$english = isset( $booking['language'] ) && 'en' === $booking['language'];
+		$intro = $english
+			? ( 'visitor' === $by
+				? array( 'Hi ' . $booking['name'] . ', your booking has been cancelled as requested and the place is available again.' )
+				: array( 'Hi ' . $booking['name'] . ', we are sorry, but we had to cancel this booking.' ) )
+			: ( 'visitor' === $by
 			? array( 'Γεια σου ' . $booking['name'] . ', ακυρώσαμε την κράτησή σου όπως ζήτησες. Η θέση ελευθερώθηκε.' )
-			: array( 'Γεια σου ' . $booking['name'] . ', λυπόμαστε αλλά χρειάστηκε να ακυρώσουμε αυτή την κράτηση.' );
+			: array( 'Γεια σου ' . $booking['name'] . ', λυπόμαστε αλλά χρειάστηκε να ακυρώσουμε αυτή την κράτηση.' ) );
 
 		$html = ioulia_email_html(
 			array(
-				'title'    => 'Η κράτηση ακυρώθηκε.',
+				'title'    => $english ? 'Your booking has been cancelled.' : 'Η κράτηση ακυρώθηκε.',
 				'intro'    => $intro,
-				'rows'     => ioulia_booking_rows( $booking ),
+				'rows'     => ioulia_booking_rows( $booking, $english ? 'en' : 'el' ),
 				'quote'    => $reason,
 				'buttons'  => array(
-					array( 'label' => 'Κλείσε άλλη ημέρα', 'url' => home_url( '/book-workshop/' ) ),
+					array( 'label' => $english ? 'Book another day' : 'Κλείσε άλλη ημέρα', 'url' => function_exists( 'ioulia_url' ) ? ioulia_url( '/book-workshop/', $english ? 'en' : 'el' ) : home_url( '/book-workshop/' ) ),
 				),
-				'footnote' => 'Αν πλήρωσες ήδη, επικοινώνησε μαζί μας και το τακτοποιούμε.',
+				'footnote' => $english ? 'If you have already paid, contact us and we will take care of it.' : 'Αν πλήρωσες ήδη, επικοινώνησε μαζί μας και το τακτοποιούμε.',
 			)
 		);
 
 		ioulia_send_html_mail(
 			$booking['email'],
-			'Ακύρωση κράτησης — ' . $booking['programme_title'],
+			( $english ? 'Booking cancelled — ' : 'Ακύρωση κράτησης — ' ) . ioulia_booking_programme_title( $booking, $english ? 'en' : 'el' ),
 			$html,
 			ioulia_booking_reply_to()
 		);
@@ -1241,6 +1298,7 @@ if ( ! function_exists( 'ioulia_accept_offer' ) ) {
 			'_ioulia_phone'        => $old['phone'],
 			'_ioulia_note'         => $old['note'],
 			'_ioulia_status'       => 'confirmed',
+			'_ioulia_language'     => isset( $old['language'] ) ? $old['language'] : 'el',
 			/* The consent was given for the original booking and covers this one:
 			   same person, same purpose, moved date. */
 			'_ioulia_consent_at'   => $old['consent_at'],
@@ -1267,45 +1325,50 @@ if ( ! function_exists( 'ioulia_accept_offer' ) ) {
 
 if ( ! function_exists( 'ioulia_email_visitor_day_cancelled' ) ) {
 	function ioulia_email_visitor_day_cancelled( $booking, $reason, $offer_url, $offer_starts ) {
-		$buttons = array();
+		$english = isset( $booking['language'] ) && 'en' === $booking['language'];
+		$buttons  = array();
 
 		if ( '' !== $offer_url && '' !== $offer_starts ) {
 			$buttons[] = array(
-				'label' => 'Κλείσε ' . ioulia_format_session( $offer_starts ),
+				'label' => ( $english ? 'Book ' : 'Κλείσε ' ) . ( $english ? ioulia_format_session_en( $offer_starts ) : ioulia_format_session( $offer_starts ) ),
 				'url'   => $offer_url,
 			);
 		}
 
 		$buttons[] = array(
-			'label'   => 'Δες όλες τις ημερομηνίες',
-			'url'     => home_url( '/book-workshop/' ),
+			'label'   => $english ? 'See all available dates' : 'Δες όλες τις ημερομηνίες',
+			'url'     => function_exists( 'ioulia_url' ) ? ioulia_url( '/book-workshop/', $english ? 'en' : 'el' ) : home_url( '/book-workshop/' ),
 			'variant' => 'outline',
 		);
 
-		$intro = array(
-			'Γεια σου ' . $booking['name'] . ', λυπόμαστε πολύ. Χρειάστηκε να ακυρώσουμε όλα τα μαθήματα εκείνης της ημέρας και η δική σου κράτηση ακυρώθηκε μαζί τους.',
-		);
+		$intro = $english
+			? array( 'Hi ' . $booking['name'] . ', we are very sorry. We had to cancel all workshops on that day, including your booking.' )
+			: array( 'Γεια σου ' . $booking['name'] . ', λυπόμαστε πολύ. Χρειάστηκε να ακυρώσουμε όλα τα μαθήματα εκείνης της ημέρας και η δική σου κράτηση ακυρώθηκε μαζί τους.' );
 
 		if ( '' !== $offer_starts ) {
-			$intro[] = 'Η επόμενη φορά που τρέχει το ίδιο πρόγραμμα είναι ' . ioulia_format_session( $offer_starts ) . ', στην ίδια τιμή. Αν σε βολεύει, κράτησέ την με το κουμπί πιο κάτω — η θέση δεν είναι δεσμευμένη μέχρι να το πατήσεις.';
+			$intro[] = $english
+				? 'The next available session for the same workshop is ' . ioulia_format_session_en( $offer_starts ) . ' at the same price. If it suits you, use the button below to book it. The place is not reserved until you confirm.'
+				: 'Η επόμενη φορά που τρέχει το ίδιο πρόγραμμα είναι ' . ioulia_format_session( $offer_starts ) . ', στην ίδια τιμή. Αν σε βολεύει, κράτησέ την με το κουμπί πιο κάτω — η θέση δεν είναι δεσμευμένη μέχρι να το πατήσεις.';
 		} else {
-			$intro[] = 'Δεν βρήκαμε επόμενη ημερομηνία με ελεύθερες θέσεις για το ίδιο πρόγραμμα. Δες τι υπάρχει και διάλεξε ό,τι σε βολεύει.';
+			$intro[] = $english
+				? 'There is no later date with an available place for the same workshop at the moment. See the current schedule and choose what suits you.'
+				: 'Δεν βρήκαμε επόμενη ημερομηνία με ελεύθερες θέσεις για το ίδιο πρόγραμμα. Δες τι υπάρχει και διάλεξε ό,τι σε βολεύει.';
 		}
 
 		$html = ioulia_email_html(
 			array(
-				'title'    => 'Χρειάστηκε να ακυρώσουμε αυτή τη μέρα.',
+				'title'    => $english ? 'We had to cancel this workshop day.' : 'Χρειάστηκε να ακυρώσουμε αυτή τη μέρα.',
 				'intro'    => $intro,
 				'quote'    => $reason,
-				'rows'     => ioulia_booking_rows( $booking ),
+				'rows'     => ioulia_booking_rows( $booking, $english ? 'en' : 'el' ),
 				'buttons'  => $buttons,
-				'footnote' => 'Αν είχες πληρώσει, γράψε μας και το τακτοποιούμε αμέσως. Λυπόμαστε για την αναστάτωση.',
+				'footnote' => $english ? 'If you have already paid, write to us and we will take care of it straight away. We are sorry for the disruption.' : 'Αν είχες πληρώσει, γράψε μας και το τακτοποιούμε αμέσως. Λυπόμαστε για την αναστάτωση.',
 			)
 		);
 
 		ioulia_send_html_mail(
 			$booking['email'],
-			'Ακύρωση μαθήματος — ' . ioulia_format_session( $booking['starts'], false ),
+			( $english ? 'Workshop cancelled — ' : 'Ακύρωση μαθήματος — ' ) . ( $english ? ioulia_format_session_en( $booking['starts'], false ) : ioulia_format_session( $booking['starts'], false ) ),
 			$html,
 			ioulia_booking_reply_to()
 		);

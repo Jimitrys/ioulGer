@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "customer email language",
+    "slug": "customer-email-language",
+    "status": "publish",
+    "menu_order": 28,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}
