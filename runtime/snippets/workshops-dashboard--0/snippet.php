@@ -396,8 +396,198 @@ if ( ! function_exists( 'ioulia_dashboard_cancel_ajax' ) ) {
 }
 
 /* -------------------------------------------------------------------------
+ * How full each day is
+ *
+ * The list answers "who is coming on Saturday". It cannot answer "which of the
+ * next three weeks is empty", which is the question you ask when you are
+ * deciding whether to open another session or take a day off. That is what the
+ * calendar is for, and this is the number behind each of its dots.
+ * ---------------------------------------------------------------------- */
+
+if ( ! function_exists( 'ioulia_dashboard_day_capacity' ) ) {
+	/**
+	 * Every seat the studio offers on a given weekday, across all the programmes
+	 * that run on it. Sessions are weekly, so this depends on the weekday alone.
+	 */
+	function ioulia_dashboard_day_capacity( $weekday ) {
+		static $cache = array();
+
+		if ( isset( $cache[ $weekday ] ) ) {
+			return $cache[ $weekday ];
+		}
+
+		$seats = 0;
+
+		foreach ( ioulia_workshop_active_programmes() as $programme ) {
+			foreach ( $programme['sessions'] as $session ) {
+				if ( (int) $session['day'] === (int) $weekday ) {
+					$seats += (int) $programme['capacity'];
+				}
+			}
+		}
+
+		$cache[ $weekday ] = $seats;
+
+		return $seats;
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_load_map' ) ) {
+	/**
+	 * date => how full it is, for the whole window the calendar can show.
+	 *
+	 * 'state' is what the dot means:
+	 *   free  - under a third taken, or nothing booked at all
+	 *   some  - filling up
+	 *   full  - no seat left
+	 *   shut  - the studio runs nothing that weekday, so there is no dot
+	 */
+	function ioulia_dashboard_load_map( $bookings, $days = 70 ) {
+		$taken = array();
+
+		foreach ( $bookings as $booking ) {
+			if ( 'cancelled' === $booking['status'] ) {
+				continue;
+			}
+
+			$date = substr( $booking['starts'], 0, 10 );
+
+			$taken[ $date ] = ( isset( $taken[ $date ] ) ? $taken[ $date ] : 0 ) + (int) $booking['participants'];
+		}
+
+		$map   = array();
+		$start = current_time( 'timestamp' );
+
+		for ( $i = 0; $i < $days; $i++ ) {
+			$stamp    = $start + ( $i * DAY_IN_SECONDS );
+			$date     = gmdate( 'Y-m-d', $stamp );
+			$capacity = ioulia_dashboard_day_capacity( (int) gmdate( 'N', $stamp ) );
+			$booked   = isset( $taken[ $date ] ) ? $taken[ $date ] : 0;
+
+			if ( $capacity < 1 ) {
+				$map[ $date ] = array( 'state' => 'shut', 'taken' => $booked, 'capacity' => 0 );
+				continue;
+			}
+
+			$ratio = $booked / $capacity;
+
+			if ( $booked >= $capacity ) {
+				$state = 'full';
+			} elseif ( $ratio >= 0.34 ) {
+				$state = 'some';
+			} else {
+				$state = 'free';
+			}
+
+			$map[ $date ] = array( 'state' => $state, 'taken' => $booked, 'capacity' => $capacity );
+		}
+
+		return $map;
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_calendar_words' ) ) {
+	function ioulia_dashboard_calendar_words() {
+		/* ioulia_greek_months() is the genitive, because it exists to say
+		   "8 Σεπτεμβρίου". A calendar heading names the month instead, so it
+		   needs the nominative: "Σεπτέμβριος 2026", not "Σεπτεμβρίου 2026". */
+		return array(
+			'months'   => array(
+				'Ιανουάριος', 'Φεβρουάριος', 'Μάρτιος', 'Απρίλιος',
+				'Μάιος', 'Ιούνιος', 'Ιούλιος', 'Αύγουστος',
+				'Σεπτέμβριος', 'Οκτώβριος', 'Νοέμβριος', 'Δεκέμβριος',
+			),
+			'weekdays' => array( 'Δε', 'Τρ', 'Τε', 'Πε', 'Πα', 'Σα', 'Κυ' ),
+			'today'    => gmdate( 'Y-m-d', current_time( 'timestamp' ) ),
+		);
+	}
+}
+
+/* -------------------------------------------------------------------------
  * Rendering
  * ---------------------------------------------------------------------- */
+
+if ( ! function_exists( 'ioulia_dashboard_is_demo' ) ) {
+	/**
+	 * /kratiseis/?demo=1 draws the page from invented bookings so the calendar
+	 * and the cards can be judged before there is a season's worth of real ones.
+	 *
+	 * Nothing is written and nothing is read: the demo list is built in memory
+	 * and thrown away with the request.
+	 *
+	 * The page carries no badge saying so, because it is shown to clients. What
+	 * keeps it from being mistaken for the real diary is the URL: ?demo=1 has to
+	 * be typed on purpose, and it is behind the same PIN as everything else, so
+	 * nobody arrives here by accident and /kratiseis/ on its own is always the
+	 * real one.
+	 */
+	function ioulia_dashboard_is_demo() {
+		return ! empty( $_GET['demo'] ) && ioulia_dashboard_authed();
+	}
+}
+
+if ( ! function_exists( 'ioulia_dashboard_demo_bookings' ) ) {
+	function ioulia_dashboard_demo_bookings() {
+		$programmes = ioulia_workshop_active_programmes();
+
+		if ( empty( $programmes ) ) {
+			return array();
+		}
+
+		$slugs = array_keys( $programmes );
+		$today = current_time( 'timestamp' );
+
+		/* Days ahead, then who is on them. Written out rather than randomised so
+		   the picture is the same every time it is looked at: an empty start of
+		   the week, a Saturday that is full, and a couple in between. */
+		$plan = array(
+			array( 1, '11:00', 'Μαρία Παπαδοπούλου', 2, 'Είμαστε δύο, πρώτη φορά.' ),
+			array( 2, '18:00', 'Γιώργος Αντωνίου', 1, '' ),
+			array( 3, '11:00', 'Ελένη Κωνσταντίνου', 4, 'Παιδικά γενέθλια, αν γίνεται νωρίς.' ),
+			array( 3, '18:00', 'Νίκος Δ.', 2, '' ),
+			array( 5, '11:00', 'Άννα Βλάχου', 3, '' ),
+			array( 5, '11:00', 'Στέλιος Μ.', 2, '' ),
+			array( 5, '18:00', 'Ζωή Παπαδάκη', 3, 'Δώρο για την αδερφή μου.' ),
+			array( 5, '18:00', 'Κατερίνα Λ.', 5, '' ),
+			array( 6, '11:00', 'Θανάσης Ρ.', 1, '' ),
+			array( 8, '18:00', 'Δήμητρα Σ.', 2, 'Πρώτη φορά σε τροχό.' ),
+			array( 10, '11:00', 'Παύλος Γ.', 2, '' ),
+			array( 11, '11:00', 'Ιωάννα Κ.', 6, 'Ομάδα από τη δουλειά.' ),
+		);
+
+		$bookings = array();
+		$id       = 900001;
+
+		foreach ( $plan as $index => $row ) {
+			list( $offset, $time, $name, $people, $note ) = $row;
+
+			$slug      = $slugs[ $index % count( $slugs ) ];
+			$programme = $programmes[ $slug ];
+			$date      = gmdate( 'Y-m-d', $today + ( $offset * DAY_IN_SECONDS ) );
+
+			$bookings[] = array(
+				'id'              => $id,
+				'programme'       => $slug,
+				'programme_title' => $programme['title'],
+				'starts'          => $date . ' ' . $time . ':00',
+				'ends'            => $date . ' ' . $time . ':00',
+				'participants'    => $people,
+				'name'            => $name,
+				'email'           => 'demo@example.com',
+				'phone'           => '6940000000',
+				'note'            => $note,
+				'status'          => 'confirmed',
+				'consent_at'      => '',
+				'cancel_token'    => '',
+				'created'         => '',
+			);
+
+			$id++;
+		}
+
+		return $bookings;
+	}
+}
 
 if ( ! function_exists( 'ioulia_dashboard_group_by_day' ) ) {
 	function ioulia_dashboard_group_by_day( $bookings ) {
@@ -506,7 +696,7 @@ if ( ! function_exists( 'ioulia_dashboard_list' ) ) {
 
 		foreach ( ioulia_dashboard_group_by_day( $bookings ) as $date => $day ) {
 			?>
-			<section class="iwd-day">
+			<section class="iwd-day" id="iwd-day-<?php echo esc_attr( $date ); ?>" data-iwd-day="<?php echo esc_attr( $date ); ?>">
 				<h2 class="iwd-day__label"><?php echo esc_html( ioulia_dashboard_day_label( $date ) ); ?></h2>
 				<?php foreach ( $day as $booking ) : ?>
 					<?php ioulia_dashboard_card( $booking ); ?>
@@ -543,19 +733,33 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 			return ob_get_clean();
 		}
 
-		$now      = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) );
-		$upcoming = ioulia_get_bookings( array( 'from' => $now, 'limit' => 300 ) );
-		$past     = array_reverse( ioulia_get_bookings( array( 'until' => $now, 'limit' => 100 ) ) );
-		$off      = ioulia_get_bookings( array( 'status' => 'cancelled', 'limit' => 100 ) );
-		$people   = 0;
+		$now  = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) );
+		$demo = ioulia_dashboard_is_demo();
+
+		if ( $demo ) {
+			$upcoming = ioulia_dashboard_demo_bookings();
+			$past     = array();
+			$off      = array();
+		} else {
+			$upcoming = ioulia_get_bookings( array( 'from' => $now, 'limit' => 300 ) );
+			$past     = array_reverse( ioulia_get_bookings( array( 'until' => $now, 'limit' => 100 ) ) );
+			$off      = ioulia_get_bookings( array( 'status' => 'cancelled', 'limit' => 100 ) );
+		}
+
+		$people = 0;
 
 		foreach ( $upcoming as $booking ) {
 			$people += $booking['participants'];
 		}
+
+		$load = ioulia_dashboard_load_map( $upcoming );
 		?>
 		<div class="iwd" data-iwd
 			data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"
-			data-nonce="<?php echo esc_attr( wp_create_nonce( 'ioulia_dashboard' ) ); ?>">
+			data-nonce="<?php echo esc_attr( wp_create_nonce( 'ioulia_dashboard' ) ); ?>"
+			<?php echo $demo ? ' data-demo="1"' : ''; ?>
+			data-load="<?php echo esc_attr( wp_json_encode( $load ) ); ?>"
+			data-words="<?php echo esc_attr( wp_json_encode( ioulia_dashboard_calendar_words() ) ); ?>">
 
 			<header class="iwd-head">
 				<h1 class="iwd-head__title">Κρατήσεις</h1>
@@ -567,6 +771,7 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 
 			<nav class="iwd-tabs" role="tablist" aria-label="Κρατήσεις">
 				<button type="button" class="iwd-tab is-current" data-iwd-tab="upcoming" role="tab" aria-selected="true">Επόμενες</button>
+				<button type="button" class="iwd-tab" data-iwd-tab="calendar" role="tab" aria-selected="false">Ημερολόγιο</button>
 				<button type="button" class="iwd-tab" data-iwd-tab="past" role="tab" aria-selected="false">Περασμένες</button>
 				<button type="button" class="iwd-tab" data-iwd-tab="cancelled" role="tab" aria-selected="false">Ακυρωμένες</button>
 			</nav>
@@ -574,6 +779,16 @@ if ( ! function_exists( 'ioulia_dashboard_shortcode' ) ) {
 			<div class="iwd-panel" data-iwd-panel="upcoming">
 				<?php ioulia_dashboard_list( $upcoming, 'Καμία επόμενη κράτηση.' ); ?>
 			</div>
+			<div class="iwd-panel" data-iwd-panel="calendar" hidden>
+				<div class="iwd-cal" data-iwd-calendar></div>
+
+				<ul class="iwd-key">
+					<li><span class="iwd-dot iwd-dot--free"></span>Άδεια ή σχεδόν</li>
+					<li><span class="iwd-dot iwd-dot--some"></span>Γεμίζει</li>
+					<li><span class="iwd-dot iwd-dot--full"></span>Γεμάτη</li>
+				</ul>
+			</div>
+
 			<div class="iwd-panel" data-iwd-panel="past" hidden>
 				<?php ioulia_dashboard_list( $past, 'Καμία περασμένη κράτηση.' ); ?>
 			</div>
@@ -898,6 +1113,141 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 	.iwd-link--muted { color: var(--iwd-muted); cursor: default; }
 	.iwd-link--muted:hover { text-decoration: none; }
 
+	/* --- The calendar ----------------------------------------------------
+	   The same shape as the one in the booking popup, because it is the same
+	   thing seen from the other side. What it adds is the dot: the list says
+	   who is coming on Saturday, the dot says which week is worth opening
+	   another session for. */
+
+	.iwd-cal {
+		padding: clamp(.85rem, 3vw, 1.25rem);
+		border: 1px solid var(--iwd-line);
+		border-radius: 18px;
+		background: rgba(255, 255, 255, .55);
+	}
+
+	.iwd-cal__head {
+		display: flex;
+		margin-bottom: .9rem;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.iwd-cal__month {
+		font-size: var(--ioulia-body);
+		font-weight: 500;
+		letter-spacing: -.02em;
+	}
+
+	.iwd-cal__nav { display: flex; gap: .4rem; }
+
+	.iwd-cal__nav button {
+		display: grid;
+		width: 40px;
+		height: 40px;
+		border: 1px solid var(--iwd-line);
+		border-radius: 999px;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		cursor: pointer;
+		place-items: center;
+		transition: border-color .2s ease, background-color .2s ease, opacity .2s ease;
+	}
+	.iwd-cal__nav button:hover:not(:disabled) { border-color: var(--ioulia-ink); background: var(--ioulia-ink-07, rgba(43, 43, 43, .07)); }
+	.iwd-cal__nav button:disabled { opacity: .25; cursor: default; }
+
+	.iwd-cal__grid {
+		display: grid;
+		grid-template-columns: repeat(7, minmax(0, 1fr));
+		gap: clamp(2px, .8vw, 5px);
+	}
+
+	.iwd-cal__dayname {
+		padding: .3rem 0 .5rem;
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+		letter-spacing: .08em;
+		text-align: center;
+		text-transform: uppercase;
+	}
+
+	/* The cell is a column: the number, then room for the dot under it. Every
+	   cell reserves that room whether or not it has a dot, so the numbers stay
+	   on one line across the month. */
+	.iwd-cal__day {
+		display: flex;
+		aspect-ratio: 1;
+		min-height: 44px;
+		padding: 0;
+		border: 1px solid transparent;
+		border-radius: 999px;
+		background: transparent;
+		color: var(--iwd-muted);
+		font: inherit;
+		font-size: var(--ioulia-small);
+		font-variant-numeric: tabular-nums;
+		line-height: 1;
+		opacity: .3;
+		cursor: default;
+		gap: 3px;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		transition: border-color .2s ease, background-color .2s ease, color .2s ease, opacity .2s ease;
+	}
+
+	.iwd-cal__day.is-open {
+		background: var(--ioulia-ink-07, rgba(43, 43, 43, .07));
+		color: var(--ioulia-ink);
+		font-weight: 500;
+		opacity: 1;
+	}
+	.iwd-cal__day.has-bookings { cursor: pointer; }
+	.iwd-cal__day.has-bookings:hover,
+	.iwd-cal__day.has-bookings:focus-visible {
+		border-color: var(--ioulia-ink);
+		outline: none;
+	}
+	.iwd-cal__day.is-today {
+		border-color: var(--ioulia-ink);
+	}
+
+	.iwd-dot {
+		display: block;
+		width: 6px;
+		height: 6px;
+		border-radius: 999px;
+		background: currentColor;
+	}
+	.iwd-cal__day .iwd-dot { margin-bottom: -9px; }
+
+	/* Three states, and they have to survive being read by someone who cannot
+	   tell green from red - so they differ in lightness as well as in hue, and
+	   the day is also readable from its number against the seats. */
+	.iwd-dot--free { background: #4B7A4E; }
+	.iwd-dot--some { background: #C07A28; }
+	.iwd-dot--full { background: #8F3939; }
+
+	.iwd-key {
+		display: flex;
+		margin: 1rem 0 0;
+		padding: 0;
+		gap: clamp(.9rem, 4vw, 1.5rem);
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+		list-style: none;
+		flex-wrap: wrap;
+	}
+	.iwd-key li { display: flex; gap: .45rem; align-items: center; }
+	.iwd-key .iwd-dot { margin: 0; }
+
+	/* The day the calendar sent us to, held for a moment so the eye finds it. */
+	.iwd-day.is-target .iwd-day__label { color: var(--ioulia-ink); }
+	.iwd-day.is-target > .iwd-card:first-of-type { border-color: var(--ioulia-ink); }
+
 	/* --- Cancel --------------------------------------------------------- */
 
 	.iwd-cancel { margin-top: .9rem; }
@@ -1021,21 +1371,183 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 	}
 
 	/* Tabs */
+	function showTab(name) {
+		root.querySelectorAll('[data-iwd-tab]').forEach(function (other) {
+			var current = other.getAttribute('data-iwd-tab') === name;
+			other.classList.toggle('is-current', current);
+			other.setAttribute('aria-selected', current ? 'true' : 'false');
+		});
+
+		root.querySelectorAll('[data-iwd-panel]').forEach(function (panel) {
+			panel.hidden = panel.getAttribute('data-iwd-panel') !== name;
+		});
+	}
+
 	root.querySelectorAll('[data-iwd-tab]').forEach(function (tab) {
 		tab.addEventListener('click', function () {
-			var name = tab.getAttribute('data-iwd-tab');
-
-			root.querySelectorAll('[data-iwd-tab]').forEach(function (other) {
-				var current = other === tab;
-				other.classList.toggle('is-current', current);
-				other.setAttribute('aria-selected', current ? 'true' : 'false');
-			});
-
-			root.querySelectorAll('[data-iwd-panel]').forEach(function (panel) {
-				panel.hidden = panel.getAttribute('data-iwd-panel') !== name;
-			});
+			showTab(tab.getAttribute('data-iwd-tab'));
 		});
 	});
+
+	/* ---------------------------------------------------------------------
+	   The calendar.
+
+	   One month at a time, drawn from the load map the page carried down. The
+	   dot is the whole point of it, so a day with no session at all gets none
+	   and stays dim: an empty Monday and a Monday the studio does not open are
+	   different things and must not look the same.
+	   ------------------------------------------------------------------ */
+
+	var calendar = root.querySelector('[data-iwd-calendar]');
+	var load = {};
+	var words = { months: [], weekdays: [], today: '' };
+
+	try {
+		load = JSON.parse(root.dataset.load || '{}');
+		words = JSON.parse(root.dataset.words || '{}');
+	} catch (error) {}
+
+	function pad(value) { return value < 10 ? '0' + value : String(value); }
+
+	function iso(year, month, day) {
+		return year + '-' + pad(month + 1) + '-' + pad(day);
+	}
+
+	/* Which days actually have someone booked on them, so a day with nothing to
+	   show does not offer to take her somewhere empty. */
+	var withBookings = {};
+	root.querySelectorAll('[data-iwd-day]').forEach(function (section) {
+		withBookings[section.getAttribute('data-iwd-day')] = section;
+	});
+
+	function goToDay(date) {
+		var section = withBookings[date];
+		if (!section) { return; }
+
+		showTab('upcoming');
+
+		root.querySelectorAll('.iwd-day.is-target').forEach(function (node) {
+			node.classList.remove('is-target');
+		});
+		section.classList.add('is-target');
+
+		/* Hidden until a moment ago, so the position is only right once the
+		   browser has laid the panel out. */
+		window.requestAnimationFrame(function () {
+			var top = section.getBoundingClientRect().top + window.pageYOffset;
+			var header = parseFloat(
+				getComputedStyle(document.documentElement).getPropertyValue('--ioulia-header-h')
+			) || 140;
+
+			window.scrollTo({ top: Math.max(0, top - header - 16), behavior: 'smooth' });
+		});
+	}
+
+	var cursor = null;
+
+	function drawMonth() {
+		if (!calendar || !cursor) { return; }
+
+		var year = cursor.getFullYear();
+		var month = cursor.getMonth();
+		var first = new Date(year, month, 1);
+		/* Monday-first, like the rest of the site. */
+		var lead = (first.getDay() + 6) % 7;
+		var length = new Date(year, month + 1, 0).getDate();
+
+		calendar.textContent = '';
+
+		var head = document.createElement('div');
+		head.className = 'iwd-cal__head';
+
+		var label = document.createElement('span');
+		label.className = 'iwd-cal__month';
+		label.textContent = (words.months[month] || '') + ' ' + year;
+		head.appendChild(label);
+
+		var nav = document.createElement('div');
+		nav.className = 'iwd-cal__nav';
+
+		[['prev', '‹', -1], ['next', '›', 1]].forEach(function (item) {
+			var button = document.createElement('button');
+			button.type = 'button';
+			button.textContent = item[1];
+			button.setAttribute('aria-label', item[0] === 'prev' ? 'Προηγούμενος μήνας' : 'Επόμενος μήνας');
+			button.addEventListener('click', function () {
+				cursor = new Date(year, month + item[2], 1);
+				drawMonth();
+			});
+			nav.appendChild(button);
+		});
+
+		head.appendChild(nav);
+		calendar.appendChild(head);
+
+		var grid = document.createElement('div');
+		grid.className = 'iwd-cal__grid';
+
+		(words.weekdays || []).forEach(function (name) {
+			var cell = document.createElement('div');
+			cell.className = 'iwd-cal__dayname';
+			cell.textContent = name;
+			grid.appendChild(cell);
+		});
+
+		for (var blank = 0; blank < lead; blank++) {
+			grid.appendChild(document.createElement('div'));
+		}
+
+		for (var day = 1; day <= length; day++) {
+			var date = iso(year, month, day);
+			var info = load[date];
+			var cell = document.createElement('button');
+
+			cell.type = 'button';
+			cell.className = 'iwd-cal__day';
+
+			var number = document.createElement('span');
+			number.textContent = String(day);
+			cell.appendChild(number);
+
+			if (info && info.state !== 'shut') {
+				cell.classList.add('is-open');
+
+				var dot = document.createElement('span');
+				dot.className = 'iwd-dot iwd-dot--' + info.state;
+				cell.appendChild(dot);
+
+				cell.setAttribute(
+					'aria-label',
+					day + ' ' + (words.months[month] || '') + ' — ' + info.taken + ' από ' + info.capacity + ' θέσεις'
+				);
+				cell.title = info.taken + '/' + info.capacity + ' θέσεις';
+			} else {
+				cell.disabled = true;
+			}
+
+			if (date === words.today) { cell.classList.add('is-today'); }
+
+			if (withBookings[date]) {
+				cell.classList.add('has-bookings');
+				cell.addEventListener('click', (function (target) {
+					return function () { goToDay(target); };
+				}(date)));
+			} else if (info && info.state !== 'shut') {
+				cell.disabled = true;
+				cell.style.cursor = 'default';
+			}
+
+			grid.appendChild(cell);
+		}
+
+		calendar.appendChild(grid);
+	}
+
+	if (calendar) {
+		cursor = new Date();
+		cursor.setDate(1);
+		drawMonth();
+	}
 
 	/* Cancelling */
 	root.addEventListener('click', function (event) {
@@ -1058,6 +1570,19 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		if (!event.target.hasAttribute('data-iwd-confirm')) { return; }
 
 		var button = event.target;
+
+		/* In a demo there is nothing on the server to cancel, and the request
+		   would come back "we could not find that booking" in front of whoever
+		   is being shown the page. The card behaves as it would. */
+		if (root.hasAttribute('data-demo')) {
+			panel.hidden = true;
+			card.classList.add('is-cancelled');
+			card.querySelector('.iwd-card__actions').innerHTML =
+				'<span class="iwd-card__flag">Ακυρώθηκε</span>';
+			say('Η κράτηση ακυρώθηκε και στάλθηκε email στον πελάτη.');
+			return;
+		}
+
 		var body = new FormData();
 		body.append('action', 'ioulia_cancel_booking');
 		body.append('nonce', root.dataset.nonce);
