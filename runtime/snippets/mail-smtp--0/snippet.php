@@ -159,9 +159,15 @@ if ( ! function_exists( 'ioulia_smtp_test' ) ) {
 	 * A way to answer "did that work?" without placing a real order.
 	 *
 	 * Administrators only, on an explicit query argument, in the admin. It sends
-	 * one message to the site admin address and reports what the mail server
-	 * said back - which is the part that matters, because a wrong password or a
-	 * blocked port fails here silently otherwise.
+	 * one message and reports what the mail server said back - which is the part
+	 * that matters, because a wrong password or a blocked port fails here
+	 * silently otherwise.
+	 *
+	 * The default recipient is the site admin address, which is not necessarily
+	 * the studio mailbox - the first run of this went to an Outlook account while
+	 * the netcup inbox was being watched for it. Pass an address to choose:
+	 *
+	 *     /wp-admin/?ioulia_mail_test=info@iouliageraskliceramics.com
 	 *
 	 * No nonce, deliberately: the URL is meant to be typed by hand, and the
 	 * worst an administrator can be tricked into doing with it is sending
@@ -184,8 +190,9 @@ if ( ! function_exists( 'ioulia_smtp_test' ) ) {
 
 		add_action( 'wp_mail_failed', $catch, 1 );
 
-		$to   = get_option( 'admin_email' );
-		$sent = wp_mail(
+		$requested = sanitize_email( wp_unslash( (string) $_GET['ioulia_mail_test'] ) );
+		$to        = is_email( $requested ) ? $requested : get_option( 'admin_email' );
+		$sent      = wp_mail(
 			$to,
 			'Ioulia Geraskli — SMTP test',
 			'If this arrived, wp_mail() is going out through '
@@ -210,7 +217,7 @@ if ( ! function_exists( 'ioulia_smtp_test' ) ) {
 					: 'SMTP is NOT configured - the three constants are missing from wp-config.php, so this went through the local mail() function.';
 
 				$lines[] = $sent
-					? 'The mail server accepted a test message addressed to ' . $to . '. Check that it arrives, and check the spam folder.'
+					? 'The mail server accepted a test message addressed to ' . $to . '. Look in THAT mailbox - inbox and spam. Sending as info@ does not put a copy in info@; add an address to the query argument to send somewhere else.'
 					: 'The message was refused. ' . ( '' !== $reason ? $reason : 'No reason was given.' );
 
 				printf(
