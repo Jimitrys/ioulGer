@@ -464,6 +464,19 @@ a {
   color: var(--ioulia-ink) !important;
 }
 
+/* One size down, for a button that sits inside a row of data rather than at
+   the end of a section - three of them in a booking card, where the full 50px
+   would be most of the card. It is the same button: same corner, same colour,
+   same family. Only the scale changes, which is why it lives here rather than
+   being re-declared by whichever component needed it. */
+.ioulia-btn--sm,
+.ioulia-button--sm {
+  min-height: 42px !important;
+  padding: 0 1rem !important;
+  font-size: var(--ioulia-micro) !important;
+  letter-spacing: .015em !important;
+}
+
 /* A button that is really a link keeps being one. */
 .ioulia-button--text,
 .igc-btn--ghost {

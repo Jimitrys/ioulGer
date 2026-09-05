@@ -452,13 +452,17 @@ if ( ! function_exists( 'ioulia_dashboard_card' ) ) {
 		$phone     = preg_replace( '#[^0-9+]#', '', $booking['phone'] );
 		?>
 		<article class="iwd-card<?php echo $cancelled ? ' is-cancelled' : ''; ?>" data-booking="<?php echo esc_attr( $booking['id'] ); ?>">
-			<div class="iwd-card__line">
-				<span class="iwd-card__time"><?php echo esc_html( substr( $booking['starts'], 11, 5 ) ); ?></span>
-				<h3 class="iwd-card__name"><?php echo esc_html( $booking['name'] ); ?></h3>
+			<div class="iwd-card__top">
+				<span class="iwd-pill"><?php echo esc_html( substr( $booking['starts'], 11, 5 ) ); ?></span>
 				<?php if ( $capacity ) : ?>
-					<span class="iwd-card__seats"><?php echo esc_html( $taken . '/' . $capacity ); ?></span>
+					<span class="iwd-card__seats"><?php echo esc_html( $taken . '/' . $capacity ); ?> θέσεις</span>
+				<?php endif; ?>
+				<?php if ( $cancelled ) : ?>
+					<span class="iwd-card__flag">Ακυρώθηκε</span>
 				<?php endif; ?>
 			</div>
+
+			<h3 class="iwd-card__name"><?php echo esc_html( $booking['name'] ); ?></h3>
 
 			<p class="iwd-card__meta">
 				<?php echo esc_html( $booking['programme_title'] ); ?>
@@ -472,13 +476,11 @@ if ( ! function_exists( 'ioulia_dashboard_card' ) ) {
 
 			<div class="iwd-card__actions">
 				<?php if ( '' !== $phone ) : ?>
-					<a class="iwd-link" href="tel:<?php echo esc_attr( $phone ); ?>">Κλήση</a>
+					<a class="ioulia-btn ioulia-btn--outline ioulia-btn--sm" href="tel:<?php echo esc_attr( $phone ); ?>">Κλήση</a>
 				<?php endif; ?>
-				<a class="iwd-link" href="mailto:<?php echo esc_attr( $booking['email'] ); ?>">Email</a>
+				<a class="ioulia-btn ioulia-btn--outline ioulia-btn--sm" href="mailto:<?php echo esc_attr( $booking['email'] ); ?>">Email</a>
 				<?php if ( ! $cancelled ) : ?>
-					<button type="button" class="iwd-link iwd-link--danger" data-iwd-cancel>Ακύρωση</button>
-				<?php else : ?>
-					<span class="iwd-link iwd-link--muted" data-iwd-status>Ακυρώθηκε</span>
+					<button type="button" class="ioulia-btn ioulia-btn--outline ioulia-btn--sm iwd-danger" data-iwd-cancel>Ακύρωση</button>
 				<?php endif; ?>
 			</div>
 
@@ -486,8 +488,8 @@ if ( ! function_exists( 'ioulia_dashboard_card' ) ) {
 				<label for="iwd-reason-<?php echo esc_attr( $booking['id'] ); ?>">Μήνυμα στον πελάτη (προαιρετικό)</label>
 				<textarea id="iwd-reason-<?php echo esc_attr( $booking['id'] ); ?>" rows="2" data-iwd-reason placeholder="π.χ. το εργαστήριο είναι κλειστό εκείνη τη μέρα"></textarea>
 				<div class="iwd-cancel__buttons">
-					<button type="button" class="iwd-link" data-iwd-abort>Πίσω</button>
-					<button type="button" class="ioulia-btn iwd-confirm" data-iwd-confirm>Ακύρωση και email</button>
+					<button type="button" class="ioulia-btn ioulia-btn--outline ioulia-btn--sm" data-iwd-abort>Πίσω</button>
+					<button type="button" class="ioulia-btn ioulia-btn--sm" data-iwd-confirm>Ακύρωση και email</button>
 				</div>
 			</div>
 		</article>
@@ -750,7 +752,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 	.iwd-day { margin-bottom: clamp(2rem, 5vh, 3rem); }
 
 	.iwd-day__label {
-		margin: 0 0 .35rem;
+		margin: 0 0 .85rem;
 		color: var(--iwd-muted);
 		font-size: var(--ioulia-micro);
 		font-weight: 500;
@@ -758,35 +760,49 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		text-transform: uppercase;
 	}
 
-	/* A line, not a card. The boxes were what made this read as an admin
-	   screen rather than as part of the site. */
+	/* Each booking is its own card. Hairlines read beautifully for four rows
+	   and turn into an undifferentiated wall at forty: with a hundred bookings
+	   the eye needs an edge to land on before it can find a name. */
 	.iwd-card {
-		padding: clamp(1rem, 2.5vw, 1.35rem) 0;
-		border-top: 1px solid var(--iwd-line);
+		padding: clamp(1.1rem, 3vw, 1.5rem);
+		border: 1px solid var(--iwd-line);
+		border-radius: 18px;
+		background: rgba(255, 255, 255, .55);
+		transition: border-color .22s ease, background-color .22s ease, transform .22s ease;
 	}
-	.iwd-card.is-cancelled { opacity: .5; }
+	.iwd-card + .iwd-card { margin-top: .75rem; }
+	.iwd-card:hover {
+		border-color: var(--ioulia-ink-22, rgba(43, 43, 43, .22));
+		background: rgba(255, 255, 255, .85);
+	}
+	.iwd-card.is-cancelled {
+		background: none;
+		opacity: .55;
+	}
+	.iwd-card.is-cancelled:hover { border-color: var(--iwd-line); background: none; }
 
-	.iwd-card__line {
+	.iwd-card__top {
 		display: flex;
+		margin-bottom: .85rem;
 		gap: .75rem;
-		align-items: baseline;
+		align-items: center;
 	}
 
-	.iwd-card__time {
-		color: var(--ioulia-ink);
-		font-size: var(--ioulia-body);
-		font-weight: 500;
+	/* The time is the one thing she scans for, so it is the one thing set in
+	   ink on paper rather than paper on ink. */
+	.iwd-pill {
+		display: inline-flex;
+		min-height: 30px;
+		padding: 0 .7rem;
+		border-radius: 999px;
+		background: var(--ioulia-ink);
+		color: var(--ioulia-paper);
+		font-size: var(--ioulia-micro);
+		font-weight: 600;
+		line-height: 1;
+		letter-spacing: .02em;
 		font-variant-numeric: tabular-nums;
-	}
-
-	.iwd-card__name {
-		margin: 0;
-		font-size: var(--ioulia-body);
-		font-weight: 500;
-		line-height: 1.3;
-		letter-spacing: -.015em;
-		flex: 1 1 auto;
-		min-width: 0;
+		align-items: center;
 	}
 
 	.iwd-card__seats {
@@ -795,6 +811,27 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 		font-weight: 500;
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
+		margin-left: auto;
+	}
+
+	.iwd-card__flag {
+		padding: .25rem .6rem;
+		border: 1px solid var(--iwd-line);
+		border-radius: 999px;
+		color: var(--iwd-muted);
+		font-size: var(--ioulia-micro);
+		font-weight: 500;
+		white-space: nowrap;
+		margin-left: auto;
+	}
+	.iwd-card__seats + .iwd-card__flag { margin-left: 0; }
+
+	.iwd-card__name {
+		margin: 0;
+		font-size: var(--ioulia-body-lg);
+		font-weight: 500;
+		line-height: 1.25;
+		letter-spacing: -.02em;
 	}
 
 	.iwd-card__meta {
@@ -805,8 +842,11 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 	}
 	.iwd-card__meta span { padding: 0 .35em; }
 
+	/* The visitor's own words, set apart the way they are in the email. */
 	.iwd-card__note {
-		margin: .5rem 0 0;
+		margin: .85rem 0 0;
+		padding-left: .9rem;
+		border-left: 2px solid var(--iwd-line);
 		color: var(--ioulia-ink-80, rgba(43, 43, 43, .8));
 		font-size: var(--ioulia-small);
 		font-weight: 500;
@@ -815,10 +855,24 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 
 	.iwd-card__actions {
 		display: flex;
-		margin-top: .8rem;
-		gap: clamp(1rem, 4vw, 1.5rem);
+		margin-top: 1.1rem;
+		gap: .5rem;
 		align-items: center;
 		flex-wrap: wrap;
+	}
+
+	/* Cancelling is the one action here that cannot be undone, so it carries
+	   the only colour on the page - and it is pushed away from the two that
+	   are safe to press by accident. */
+	.iwd-card__actions .iwd-danger {
+		margin-left: auto;
+		border-color: rgba(143, 57, 57, .3) !important;
+		color: var(--iwd-danger) !important;
+	}
+	.iwd-card__actions .iwd-danger:is(:hover, :focus-visible) {
+		border-color: var(--iwd-danger) !important;
+		background: rgba(143, 57, 57, .06) !important;
+		color: var(--iwd-danger) !important;
 	}
 
 	/* --- Links that do things. Not buttons: there is one button on this page
@@ -937,9 +991,17 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 
 	@media (max-width: 600px) {
 		.iwd-foot { flex-direction: column; gap: 1.25rem; }
-		.iwd-card__line { flex-wrap: wrap; }
-		.iwd-card__name { flex: 1 1 100%; order: 3; }
-		.iwd-card__seats { margin-left: auto; }
+
+		/* Three controls will not sit on one line at this width, so the two
+		   safe ones share the first and the cancel takes its own. Keeping it
+		   full width there is deliberate: it is easier to hit on purpose and
+		   harder to hit while reaching for Email. */
+		.iwd-card__actions .iwd-danger {
+			width: 100%;
+			margin-left: 0;
+			margin-top: .35rem;
+		}
+		.iwd-cancel__buttons > * { flex: 1 1 auto; }
 	}
 </style>
 
@@ -1018,7 +1080,7 @@ if ( ! function_exists( 'ioulia_dashboard_assets' ) ) {
 				panel.hidden = true;
 				card.classList.add('is-cancelled');
 				card.querySelector('.iwd-card__actions').innerHTML =
-					'<span class="iwd-link iwd-link--muted">Ακυρώθηκε</span>';
+					'<span class="iwd-card__flag">Ακυρώθηκε</span>';
 				say(result.data.message);
 			})
 			.catch(function () {

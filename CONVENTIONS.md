@@ -144,5 +144,11 @@ fix the system; do not add a rule beside it.
 New markup gets `.ioulia-btn` plus a variant. The other class names in that
 rule are buttons that existed before it and keep their own names.
 
+There is one size modifier, `.ioulia-btn--sm`, for buttons that sit inside a row
+of data rather than at the end of a section — three of them in a booking card,
+where the full height would be most of the card. It changes the scale and
+nothing else. A component that wants a smaller button uses it; it does not
+declare a height of its own.
+
 Buttons carry no arrow. If a plugin prints one inside a button, the system
 hides it.
