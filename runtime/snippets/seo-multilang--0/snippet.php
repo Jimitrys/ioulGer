@@ -99,12 +99,13 @@ if ( ! function_exists( 'ioulia_seo_meta' ) ) {
 
 		if ( is_singular( 'product' ) ) {
 			$name = wp_strip_all_tags( get_the_title( get_queried_object_id() ) );
+			$name = trim( str_replace( '_', '', $name ) );
 
 			return array(
-				'el_title' => $name . ' | Χειροποίητα κεραμικά Ioulia Geraskli',
-				'en_title' => $name . ' | Handmade Ceramics by Ioulia Geraskli',
-				'el_desc'  => 'Ανακάλυψε το ' . $name . ', ένα μοναδικό κεραμικό αντικείμενο σχεδιασμένο, πλασμένο και ζωγραφισμένο στο χέρι στην Αθήνα.',
-				'en_desc'  => 'Discover ' . $name . ', a one-of-a-kind ceramic object designed, shaped and painted by hand in Athens, Greece.',
+				'el_title' => $name . ' — Χειροποίητο κεραμικό | Ioulia Geraskli',
+				'en_title' => $name . ' — Handmade Ceramic | Ioulia Geraskli',
+				'el_desc'  => 'Χειροποίητο κεραμικό ' . $name . ', σχεδιασμένο, πλασμένο και ζωγραφισμένο στο χέρι στο Ioulia Geraskli Ceramic Lab στην Αθήνα. Ανακάλυψε αυθεντικά κεραμικά αντικείμενα.',
+				'en_desc'  => $name . ' is a one-of-a-kind ceramic piece, designed, shaped and painted by hand at Ioulia Geraskli Ceramic Lab in Athens. Discover original handmade ceramics.',
 			);
 		}
 
@@ -198,6 +199,54 @@ if ( ! function_exists( 'ioulia_seo_head' ) ) {
 	}
 	remove_action( 'wp_head', 'rel_canonical' );
 	add_action( 'wp_head', 'ioulia_seo_head', 2 );
+}
+
+if ( ! function_exists( 'ioulia_seo_exclude_consent_copy_from_snippets' ) ) {
+	/**
+	 * CookieYes is injected after the initial HTML, so mark its rendered UI as
+	 * ineligible for Google snippets as soon as it appears. Consent remains fully
+	 * visible and accessible to visitors; this affects search excerpts only.
+	 */
+	function ioulia_seo_exclude_consent_copy_from_snippets() {
+		if ( is_admin() ) {
+			return;
+		}
+		?>
+		<script id="ioulia-cookie-nosnippet">
+		(function () {
+			var selector = '.cky-consent-container, .cky-modal, .cky-btn-revisit-wrapper';
+			var protect = function (root) {
+				if (root.nodeType === 1 && root.matches && root.matches(selector)) {
+					root.setAttribute('data-nosnippet', '');
+				}
+				if (root.querySelectorAll) {
+					root.querySelectorAll(selector).forEach(function (node) {
+						node.setAttribute('data-nosnippet', '');
+					});
+				}
+
+				return Boolean(document.querySelector('.cky-consent-container'));
+			};
+
+			if (protect(document)) {
+				return;
+			}
+
+			var observer = new MutationObserver(function (records) {
+				records.forEach(function (record) {
+					record.addedNodes.forEach(function (node) {
+						if (protect(node)) {
+							observer.disconnect();
+						}
+					});
+				});
+			});
+			observer.observe(document.documentElement, { childList: true, subtree: true });
+		}());
+		</script>
+		<?php
+	}
+	add_action( 'wp_head', 'ioulia_seo_exclude_consent_copy_from_snippets', 1 );
 }
 
 if ( ! function_exists( 'ioulia_seo_robots' ) ) {
