@@ -28,6 +28,36 @@ if ( ! function_exists( 'ioulia_seo_pages' ) ) {
 				'el_desc'  => 'Μαθήματα πηλοπλαστικής και τροχού στα Άνω Πατήσια για αρχάριους, παιδιά και οικογένειες. Υλικά, εργαλεία και ψησίματα περιλαμβάνονται.',
 				'en_desc'  => 'Handbuilding and wheel-throwing workshops in Ano Patisia, Athens, for beginners, children and families. Materials and firings included.',
 			),
+			'mathimata-piloplastikis-athina' => array(
+				'el_title' => 'Μαθήματα Πηλοπλαστικής στην Αθήνα | Ioulia Geraskli',
+				'en_title' => 'Handbuilding Pottery Classes in Athens | Ioulia Geraskli',
+				'el_desc'  => 'Μάθε πηλοπλαστική με pinch pots, μακαρόνι και φύλλο στο ceramic lab μας στα Άνω Πατήσια. Για αρχάριους, με υλικά και ψησίματα.',
+				'en_desc'  => 'Learn handbuilding with pinch pots, coiling and slab building at our Ano Patisia ceramic studio. Beginner-friendly, with materials and firings included.',
+			),
+			'mathimata-troxou-athina' => array(
+				'el_title' => 'Μαθήματα Κεραμικού Τροχού στην Αθήνα | Ioulia Geraskli',
+				'en_title' => 'Pottery Wheel Classes in Athens | Ioulia Geraskli',
+				'el_desc'  => 'Μαθήματα κεραμικού τροχού στα Άνω Πατήσια: ζύμωμα, κεντράρισμα και βασικές φόρμες. Για αρχάριους, με online κράτηση.',
+				'en_desc'  => 'Pottery wheel classes in Ano Patisia, Athens: wedging, centring and essential forms. Beginner-friendly sessions with easy online booking.',
+			),
+			'keramiki-gia-paidia-athina' => array(
+				'el_title' => 'Μαθήματα Κεραμικής για Παιδιά στην Αθήνα | Ioulia Geraskli',
+				'en_title' => 'Pottery Classes for Children in Athens | Ioulia Geraskli',
+				'el_desc'  => 'Δημιουργικά μαθήματα κεραμικής για παιδιά 6–11 ετών στα Άνω Πατήσια. Πηλός, χρώμα, ελεύθερη έκφραση και όλα τα υλικά.',
+				'en_desc'  => 'Creative pottery classes for children aged 6–11 in Ano Patisia, Athens, with clay, colour, open-ended making and all materials included.',
+			),
+			'keramiki-goneas-paidi-athina' => array(
+				'el_title' => 'Κεραμική για Γονείς και Παιδιά στην Αθήνα | Ioulia Geraskli',
+				'en_title' => 'Parent and Child Pottery in Athens | Ioulia Geraskli',
+				'el_desc'  => 'Workshop κεραμικής για ένα παιδί 6–15 ετών και έναν γονέα στα Άνω Πατήσια. Δημιουργήστε μαζί ένα μοναδικό αντικείμενο.',
+				'en_desc'  => 'A pottery workshop in Ano Patisia for one child aged 6–15 and one parent. Slow down, collaborate and make one ceramic object together.',
+			),
+			'zografiki-keramikou-athina' => array(
+				'el_title' => 'Ζωγραφική Κεραμικού στην Αθήνα | Ioulia Geraskli',
+				'en_title' => 'Ceramic Painting Workshop in Athens | Ioulia Geraskli',
+				'el_desc'  => 'Κυριακάτικο workshop ζωγραφικής σε έτοιμο κεραμικό στα Άνω Πατήσια, με ποτό και κέρασμα. Υάλωμα και ψήσιμο περιλαμβάνονται.',
+				'en_desc'  => 'A Sunday ceramic painting workshop in Ano Patisia, Athens, with a drink and themed treats. Glazing and firing are included.',
+			),
 			'book-workshop' => array(
 				'el_title' => 'Κράτηση workshop κεραμικής | Ioulia Geraskli',
 				'en_title' => 'Book a Pottery Workshop | Ioulia Geraskli',
@@ -402,9 +432,13 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 		$booking    = function_exists( 'ioulia_url' ) ? ioulia_url( 'book-workshop/' ) : home_url( '/book-workshop/' );
 		$items      = array();
 		$position   = 1;
+		$landing_pages = function_exists( 'ioulia_workshop_landing_slugs' ) ? ioulia_workshop_landing_slugs() : array();
 
 		foreach ( ioulia_workshop_active_programmes() as $slug => $programme ) {
 			$instances = array();
+			$course_url = isset( $landing_pages[ $slug ] )
+				? ( function_exists( 'ioulia_url' ) ? ioulia_url( '/' . $landing_pages[ $slug ] . '/' ) : home_url( '/' . $landing_pages[ $slug ] . '/' ) )
+				: $workshops . '#workshop-' . $slug;
 
 			foreach ( (array) $programme['sessions'] as $session ) {
 				if ( ! isset( $day_names[ $session['day'] ] ) ) {
@@ -435,10 +469,10 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 
 			$course = array(
 				'@type'               => 'Course',
-				'@id'                 => $workshops . '#workshop-' . $slug,
+				'@id'                 => $course_url . '#course',
 				'name'                => ioulia_seo_schema_translate( $programme['title'] ),
 				'description'         => ioulia_seo_schema_translate( $programme['summary'] ),
-				'url'                 => $workshops . '#workshop-' . $slug,
+				'url'                 => $course_url,
 				'inLanguage'          => $language,
 				'provider'            => array( '@id' => untrailingslashit( (string) get_option( 'home' ) ) . '/#organization' ),
 				'coursePrerequisites' => ioulia_seo_schema_translate( 'Δεν απαιτείται προηγούμενη εμπειρία.' ),
@@ -698,11 +732,22 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 			}
 		}
 
+		$landing_page_slugs = function_exists( 'ioulia_workshop_landing_slugs' ) ? array_values( ioulia_workshop_landing_slugs() ) : array();
 		if ( in_array( ioulia_seo_page_key(), array( 'workshops', 'book-workshop' ), true ) ) {
 			$courses = ioulia_seo_workshop_courses();
 
 			if ( ! empty( $courses['itemListElement'] ) ) {
 				$schema['@graph'][] = $courses;
+			}
+		}
+
+		if ( in_array( ioulia_seo_page_key(), $landing_page_slugs, true ) ) {
+			$courses = ioulia_seo_workshop_courses();
+			foreach ( (array) ( $courses['itemListElement'] ?? array() ) as $course_item ) {
+				if ( isset( $course_item['item']['url'] ) && untrailingslashit( $course_item['item']['url'] ) === untrailingslashit( $canonical ) ) {
+					$schema['@graph'][] = $course_item['item'];
+					break;
+				}
 			}
 		}
 

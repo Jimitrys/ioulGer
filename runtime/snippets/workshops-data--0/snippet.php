@@ -293,6 +293,18 @@ if ( ! function_exists( 'ioulia_workshop_programme' ) ) {
 	}
 }
 
+if ( ! function_exists( 'ioulia_workshop_landing_slugs' ) ) {
+	function ioulia_workshop_landing_slugs() {
+		return array(
+			'handbuilding'  => 'mathimata-piloplastikis-athina',
+			'wheel'         => 'mathimata-troxou-athina',
+			'kids'          => 'keramiki-gia-paidia-athina',
+			'parent-child'  => 'keramiki-goneas-paidi-athina',
+			'paint-and-sip' => 'zografiki-keramikou-athina',
+		);
+	}
+}
+
 if ( ! function_exists( 'ioulia_workshop_active_programmes' ) ) {
 	function ioulia_workshop_active_programmes() {
 		return array_filter(
@@ -403,8 +415,18 @@ if ( ! function_exists( 'ioulia_programmes_shortcode' ) ) {
 			}
 
 			$out .= '<p><strong>Κόστος:</strong> ' . esc_html( $price )
-				. ' <em>(' . esc_html( $note ) . ')</em></p>'
-				. '</div></div></div>';
+				. ' <em>(' . esc_html( $note ) . ')</em></p>';
+
+			$landing_slugs = ioulia_workshop_landing_slugs();
+			if ( isset( $landing_slugs[ $slug ] ) ) {
+				$landing_url = function_exists( 'ioulia_url' )
+					? ioulia_url( '/' . $landing_slugs[ $slug ] . '/' )
+					: home_url( '/' . $landing_slugs[ $slug ] . '/' );
+				$landing_label = function_exists( 'ioulia_lang' ) && 'en' === ioulia_lang() ? 'Explore this workshop' : 'Δες το workshop';
+				$out .= '<p><a class="igw-tech__more" href="' . esc_url( $landing_url ) . '">' . esc_html( $landing_label ) . '</a></p>';
+			}
+
+			$out .= '</div></div></div>';
 		}
 
 		$out .= '</div>';

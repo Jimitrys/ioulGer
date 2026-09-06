@@ -343,6 +343,17 @@
     gap: clamp(30px, 4vw, 50px);
   }
 
+  .igw-tech__more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 4px;
+    color: var(--igw-ink);
+    font-size: var(--ioulia-small);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+  }
+
   /* The programmes list is dressed further down, beside the FAQ it now
      matches. The set that used to live here forced the old caret's colour
      with !important, so the arrow glyph stayed visible underneath the new

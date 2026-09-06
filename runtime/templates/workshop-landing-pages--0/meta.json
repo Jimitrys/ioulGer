@@ -1,0 +1,14 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_theme_template",
+    "title": "Workshop Landing Pages",
+    "slug": "workshop-landing-pages",
+    "status": "publish",
+    "menu_order": 0,
+    "properties": {
+        "location": "page",
+        "include": "mathimata-piloplastikis-athina,mathimata-troxou-athina,keramiki-gia-paidia-athina,keramiki-goneas-paidi-athina,zografiki-keramikou-athina",
+        "priority": 20
+    }
+}
