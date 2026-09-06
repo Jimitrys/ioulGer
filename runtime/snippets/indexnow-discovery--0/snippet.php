@@ -2,7 +2,7 @@
 /**
  * Fast discovery for Bing, Copilot and other IndexNow consumers.
  *
- * The public key is derived from the site URL, served from its required key
+ * The public key is derived from the site URL, stored at its required key
  * location, and sent only when an indexable page or product changes. Repeated
  * WordPress saves are deduplicated before the request leaves the site.
  *
@@ -13,23 +13,6 @@ if ( ! function_exists( 'ioulia_indexnow_key' ) ) {
 	function ioulia_indexnow_key() {
 		return hash( 'sha256', untrailingslashit( home_url( '/' ) ) . '|ioulia-indexnow' );
 	}
-}
-
-if ( ! function_exists( 'ioulia_indexnow_key_file' ) ) {
-	function ioulia_indexnow_key_file() {
-		$path = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '', PHP_URL_PATH );
-
-		if ( '/' . ioulia_indexnow_key() . '.txt' !== $path ) {
-			return;
-		}
-
-		status_header( 200 );
-		nocache_headers();
-		header( 'Content-Type: text/plain; charset=UTF-8' );
-		echo esc_html( ioulia_indexnow_key() );
-		exit;
-	}
-	add_action( 'template_redirect', 'ioulia_indexnow_key_file', 0 );
 }
 
 if ( ! function_exists( 'ioulia_indexnow_queue_post' ) ) {
