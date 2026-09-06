@@ -84,6 +84,15 @@
 }
 .ilegal__doc p:last-child { margin-bottom: 0; }
 
+.ilegal__doc a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .18em;
+  transition: opacity .22s ease;
+}
+.ilegal__doc a:is(:hover, :focus-visible) { opacity: .58; }
+
 .ilegal__list {
   margin: 0 0 1.1em;
   padding: 0;
