@@ -47,6 +47,85 @@ if ( ! function_exists( 'ioulia_workshops_visuals' ) ) {
 	}
 }
 
+/* -------------------------------------------------------------------------
+ * A light, site-wide entry point into the same booking drawer.
+ * ---------------------------------------------------------------------- */
+
+if ( ! function_exists( 'ioulia_workshop_floating_cta_allowed' ) ) {
+	function ioulia_workshop_floating_cta_allowed() {
+		if ( is_admin() || wp_doing_ajax() || is_feed() ) {
+			return false;
+		}
+
+		if ( function_exists( 'is_shop' ) && is_shop() ) {
+			return false;
+		}
+
+		if ( function_exists( 'is_product' ) && is_product() ) {
+			return false;
+		}
+
+		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
+			return false;
+		}
+
+		if ( function_exists( 'is_product_tag' ) && is_product_tag() ) {
+			return false;
+		}
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'ioulia_workshop_floating_cta' ) ) {
+	function ioulia_workshop_floating_cta() {
+		if ( ! ioulia_workshop_floating_cta_allowed() ) {
+			return;
+		}
+
+		$en      = function_exists( 'ioulia_lang' ) && 'en' === ioulia_lang();
+		$booking = function_exists( 'ioulia_url' ) ? ioulia_url( '/book-workshop/', $en ? 'en' : 'el' ) : home_url( '/book-workshop/' );
+		$has_form_on_page = is_front_page() || is_page( 'book-workshop' );
+		?>
+		<button class="ioulia-btn ioulia-btn--filled iwf-float" type="button" data-iwf-global-open aria-haspopup="dialog">
+			<?php echo esc_html( $en ? 'Book your spot' : 'Κλείσε θέση' ); ?>
+		</button>
+		<?php if ( ! $has_form_on_page ) : ?>
+			<div class="iwf-global-host"><?php echo do_shortcode( '[ioulia_workshops]' ); ?></div>
+		<?php endif; ?>
+		<style id="ioulia-workshop-floating-cta-css">
+		.iwf-float {
+			position: fixed;
+			right: max(18px, env(safe-area-inset-right));
+			bottom: max(18px, env(safe-area-inset-bottom));
+			z-index: 9000;
+			width: auto;
+			box-shadow: 0 10px 34px rgba(43, 43, 43, .16);
+		}
+		.iwf-global-host { width: 0; height: 0; overflow: visible; }
+		.iwf-global-host > .iwf { width: 0; height: 0; margin: 0; padding: 0; }
+		.iwf-global-host > .iwf > .iwf__grid { display: none; }
+		@media (max-width: 560px) {
+			.iwf-float { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
+		}
+		</style>
+		<script id="ioulia-workshop-floating-cta-js">
+		(function () {
+			var button = document.querySelector('[data-iwf-global-open]');
+			if (!button) { return; }
+			button.addEventListener('click', function () {
+				var opener = document.querySelector('[data-iwf] [data-iwf-open]');
+				if (opener) { opener.click(); return; }
+				window.location.href = <?php echo wp_json_encode( $booking ); ?>;
+			});
+		}());
+		</script>
+		<?php
+	}
+
+	add_action( 'wp_footer', 'ioulia_workshop_floating_cta', 80 );
+}
+
 if ( ! function_exists( 'ioulia_calendar_words' ) ) {
 	/**
 	 * Month names and weekday initials for the calendar, in the reading language.

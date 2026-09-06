@@ -161,6 +161,19 @@ if ( ! function_exists( 'ioulia_workshop_landing_render' ) ) {
 			'paint-and-sip' => 'https://iouliageraskliceramics.com/wp-content/uploads/2026/09/IMG_9502-1536x1024.webp',
 		);
 		$price = number_format_i18n( (float) $programme['price'], 0 ) . '€';
+		$faq = $en ? array(
+			array( 'Do I need previous experience?', 'No. Every workshop is suitable for complete beginners as well as people who already know clay.' ),
+			array( 'How do I book and how early?', 'Choose the workshop, an available day and time in the booking form. Please reserve at least three days in advance.' ),
+			array( 'What is included in the price?', 'Clay, colours, glazes, studio tools and firings are included. Listed prices exclude 24% VAT.' ),
+			array( 'When can I collect my piece?', 'Most pieces are ready in approximately one to two weeks after drying, glazing and firing. Sunday painted ceramics are usually ready in one week.' ),
+			array( 'Can I reserve for more than one person?', 'Yes. Select the number of participants in the booking form, subject to the remaining places in that session.' ),
+		) : array(
+			array( 'Χρειάζομαι προηγούμενη εμπειρία;', 'Όχι. Όλα τα workshops είναι κατάλληλα τόσο για απόλυτα αρχάριους όσο και για άτομα που γνωρίζουν ήδη τον πηλό.' ),
+			array( 'Πώς κάνω κράτηση και πόσο νωρίτερα;', 'Επίλεξε workshop, διαθέσιμη ημέρα και ώρα στη φόρμα κράτησης. Η θέση χρειάζεται να κλείνεται τουλάχιστον τρεις ημέρες πριν.' ),
+			array( 'Τι περιλαμβάνεται στην τιμή;', 'Περιλαμβάνονται πηλός, χρώματα, υαλώματα, εργαλεία και ψησίματα. Στις αναγραφόμενες τιμές δεν περιλαμβάνεται ΦΠΑ 24%.' ),
+			array( 'Πότε παραλαμβάνω το κεραμικό μου;', 'Τα περισσότερα αντικείμενα είναι έτοιμα σε περίπου μία με δύο εβδομάδες, μετά το στέγνωμα, το υάλωμα και τα ψησίματα. Τα Κυριακάτικα συνήθως σε μία εβδομάδα.' ),
+			array( 'Μπορώ να κλείσω θέση για περισσότερα άτομα;', 'Ναι. Στη φόρμα κράτησης επίλεξε τον αριθμό συμμετεχόντων, ανάλογα με τις διαθέσιμες θέσεις της συνάντησης.' ),
+		);
 
 		ob_start();
 		?>
@@ -175,18 +188,27 @@ if ( ! function_exists( 'ioulia_workshop_landing_render' ) ) {
 				<figure class="iwl__hero-image"><img src="<?php echo esc_url( $images[ $slug ] ); ?>" alt="<?php echo esc_attr( $copy['title'] ); ?>" loading="eager" fetchpriority="high"></figure>
 			</section>
 
-			<section class="iwl__intro">
-				<p class="iwl__section-number"><?php echo esc_html( $programme['number'] ); ?></p>
-				<h2><?php echo esc_html( $copy['intro_title'] ); ?></h2>
-				<p class="iwl__body"><?php echo esc_html( $copy['intro'] ); ?></p>
+			<section class="iwl__intro" aria-labelledby="iwl-intro-title">
+				<h2 id="iwl-intro-title"><?php echo esc_html( $copy['intro_title'] ); ?></h2>
+				<figure class="iwl__intro-art" aria-hidden="true"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/07/Isolation_Mode-1.svg" alt=""></figure>
+				<div class="iwl__intro-copy"><p class="iwl__body"><?php echo esc_html( $copy['intro'] ); ?></p><p class="iwl__body"><?php echo esc_html( $copy['lede'] ); ?></p></div>
 			</section>
 
-			<section class="iwl__experience" aria-labelledby="iwl-experience-title">
-				<header><p class="iwl__eyebrow"><?php echo esc_html( $en ? 'In the studio' : 'Μέσα στο εργαστήριο' ); ?></p><h2 id="iwl-experience-title"><?php echo esc_html( $en ? 'What you will do' : 'Τι θα κάνεις' ); ?></h2></header>
+			<section class="iwl__gallery" aria-labelledby="iwl-gallery-title">
+				<div class="iwl__gallery-track">
+					<figure class="iwl__gallery-item iwl__gallery-item--sm"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/IMG_9439-768x512.webp" alt="<?php echo esc_attr( $en ? 'Glazes and colours in the ceramic studio' : 'Υαλώματα και χρώματα στο εργαστήριο κεραμικής' ); ?>" loading="lazy"></figure>
+					<figure class="iwl__gallery-item iwl__gallery-item--portrait"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/07/image_50419713-scaled-1-1-768x1024.jpg" alt="<?php echo esc_attr( $en ? 'Painting a handmade ceramic piece' : 'Ζωγραφική σε χειροποίητο κεραμικό' ); ?>" loading="lazy"></figure>
+					<figure class="iwl__gallery-item iwl__gallery-item--wide"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/07/hf_20260717_085446_86314159-3072-410b-8f49-99d9fd755974-1024x825.webp" alt="<?php echo esc_attr( $en ? 'Inside Ioulia Geraskli Ceramic Lab' : 'Το εσωτερικό του Ioulia Geraskli Ceramic Lab' ); ?>" loading="lazy"></figure>
+					<figure class="iwl__gallery-item iwl__gallery-item--hero"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/IMG_9502-1024x683.webp" alt="<?php echo esc_attr( $en ? 'A ceramic piece being painted by hand' : 'Κεραμικό αντικείμενο που ζωγραφίζεται στο χέρι' ); ?>" loading="lazy"></figure>
+					<figure class="iwl__gallery-item iwl__gallery-item--portrait"><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/IMG_9310-768x512.webp" alt="<?php echo esc_attr( $en ? 'Working with clay at the studio table' : 'Δουλεύοντας με πηλό στον πάγκο του εργαστηρίου' ); ?>" loading="lazy"></figure>
+				</div>
+				<h2 id="iwl-gallery-title"><?php echo esc_html( $en ? 'inside the studio' : 'μέσα στο εργαστήριο' ); ?></h2>
+			</section>
+
+			<section class="iwl__experience" aria-labelledby="iwl-experience-title" style="--iwl-dark-image: url('<?php echo esc_url( $images[ $slug ] ); ?>')">
+				<div><p class="iwl__eyebrow"><?php echo esc_html( $en ? 'No previous experience needed' : 'Δεν χρειάζεται προηγούμενη εμπειρία' ); ?></p><h2 id="iwl-experience-title"><?php echo esc_html( $copy['lede'] ); ?></h2></div>
 				<ol>
-					<?php foreach ( $copy['steps'] as $index => $step ) : ?>
-						<li><span><?php echo esc_html( str_pad( (string) ( $index + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span><p><?php echo esc_html( $step ); ?></p></li>
-					<?php endforeach; ?>
+					<?php foreach ( $copy['steps'] as $index => $step ) : ?><li><span><?php echo esc_html( str_pad( (string) ( $index + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span><p><?php echo esc_html( $step ); ?></p></li><?php endforeach; ?>
 				</ol>
 			</section>
 
@@ -204,6 +226,26 @@ if ( ! function_exists( 'ioulia_workshop_landing_render' ) ) {
 					<div><dt><?php echo esc_html( $en ? 'Level' : 'Επίπεδο' ); ?></dt><dd><?php echo esc_html( $en ? 'All' : 'Όλα' ); ?><small><?php echo esc_html( $en ? 'beginners are welcome' : 'οι αρχάριοι είναι ευπρόσδεκτοι' ); ?></small></dd></div>
 					<div><dt><?php echo esc_html( $en ? 'Included' : 'Περιλαμβάνονται' ); ?></dt><dd><?php echo esc_html( $en ? 'Materials' : 'Υλικά' ); ?><small><?php echo esc_html( $en ? 'tools and firings' : 'εργαλεία και ψησίματα' ); ?></small></dd></div>
 				</dl>
+			</section>
+
+			<section class="iwl__faq" aria-labelledby="iwl-faq-title">
+				<h2 id="iwl-faq-title"><?php echo esc_html( $en ? 'before the workshop' : 'πριν το workshop' ); ?></h2>
+				<div class="iwl__faq-list">
+					<?php foreach ( $faq as $item ) : ?>
+						<details class="iwl__faq-item"><summary><span><?php echo esc_html( $item[0] ); ?></span><i aria-hidden="true"></i></summary><div><p><?php echo esc_html( $item[1] ); ?></p></div></details>
+					<?php endforeach; ?>
+				</div>
+			</section>
+
+			<section class="iwl__location" aria-label="<?php echo esc_attr( $en ? 'Studio location' : 'Τοποθεσία εργαστηρίου' ); ?>">
+				<figure><img src="https://iouliageraskliceramics.com/wp-content/uploads/2026/09/IMG_9595-1536x1024.webp" alt="<?php echo esc_attr( $en ? 'The entrance of Ioulia Geraskli Ceramic Lab in Ano Patisia' : 'Η είσοδος του Ioulia Geraskli Ceramic Lab στα Άνω Πατήσια' ); ?>" loading="lazy"></figure>
+				<div class="iwl__location-card">
+					<p class="iwl__eyebrow"><?php echo esc_html( $en ? 'Ano Patisia, Athens' : 'Άνω Πατήσια, Αθήνα' ); ?></p>
+					<address><?php echo esc_html( $en ? '42 Prompona Street' : 'Προμπονά 42' ); ?><br><?php echo esc_html( $en ? 'Athens 111 43' : '111 43 Αθήνα' ); ?></address>
+					<p><?php echo esc_html( $en ? '5 minutes on foot from Ano Patisia station' : '5 λεπτά με τα πόδια από τον σταθμό Άνω Πατήσια' ); ?></p>
+					<a href="tel:+306956103723">+30 695 6103723</a>
+					<a class="ioulia-btn ioulia-btn--filled" href="https://www.google.com/maps/search/?api=1&query=38.0289084,23.7389517" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $en ? 'Directions' : 'Οδηγίες' ); ?></a>
+				</div>
 			</section>
 
 			<section class="iwl__cta">
