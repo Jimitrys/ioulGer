@@ -558,6 +558,23 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
     }
 }
 
+/* Compact iPhones have much less usable height once Safari or Chrome chrome is
+   visible. Keep the product photograph below the two-line hero statement and
+   cap tall product ratios without changing their natural proportions. */
+@media (max-width: 390px) {
+    .icph__mobile-product {
+        width: min(38vw, 142px);
+        bottom: max(56px, calc(5svh + env(safe-area-inset-bottom)));
+    }
+
+    .icph__mobile-product img {
+        width: auto !important;
+        max-width: 100% !important;
+        max-height: min(22svh, 145px) !important;
+        margin-inline: auto;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .icph-wrap {
         height: auto;
