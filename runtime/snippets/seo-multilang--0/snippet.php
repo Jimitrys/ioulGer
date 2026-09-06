@@ -484,6 +484,8 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 		$canonical = ioulia_seo_canonical();
 		$language  = function_exists( 'ioulia_lang' ) && 'en' === ioulia_lang() ? 'en-US' : 'el-GR';
 		$booking   = function_exists( 'ioulia_url' ) ? ioulia_url( 'book-workshop/' ) : home_url( '/book-workshop/' );
+		$returns   = function_exists( 'ioulia_url' ) ? ioulia_url( 'shipping-returns/' ) : home_url( '/shipping-returns/' );
+		$thin_shop_archive = ( function_exists( 'is_product_category' ) && is_product_category() ) || ( function_exists( 'is_product_tag' ) && is_product_tag() );
 		$schema = array(
 			'@context' => 'https://schema.org',
 			'@graph'   => array(
@@ -493,6 +495,7 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 					'name'     => 'Ioulia Geraskli Ceramics',
 					'url'      => $home,
 					'email'    => 'info@iouliageraskliceramics.com',
+					'telephone'=> '+302102514658',
 					'address'  => array(
 						'@type'           => 'PostalAddress',
 						'@id'             => $home . '#address',
@@ -517,6 +520,20 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 					),
 					'priceRange' => '€€',
 					'currenciesAccepted' => 'EUR',
+					'hasMerchantReturnPolicy' => array(
+						'@type'                => 'MerchantReturnPolicy',
+						'@id'                  => $home . '#return-policy',
+						'merchantReturnLink'   => $returns,
+						'returnPolicyCountry'  => 'GR',
+						'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+						'merchantReturnDays'   => 14,
+						'itemCondition'        => 'https://schema.org/NewCondition',
+						'returnMethod'          => 'https://schema.org/ReturnByMail',
+						'returnFees'            => 'https://schema.org/ReturnFeesCustomerResponsibility',
+						'refundType'            => 'https://schema.org/FullRefund',
+						'returnLabelSource'     => 'https://schema.org/ReturnLabelCustomerResponsibility',
+						'itemDefectReturnFees' => 'https://schema.org/FreeReturn',
+					),
 					'knowsAbout' => array( 'Handmade ceramics', 'Pottery workshops', 'Handbuilding', 'Wheel throwing', 'Ceramic painting' ),
 					'potentialAction' => array(
 						'@type'  => 'ReserveAction',
@@ -581,6 +598,104 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 				'name'  => $name,
 				'url'   => $url,
 			);
+		}
+
+		if ( ! is_front_page() && ! $thin_shop_archive ) {
+			$english     = 'en-US' === $language;
+			$home_url    = function_exists( 'ioulia_url' ) ? ioulia_url( '/', $english ? 'en' : 'el' ) : home_url( '/' );
+			$shop_url    = function_exists( 'ioulia_url' ) ? ioulia_url( '/shop/', $english ? 'en' : 'el' ) : home_url( '/shop/' );
+			$breadcrumbs = array(
+				array(
+					'@type'    => 'ListItem',
+					'position' => 1,
+					'name'     => $english ? 'Home' : 'Αρχική',
+					'item'     => $home_url,
+				),
+			);
+
+			if ( is_singular( 'product' ) ) {
+				$breadcrumbs[] = array(
+					'@type'    => 'ListItem',
+					'position' => 2,
+					'name'     => $english ? 'Shop' : 'Κατάστημα',
+					'item'     => $shop_url,
+				);
+				$breadcrumbs[] = array(
+					'@type'    => 'ListItem',
+					'position' => 3,
+					'name'     => trim( str_replace( '_', '', wp_strip_all_tags( get_the_title( get_queried_object_id() ) ) ) ),
+					'item'     => $canonical,
+				);
+			} else {
+				$key                = ioulia_seo_page_key();
+				$current_name       = isset( $navigation[ $key ] ) ? $navigation[ $key ] : wp_strip_all_tags( get_the_title( get_queried_object_id() ) );
+				$breadcrumbs[] = array(
+					'@type'    => 'ListItem',
+					'position' => 2,
+					'name'     => $current_name,
+					'item'     => $canonical,
+				);
+			}
+
+			$schema['@graph'][] = array(
+				'@type'           => 'BreadcrumbList',
+				'@id'             => $canonical . '#breadcrumbs',
+				'itemListElement' => $breadcrumbs,
+			);
+		}
+
+		if ( is_singular( 'product' ) && function_exists( 'wc_get_product' ) ) {
+			$product = wc_get_product( get_queried_object_id() );
+
+			if ( $product ) {
+				$name   = trim( str_replace( '_', '', wp_strip_all_tags( $product->get_name() ) ) );
+				$images = array();
+
+				foreach ( array_merge( array( $product->get_image_id() ), $product->get_gallery_image_ids() ) as $image_id ) {
+					$image = $image_id ? wp_get_attachment_image_url( $image_id, 'full' ) : '';
+
+					if ( $image ) {
+						$images[] = $image;
+					}
+				}
+
+				$product_schema = array(
+					'@type'       => 'Product',
+					'@id'         => $canonical . '#product',
+					'name'        => $name,
+					'description' => ioulia_seo_value( 'desc' ),
+					'url'         => $canonical,
+					'image'       => array_values( array_unique( $images ) ),
+					'brand'       => array(
+						'@type' => 'Brand',
+						'name'  => 'Ioulia Geraskli Ceramics',
+					),
+					'material'    => 'Ceramic',
+					'offers'      => array(
+						'@type'         => 'Offer',
+						'url'           => $canonical,
+						'price'         => (string) $product->get_price(),
+						'priceCurrency' => get_woocommerce_currency(),
+						'availability'  => $product->is_in_stock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+						'itemCondition' => 'https://schema.org/NewCondition',
+						'seller'        => array( '@id' => $home . '#organization' ),
+					),
+				);
+
+				if ( '' !== $product->get_sku() ) {
+					$product_schema['sku'] = $product->get_sku();
+				}
+
+				if ( $product->get_rating_count() > 0 ) {
+					$product_schema['aggregateRating'] = array(
+						'@type'       => 'AggregateRating',
+						'ratingValue' => (string) $product->get_average_rating(),
+						'reviewCount' => (int) $product->get_rating_count(),
+					);
+				}
+
+				$schema['@graph'][] = $product_schema;
+			}
 		}
 
 		if ( in_array( ioulia_seo_page_key(), array( 'workshops', 'book-workshop' ), true ) ) {
