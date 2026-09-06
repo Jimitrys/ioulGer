@@ -87,8 +87,8 @@ if ( ! function_exists( 'ioulia_workshop_floating_cta' ) ) {
 		$booking = function_exists( 'ioulia_url' ) ? ioulia_url( '/book-workshop/', $en ? 'en' : 'el' ) : home_url( '/book-workshop/' );
 		$has_form_on_page = is_front_page() || is_page( 'book-workshop' );
 		?>
-		<button class="ioulia-btn ioulia-btn--filled iwf-float" type="button" data-iwf-global-open aria-haspopup="dialog">
-			<?php echo esc_html( $en ? 'Book your spot' : 'Κλείσε θέση' ); ?>
+		<button class="ioulia-btn ioulia-btn--filled iwf-float" type="button" data-iwf-global-open aria-haspopup="dialog" aria-label="<?php echo esc_attr( $en ? 'Book your spot' : 'Κλείσε θέση' ); ?>">
+			<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M7.5 3.5v4M16.5 3.5v4M3.5 10h17M8 14h2M14 14h2M8 17h2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></svg>
 		</button>
 		<?php if ( ! $has_form_on_page ) : ?>
 			<div class="iwf-global-host"><?php echo do_shortcode( '[ioulia_workshops]' ); ?></div>
@@ -99,14 +99,20 @@ if ( ! function_exists( 'ioulia_workshop_floating_cta' ) ) {
 			right: max(18px, env(safe-area-inset-right));
 			bottom: max(18px, env(safe-area-inset-bottom));
 			z-index: 9000;
-			width: auto;
-			box-shadow: 0 10px 34px rgba(43, 43, 43, .16);
+			width: 60px;
+			height: 60px;
+			min-width: 60px;
+			min-height: 60px;
+			padding: 0 !important;
+			border-radius: 50% !important;
+			box-shadow: 0 10px 34px rgba(43, 43, 43, .16) !important;
 		}
+		.iwf-float svg { width: 24px; height: 24px; display: block; }
 		.iwf-global-host { width: 0; height: 0; overflow: visible; }
 		.iwf-global-host > .iwf { width: 0; height: 0; margin: 0; padding: 0; }
 		.iwf-global-host > .iwf > .iwf__grid { display: none; }
 		@media (max-width: 560px) {
-			.iwf-float { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
+			.iwf-float { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); width: 56px; height: 56px; min-width: 56px; min-height: 56px; }
 		}
 		</style>
 		<script id="ioulia-workshop-floating-cta-js">
