@@ -107,7 +107,7 @@ if ( ! function_exists( 'ioulia_workshop_floating_cta' ) ) {
 			border-radius: 50% !important;
 			box-shadow: 0 10px 34px rgba(43, 43, 43, .16) !important;
 		}
-		.iwf-float svg { width: 24px; height: 24px; display: block; }
+		.ioulia-btn.iwf-float > svg { width: 24px; height: 24px; display: block !important; }
 		.iwf-global-host { width: 0; height: 0; overflow: visible; }
 		.iwf-global-host > .iwf { width: 0; height: 0; margin: 0; padding: 0; }
 		.iwf-global-host > .iwf > .iwf__grid { display: none; }

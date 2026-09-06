@@ -3,9 +3,8 @@
   if (!root) { return; }
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var whitespace = new RegExp('[' + String.fromCharCode(32, 9, 10, 13) + ']+');
-
   function splitWords(node, className) {
+    var whitespace = new RegExp('[' + String.fromCharCode(32, 9, 10, 13) + ']+');
     var words = node.textContent.trim().split(whitespace);
     node.textContent = '';
     words.forEach(function (word, index) {
@@ -18,12 +17,6 @@
     });
   }
 
-  var wordHeadings = root.querySelectorAll('.iwl h1, .iwl__intro h2, .iwl__gallery h2, .iwl__facts h2, .iwl__faq > h2, .iwl__cta h2');
-  wordHeadings.forEach(function (heading) {
-    heading.classList.add('iwl__word-host');
-    splitWords(heading, 'iwl__word');
-  });
-
   var revealNodes = root.querySelectorAll('.iwl__intro-art, .iwl__intro-copy, .iwl__gallery-item, .iwl__facts-main, .iwl__schedule p, .iwl__fact-grid > div, .iwl__faq-item, .iwl__location-card, .iwl__cta-actions');
   revealNodes.forEach(function (node, index) {
     node.classList.add('iwl__reveal');
@@ -35,7 +28,6 @@
   var darkWords = root.querySelectorAll('.iwl__scroll-word');
 
   if (reduceMotion || !('IntersectionObserver' in window)) {
-    wordHeadings.forEach(function (node) { node.classList.add('is-in'); });
     revealNodes.forEach(function (node) { node.classList.add('is-in'); });
     darkWords.forEach(function (node) { node.classList.add('is-lit'); });
     return;
@@ -49,7 +41,6 @@
     });
   }, { rootMargin: '0px 0px -12% 0px', threshold: .08 });
 
-  wordHeadings.forEach(function (node) { observer.observe(node); });
   revealNodes.forEach(function (node) { observer.observe(node); });
 
   var darkSection = root.querySelector('.iwl__experience');

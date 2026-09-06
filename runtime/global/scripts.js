@@ -59,6 +59,31 @@ document.addEventListener('DOMContentLoaded', function () {
    animate. Nothing here is required for a page to read.
    ======================================================================== */
 
+/* Mark the editorial text before arming its hidden state. Doing both in one
+   task avoids a visible first frame followed by the words disappearing. */
+(function () {
+  const armGlobalText = () => {
+    const cataloguePage = document.body.matches('.woocommerce-shop, .single-product, .post-type-archive-product, .tax-product_cat, .tax-product_tag');
+    if (!cataloguePage) {
+      document.querySelectorAll('h1, h2, h3, p').forEach((node) => {
+        if (node.closest('header, footer, nav, form, dialog, [role="dialog"], .iwf, .ioulia-mini-cart-panel, .igc-shop, .woocommerce')) return;
+        if (node.matches('[data-igw-words], .iwl__experience h2')) return;
+
+        const isHeading = node.matches('h1, h2, h3');
+        const isEditorialParagraph = node.matches('[class*="lede"], [class*="intro"], [class*="copy"], [class*="statement"], [class*="description"]');
+        if (!isHeading && !isEditorialParagraph) return;
+
+        node.setAttribute('data-ia-words', '');
+        node.setAttribute('data-ia-reveal', '');
+      });
+    }
+    document.documentElement.classList.add('ia-js');
+  };
+
+  if (document.body) armGlobalText();
+  else document.addEventListener('DOMContentLoaded', armGlobalText, { once: true });
+}());
+
 document.addEventListener('DOMContentLoaded', function () {
   if (document.documentElement.dataset.iaMotion === 'ready') return;
   document.documentElement.dataset.iaMotion = 'ready';
@@ -111,8 +136,6 @@ document.addEventListener('DOMContentLoaded', function () {
     node.setAttribute('data-ia-reveal', '');
   };
 
-  /* A canvas asks for this by marking the element, not by this file knowing
-     that page's class names. */
   document.querySelectorAll('[data-ia-words]').forEach(splitIntoWords);
 
   /* ---------------------------------------------------------------------
