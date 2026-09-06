@@ -204,7 +204,9 @@ if ( ! function_exists( 'ioulia_seo_robots' ) ) {
 	function ioulia_seo_robots( $robots ) {
 		$key = ioulia_seo_page_key();
 
-		if ( is_search() || is_404() || in_array( $key, array( 'cart', 'checkout', 'my-account', 'kratiseis', 'cancel-booking', 'coming-soon' ), true ) ) {
+		$thin_shop_archive = ( function_exists( 'is_product_category' ) && is_product_category() ) || ( function_exists( 'is_product_tag' ) && is_product_tag() );
+
+		if ( is_search() || is_404() || $thin_shop_archive || in_array( $key, array( 'cart', 'checkout', 'my-account', 'kratiseis', 'cancel-booking', 'coming-soon' ), true ) ) {
 			$robots['noindex'] = true;
 			$robots['follow']  = true;
 			unset( $robots['index'] );
@@ -257,7 +259,11 @@ if ( ! function_exists( 'ioulia_seo_secondary_sitemap_query' ) ) {
 
 if ( ! function_exists( 'ioulia_seo_sitemap_provider' ) ) {
 	function ioulia_seo_sitemap_provider( $provider, $name ) {
-		return 'users' === $name ? false : $provider;
+		/* Product category and tag archives are legacy catalogue filters with very
+		   little standalone copy. Keeping them out prevents search engines from
+		   promoting names such as Home Kitchenware ahead of the studio's actual
+		   pages. Products themselves remain indexed in their own sitemap. */
+		return in_array( $name, array( 'users', 'taxonomies' ), true ) ? false : $provider;
 	}
 	add_filter( 'wp_sitemaps_add_provider', 'ioulia_seo_sitemap_provider', 20, 2 );
 }
@@ -507,6 +513,26 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 				),
 			),
 		);
+
+		$navigation = array(
+			'home'      => $language === 'en-US' ? 'Home' : 'Αρχική',
+			'shop'      => $language === 'en-US' ? 'Shop' : 'Κατάστημα',
+			'about'     => $language === 'en-US' ? 'About' : 'Σχετικά',
+			'workshops' => $language === 'en-US' ? 'Pottery Workshops' : 'Εργαστήρια Κεραμικής',
+			'contact'   => $language === 'en-US' ? 'Contact' : 'Επικοινωνία',
+		);
+
+		foreach ( $navigation as $path => $name ) {
+			$url = 'home' === $path
+				? ( function_exists( 'ioulia_url' ) ? ioulia_url( '/', 'en-US' === $language ? 'en' : 'el' ) : home_url( '/' ) )
+				: ( function_exists( 'ioulia_url' ) ? ioulia_url( '/' . $path . '/', 'en-US' === $language ? 'en' : 'el' ) : home_url( '/' . $path . '/' ) );
+
+			$schema['@graph'][] = array(
+				'@type' => 'SiteNavigationElement',
+				'name'  => $name,
+				'url'   => $url,
+			);
+		}
 
 		if ( in_array( ioulia_seo_page_key(), array( 'workshops', 'book-workshop' ), true ) ) {
 			$courses = ioulia_seo_workshop_courses();
