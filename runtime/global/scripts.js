@@ -44,6 +44,117 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+/* ==========================================================================
+   GLOBAL CURSOR RING
+
+   The native cursor stays visible. This is a separate, purely decorative
+   outline with a small spring-like delay and quiet hover and press states.
+   Touch, coarse pointers and reduced-motion visitors never receive it.
+   ======================================================================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (document.querySelector('[data-ioulia-cursor-ring]')) return;
+
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (!finePointer.matches || reduceMotion.matches) return;
+
+  const ring = document.createElement('div');
+  const circle = document.createElement('span');
+  ring.className = 'ioulia-cursor-ring';
+  ring.setAttribute('data-ioulia-cursor-ring', '');
+  ring.setAttribute('aria-hidden', 'true');
+  circle.className = 'ioulia-cursor-ring__circle';
+  ring.appendChild(circle);
+  document.body.appendChild(ring);
+
+  const interactiveSelector = [
+    'a[href]',
+    'button:not(:disabled)',
+    'input:not(:disabled)',
+    'select:not(:disabled)',
+    'textarea:not(:disabled)',
+    'summary',
+    'label',
+    '[role="button"]',
+    '[contenteditable="true"]'
+  ].join(', ');
+  const localCursorSelector = '.icph, .mxl-iph';
+
+  let targetX = 0;
+  let targetY = 0;
+  let currentX = 0;
+  let currentY = 0;
+  let previousTime = 0;
+  let frame = 0;
+  let started = false;
+
+  const syncTargetState = function (target) {
+    if (!(target instanceof Element)) {
+      ring.classList.remove('is-interactive', 'is-local-cursor');
+      return;
+    }
+    ring.classList.toggle('is-interactive', Boolean(target.closest(interactiveSelector)));
+    ring.classList.toggle('is-local-cursor', Boolean(target.closest(localCursorSelector)));
+  };
+
+  const paint = function (time) {
+    frame = 0;
+    const elapsed = previousTime ? Math.min(40, time - previousTime) : 16;
+    previousTime = time;
+    const follow = 1 - Math.exp(-elapsed / 82);
+    currentX += (targetX - currentX) * follow;
+    currentY += (targetY - currentY) * follow;
+    ring.style.transform = 'translate3d(' + (currentX - 18).toFixed(2) + 'px, ' + (currentY - 18).toFixed(2) + 'px, 0)';
+
+    if (Math.abs(targetX - currentX) > .04 || Math.abs(targetY - currentY) > .04) {
+      frame = window.requestAnimationFrame(paint);
+    }
+  };
+
+  const requestPaint = function () {
+    if (!frame) {
+      previousTime = 0;
+      frame = window.requestAnimationFrame(paint);
+    }
+  };
+
+  window.addEventListener('pointermove', function (event) {
+    if (event.pointerType && event.pointerType !== 'mouse') return;
+    targetX = event.clientX;
+    targetY = event.clientY;
+    if (!started) {
+      currentX = targetX;
+      currentY = targetY;
+      started = true;
+    }
+    syncTargetState(event.target);
+    ring.classList.add('is-visible');
+    requestPaint();
+  }, { passive: true });
+
+  document.addEventListener('pointerover', function (event) {
+    syncTargetState(event.target);
+  }, { passive: true });
+
+  document.addEventListener('pointerdown', function (event) {
+    if (event.pointerType && event.pointerType !== 'mouse') return;
+    ring.classList.add('is-pressed');
+  }, { passive: true });
+
+  document.addEventListener('pointerup', function () {
+    ring.classList.remove('is-pressed');
+  }, { passive: true });
+
+  document.documentElement.addEventListener('mouseleave', function () {
+    ring.classList.remove('is-visible', 'is-pressed');
+  });
+
+  window.addEventListener('blur', function () {
+    ring.classList.remove('is-visible', 'is-pressed');
+  });
+});
+
 
 /* ===========================================================================
    ENTRANCE AND MOTION

@@ -421,19 +421,31 @@ a {
 .woocommerce button.single_add_to_cart_button:is(:hover, :focus-visible) {
   outline: none;
   opacity: 1 !important;
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.01);
   box-shadow: 0 8px 20px rgba(43, 43, 43, .16) !important;
 }
 
 .ioulia-btn:active,
 .ioulia-button:active,
 .icph__button:active,
+.iznE-parallax__button:active,
 .igw-btn:active,
+.igw-btn--hero:active,
+.igw-location__gmaps-btn:active,
 .igc-btn:active,
+.igpa__trigger:active,
+.iwb__book-button:active,
+.iwb__submit:active,
+.mxl-iph__store-link:active,
+.iwd--gate input[type="submit"]:active,
+.elementor .elementor-button:active,
 .woocommerce a.button:active,
 .woocommerce button.button:active,
-.woocommerce #place_order:active {
-  transform: translateY(0) scale(.99);
+.woocommerce input.button:active,
+.woocommerce #place_order:active,
+.woocommerce a.checkout-button:active,
+.woocommerce button.single_add_to_cart_button:active {
+  transform: translateY(0) scale(.975);
   box-shadow: none !important;
 }
 
@@ -529,6 +541,61 @@ a {
 @media (max-width: 700px) {
   .cky-btn-revisit-wrapper { display: none !important; }
 }
+
+/* ===========================================================================
+   GLOBAL CURSOR RING
+
+   A light outline echoes the studio's circular mark and follows the native
+   pointer with a soft delay. The actual system cursor remains untouched. The
+   inner ring owns all scale transitions, while the outer element only moves;
+   separating those transforms keeps both motions fluid and interruptible.
+   ======================================================================== */
+
+.ioulia-cursor-ring {
+  position: fixed;
+  z-index: 2147483646;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(-80px, -80px, 0);
+  transition: opacity 240ms ease;
+  will-change: transform;
+  contain: layout style size;
+  mix-blend-mode: difference;
+}
+
+.ioulia-cursor-ring__circle {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  opacity: .88;
+  transform: scale(1);
+  transition:
+    opacity 220ms ease,
+    transform 480ms cubic-bezier(.16, 1, .3, 1),
+    border-width 240ms ease;
+  will-change: transform;
+}
+
+.ioulia-cursor-ring.is-visible { opacity: 1; }
+.ioulia-cursor-ring.is-interactive .ioulia-cursor-ring__circle {
+  border-width: .75px;
+  opacity: .72;
+  transform: scale(1.42);
+}
+.ioulia-cursor-ring.is-pressed .ioulia-cursor-ring__circle {
+  border-width: 1.5px;
+  opacity: 1;
+  transform: scale(.76);
+  transition-duration: 120ms;
+}
+.ioulia-cursor-ring.is-local-cursor .ioulia-cursor-ring__circle { opacity: 0; }
 
 .ioulia-section {
   width: 100%;
