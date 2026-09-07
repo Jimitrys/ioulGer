@@ -127,6 +127,22 @@ if ( ! function_exists( 'ioulia_seo_meta' ) ) {
 			return $pages[ $key ];
 		}
 
+		if ( is_tax( 'product_collection' ) || ( function_exists( 'is_product_tag' ) && is_product_tag( 'one-and-only' ) ) ) {
+			$term = get_queried_object();
+			if ( $term && ! is_wp_error( $term ) ) {
+				$name    = wp_strip_all_tags( $term->name );
+				$el_desc = (string) $term->description;
+				$en_desc = (string) get_term_meta( $term->term_id, 'igpa_description_en', true );
+
+				return array(
+					'el_title' => $name . ' — Χειροποίητα Κεραμικά | Ioulia Geraskli',
+					'en_title' => $name . ' — Handmade Ceramics | Ioulia Geraskli',
+					'el_desc'  => '' !== $el_desc ? $el_desc : 'Ανακάλυψε τη συλλογή ' . $name . ' με χειροποίητα κεραμικά από το Ioulia Geraskli Ceramic Lab στην Αθήνα.',
+					'en_desc'  => '' !== $en_desc ? $en_desc : 'Discover the ' . $name . ' collection of handmade ceramics from Ioulia Geraskli Ceramic Lab in Athens.',
+				);
+			}
+		}
+
 		if ( is_singular( 'product' ) ) {
 			$name = wp_strip_all_tags( get_the_title( get_queried_object_id() ) );
 			$name = trim( str_replace( '_', '', $name ) );
@@ -283,7 +299,7 @@ if ( ! function_exists( 'ioulia_seo_robots' ) ) {
 	function ioulia_seo_robots( $robots ) {
 		$key = ioulia_seo_page_key();
 
-		$thin_shop_archive = ( function_exists( 'is_product_category' ) && is_product_category() ) || ( function_exists( 'is_product_tag' ) && is_product_tag() );
+		$thin_shop_archive = ( function_exists( 'is_product_category' ) && is_product_category() ) || ( function_exists( 'is_product_tag' ) && is_product_tag() && ! is_product_tag( 'one-and-only' ) );
 
 		if ( is_search() || is_404() || $thin_shop_archive || in_array( $key, array( 'cart', 'checkout', 'my-account', 'kratiseis', 'cancel-booking', 'coming-soon' ), true ) ) {
 			$robots['noindex'] = true;
@@ -338,13 +354,38 @@ if ( ! function_exists( 'ioulia_seo_secondary_sitemap_query' ) ) {
 
 if ( ! function_exists( 'ioulia_seo_sitemap_provider' ) ) {
 	function ioulia_seo_sitemap_provider( $provider, $name ) {
-		/* Product category and tag archives are legacy catalogue filters with very
-		   little standalone copy. Keeping them out prevents search engines from
-		   promoting names such as Home Kitchenware ahead of the studio's actual
-		   pages. Products themselves remain indexed in their own sitemap. */
-		return in_array( $name, array( 'users', 'taxonomies' ), true ) ? false : $provider;
+		return 'users' === $name ? false : $provider;
 	}
 	add_filter( 'wp_sitemaps_add_provider', 'ioulia_seo_sitemap_provider', 20, 2 );
+
+	function ioulia_seo_sitemap_taxonomies( $taxonomies ) {
+		foreach ( array_keys( $taxonomies ) as $taxonomy ) {
+			if ( ! in_array( $taxonomy, array( 'product_collection', 'product_tag' ), true ) ) {
+				unset( $taxonomies[ $taxonomy ] );
+			}
+		}
+
+		return $taxonomies;
+	}
+	add_filter( 'wp_sitemaps_taxonomies', 'ioulia_seo_sitemap_taxonomies', 20 );
+
+	function ioulia_seo_sitemap_taxonomy_terms( $args, $taxonomy ) {
+		$slugs = 'product_collection' === $taxonomy
+			? array( 'beach-stories', 'garden-table', 'naked-forms' )
+			: array( 'one-and-only' );
+		$terms = get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'hide_empty' => true,
+				'slug'       => $slugs,
+				'fields'     => 'ids',
+			)
+		);
+
+		$args['include'] = is_wp_error( $terms ) ? array( 0 ) : array_map( 'absint', $terms );
+		return $args;
+	}
+	add_filter( 'wp_sitemaps_taxonomies_query_args', 'ioulia_seo_sitemap_taxonomy_terms', 20, 2 );
 }
 
 if ( ! function_exists( 'ioulia_seo_sitemap_status' ) ) {
@@ -519,7 +560,7 @@ if ( ! function_exists( 'ioulia_seo_schema' ) ) {
 		$language  = function_exists( 'ioulia_lang' ) && 'en' === ioulia_lang() ? 'en-US' : 'el-GR';
 		$booking   = function_exists( 'ioulia_url' ) ? ioulia_url( 'book-workshop/' ) : home_url( '/book-workshop/' );
 		$returns   = function_exists( 'ioulia_url' ) ? ioulia_url( 'shipping-returns/' ) : home_url( '/shipping-returns/' );
-		$thin_shop_archive = ( function_exists( 'is_product_category' ) && is_product_category() ) || ( function_exists( 'is_product_tag' ) && is_product_tag() );
+		$thin_shop_archive = ( function_exists( 'is_product_category' ) && is_product_category() ) || ( function_exists( 'is_product_tag' ) && is_product_tag() && ! is_product_tag( 'one-and-only' ) );
 		$schema = array(
 			'@context' => 'https://schema.org',
 			'@graph'   => array(
