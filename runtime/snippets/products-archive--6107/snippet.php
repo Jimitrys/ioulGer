@@ -1033,16 +1033,15 @@ function igpa_render_product_archive( $atts = array() ) {
 				display: flex;
 				align-items: flex-end;
 				justify-content: center;
-				opacity: 0;
 				visibility: hidden;
 				pointer-events: none;
-				transition: opacity 320ms ease, visibility 320ms ease;
+				transition: visibility 0s linear 660ms;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-layer.is-open {
-				opacity: 1;
 				visibility: visible;
 				pointer-events: auto;
+				transition-delay: 0s;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-backdrop {
@@ -1050,8 +1049,18 @@ function igpa_render_product_archive( $atts = array() ) {
 				inset: 0;
 				border: 0;
 				background: rgba(25, 23, 22, .38);
-				backdrop-filter: blur(5px);
+				opacity: 0;
+				backdrop-filter: blur(0);
+				-webkit-backdrop-filter: blur(0);
 				cursor: pointer;
+				will-change: opacity, backdrop-filter;
+				transition: opacity 420ms ease, backdrop-filter 560ms cubic-bezier(.16, 1, .3, 1), -webkit-backdrop-filter 560ms cubic-bezier(.16, 1, .3, 1);
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-layer.is-open .igpa__filter-backdrop {
+				opacity: 1;
+				backdrop-filter: blur(7px);
+				-webkit-backdrop-filter: blur(7px);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-panel {
@@ -1172,6 +1181,10 @@ function igpa_render_product_archive( $atts = array() ) {
 				border-bottom: 1px solid var(--igpa-line);
 			}
 
+			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-body > .igpa__filter-group:first-child {
+				padding-top: 42px;
+			}
+
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-group:last-child {
 				border-bottom: 0;
 			}
@@ -1259,16 +1272,16 @@ function igpa_render_product_archive( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-options--compact {
 				grid-template-columns: repeat(2, minmax(0, 1fr));
-				gap: 0 clamp(20px, 4vw, 54px);
+				gap: 10px 12px;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact span {
-				min-height: 48px;
-				padding: 10px 34px 10px calc(10px + (var(--igpa-depth, 0) * 13px));
+				min-height: 52px;
+				padding: 11px 42px 11px 18px;
 				border: 0;
-				border-bottom: 1px solid var(--igpa-line);
-				border-radius: 0;
-				background: transparent;
+				border-radius: 14px;
+				background: #fff;
+				box-shadow: 0 5px 18px rgba(43, 43, 43, .035);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact span::after {
@@ -1278,10 +1291,10 @@ function igpa_render_product_archive( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact input:checked + span {
-				border-color: var(--igpa-line);
-				background: transparent;
+				background: #fff;
 				color: var(--igpa-ink);
 				font-weight: 500;
+				box-shadow: 0 7px 22px rgba(43, 43, 43, .065);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact input:checked + span::after {
@@ -1291,8 +1304,8 @@ function igpa_render_product_archive( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact:hover span {
-				transform: none;
-				background: rgba(43, 43, 43, .035);
+				transform: translateY(-1px);
+				background: #fff;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option {
@@ -1354,17 +1367,24 @@ function igpa_render_product_archive( $atts = array() ) {
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-foot {
 				border-top: 1px solid var(--igpa-line);
+				flex-direction: column;
+				align-items: stretch;
+				gap: 8px;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-reset {
+				display: block;
+				padding: 7px 12px 3px;
 				color: var(--igpa-ink);
 				font-size: var(--ioulia-small, 14px);
+				text-align: center;
 				text-underline-offset: 4px;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-apply {
 				appearance: none;
-				min-width: min(290px, 50vw);
+				width: 100%;
+				min-width: 0;
 				min-height: 54px;
 				padding: 14px 24px;
 				border: 0;
@@ -1557,11 +1577,6 @@ function igpa_render_product_archive( $atts = array() ) {
 					right: 12px;
 				}
 
-				#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-apply {
-					min-width: 0;
-					flex: 1;
-				}
-
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__subs {
 					width: 100%;
 					margin: 0 calc(var(--igpa-x) * -1);
@@ -1623,6 +1638,7 @@ function igpa_render_product_archive( $atts = array() ) {
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__editorial-image,
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__collection-image,
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-layer,
+				#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-backdrop,
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-panel,
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option span,
 				#<?php echo esc_attr( $instance_id ); ?> .igpa__menu {
@@ -1774,10 +1790,9 @@ function igpa_render_product_archive( $atts = array() ) {
 							</summary>
 							<div class="igpa__filter-disclosure-content">
 								<div class="igpa__filter-options igpa__filter-options--compact">
-									<label class="igpa__filter-option igpa__filter-option--compact" style="--igpa-depth: 0"><input type="radio" name="catalog-category" value="" <?php checked( '', $selected_category ); ?>><span><?php echo esc_html( $english ? 'all objects' : 'όλα τα αντικείμενα' ); ?></span></label>
+									<label class="igpa__filter-option igpa__filter-option--compact"><input type="radio" name="catalog-category" value="" <?php checked( '', $selected_category ); ?>><span><?php echo esc_html( $english ? 'all objects' : 'όλα τα αντικείμενα' ); ?></span></label>
 									<?php foreach ( $category_tree as $category ) : ?>
-										<?php $category_depth = min( 2, count( get_ancestors( $category->term_id, 'product_cat', 'taxonomy' ) ) ); ?>
-										<label class="igpa__filter-option igpa__filter-option--compact" style="--igpa-depth: <?php echo esc_attr( $category_depth ); ?>"><input type="radio" name="catalog-category" value="<?php echo esc_attr( $category->slug ); ?>" <?php checked( $category->slug, $selected_category ); ?>><span><?php echo esc_html( $category->name ); ?></span></label>
+										<label class="igpa__filter-option igpa__filter-option--compact"><input type="radio" name="catalog-category" value="<?php echo esc_attr( $category->slug ); ?>" <?php checked( $category->slug, $selected_category ); ?>><span><?php echo esc_html( $category->name ); ?></span></label>
 									<?php endforeach; ?>
 								</div>
 							</div>
@@ -1802,8 +1817,8 @@ function igpa_render_product_archive( $atts = array() ) {
 					</div>
 
 					<footer class="igpa__filter-foot">
-						<a class="igpa__filter-reset" href="<?php echo esc_url( $clear_url ); ?>"><?php echo esc_html( $english ? 'clear all' : 'καθαρισμός' ); ?></a>
 						<button class="igpa__filter-apply" type="submit"><?php echo esc_html( $english ? 'show objects' : 'προβολή αντικειμένων' ); ?></button>
+						<a class="igpa__filter-reset" href="<?php echo esc_url( $clear_url ); ?>"><?php echo esc_html( $english ? 'clear all' : 'καθαρισμός' ); ?></a>
 					</footer>
 				</form>
 			</div>
