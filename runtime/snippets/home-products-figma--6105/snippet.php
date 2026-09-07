@@ -106,6 +106,14 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 		'infinite_products_hero'
 	);
 
+	/* The page-wide translator can replace visible text nodes, but data
+	 * attributes are intentionally left untouched. The unified cursor reads its
+	 * contextual label from these values, so localise them before rendering. */
+	if ( function_exists( 'ioulia_maybe_translate' ) ) {
+		$atts['cursor_drag'] = ioulia_maybe_translate( $atts['cursor_drag'] );
+		$atts['cursor_link'] = ioulia_maybe_translate( $atts['cursor_link'] );
+	}
+
 	$limit      = max( 1, min( 12, absint( $atts['limit'] ) ) );
 	$show_price = in_array( strtolower( (string) $atts['show_price'] ), array( '1', 'yes', 'true', 'on' ), true );
 	$hide_oos     = in_array( strtolower( (string) $atts['hide_out_of_stock'] ), array( '1', 'yes', 'true', 'on' ), true );
