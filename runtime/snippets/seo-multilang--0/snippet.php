@@ -193,7 +193,12 @@ if ( ! function_exists( 'ioulia_seo_canonical' ) ) {
 			return get_permalink( get_queried_object_id() );
 		}
 
-		return home_url( add_query_arg( array(), $GLOBALS['wp']->request ) );
+		$url = home_url( add_query_arg( array(), $GLOBALS['wp']->request ) );
+		if ( isset( $_GET['catalog-page'] ) && absint( $_GET['catalog-page'] ) > 1 ) {
+			$url = add_query_arg( 'catalog-page', absint( $_GET['catalog-page'] ), $url );
+		}
+
+		return $url;
 	}
 }
 
@@ -300,8 +305,9 @@ if ( ! function_exists( 'ioulia_seo_robots' ) ) {
 		$key = ioulia_seo_page_key();
 
 		$thin_shop_archive = ( function_exists( 'is_product_category' ) && is_product_category() ) || ( function_exists( 'is_product_tag' ) && is_product_tag() && ! is_product_tag( 'one-and-only' ) );
+		$filtered_catalog = isset( $_GET['catalog-category'] ) || isset( $_GET['catalog-collection'] ) || isset( $_GET['catalog-sort'] );
 
-		if ( is_search() || is_404() || $thin_shop_archive || in_array( $key, array( 'cart', 'checkout', 'my-account', 'kratiseis', 'cancel-booking', 'coming-soon' ), true ) ) {
+		if ( is_search() || is_404() || $thin_shop_archive || $filtered_catalog || in_array( $key, array( 'cart', 'checkout', 'my-account', 'kratiseis', 'cancel-booking', 'coming-soon' ), true ) ) {
 			$robots['noindex'] = true;
 			$robots['follow']  = true;
 			unset( $robots['index'] );
