@@ -61,12 +61,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const ring = document.createElement('div');
   const circle = document.createElement('span');
+  const label = document.createElement('span');
   ring.className = 'ioulia-cursor-ring';
   ring.setAttribute('data-ioulia-cursor-ring', '');
   ring.setAttribute('aria-hidden', 'true');
   circle.className = 'ioulia-cursor-ring__circle';
+  label.className = 'ioulia-cursor-ring__label';
   ring.appendChild(circle);
+  ring.appendChild(label);
   document.body.appendChild(ring);
+  document.documentElement.classList.add('ioulia-cursor-enhanced');
 
   const interactiveSelector = [
     'a[href]',
@@ -79,23 +83,83 @@ document.addEventListener('DOMContentLoaded', function () {
     '[role="button"]',
     '[contenteditable="true"]'
   ].join(', ');
-  const localCursorSelector = '.icph, .mxl-iph';
+  const controlSelector = 'button:not(:disabled), [role="button"], input[type="button"]:not(:disabled), input[type="submit"]:not(:disabled), input[type="reset"]:not(:disabled)';
 
   let targetX = 0;
   let targetY = 0;
+  let pointerX = 0;
+  let pointerY = 0;
   let currentX = 0;
   let currentY = 0;
   let previousTime = 0;
   let frame = 0;
   let started = false;
+  let activeLogo = null;
 
   const syncTargetState = function (target) {
     if (!(target instanceof Element)) {
-      ring.classList.remove('is-interactive', 'is-local-cursor');
+      ring.classList.remove('is-interactive', 'is-control', 'is-context', 'is-context-action', 'is-logo');
+      if (activeLogo) activeLogo.classList.remove('is-cursor-morph');
+      activeLogo = null;
+      label.textContent = '';
       return;
     }
-    ring.classList.toggle('is-interactive', Boolean(target.closest(interactiveSelector)));
-    ring.classList.toggle('is-local-cursor', Boolean(target.closest(localCursorSelector)));
+
+    const interactive = target.closest(interactiveSelector);
+    const control = target.closest(controlSelector);
+    const context = target.closest('.icph, .mxl-iph');
+    const logoLink = target.closest('.ioulia-nav-left a');
+    const logo = logoLink && logoLink.querySelector('.ioulia-logo-circle');
+
+    if (activeLogo && activeLogo !== logo) activeLogo.classList.remove('is-cursor-morph');
+    activeLogo = logo || null;
+    if (activeLogo) activeLogo.classList.add('is-cursor-morph');
+
+    ring.classList.toggle('is-interactive', Boolean(interactive));
+    ring.classList.toggle('is-control', Boolean(control));
+    ring.classList.toggle('is-context', Boolean(context));
+    ring.classList.toggle('is-logo', Boolean(logo));
+
+    let contextAction = false;
+    if (context && context.classList.contains('mxl-iph')) {
+      contextAction = context.classList.contains('is-item-hover');
+      label.textContent = contextAction
+        ? (context.dataset.cursorLink || 'VIEW')
+        : (context.dataset.cursorDrag || 'DRAG');
+    } else if (context) {
+      contextAction = Boolean(target.closest('.icph__product'));
+      const source = context.querySelector('.icph__cursor');
+      label.textContent = source ? source.textContent.trim() : 'VIEW';
+    } else {
+      label.textContent = '';
+    }
+    ring.classList.toggle('is-context-action', contextAction);
+
+    targetX = pointerX;
+    targetY = pointerY;
+
+    if (logo) {
+      const logoRect = logo.getBoundingClientRect();
+      targetX = logoRect.left + logoRect.width / 2;
+      targetY = logoRect.top + logoRect.height / 2;
+      ring.style.setProperty('--ioulia-cursor-logo-scale', String(Math.max(logoRect.width, logoRect.height) / 52));
+    } else {
+      ring.style.removeProperty('--ioulia-cursor-logo-scale');
+
+      /* A small control gently attracts only the follower, never the native
+         pointer. This gives buttons a magnetic response without making links
+         or large cards feel sticky. */
+      if (control) {
+        const controlRect = control.getBoundingClientRect();
+        if (controlRect.width <= 260 && controlRect.height <= 110) {
+          const centreX = controlRect.left + controlRect.width / 2;
+          const centreY = controlRect.top + controlRect.height / 2;
+          targetX += (centreX - pointerX) * .16;
+          targetY += (centreY - pointerY) * .16;
+        }
+      }
+    }
+    requestPaint();
   };
 
   const paint = function (time) {
@@ -105,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const follow = 1 - Math.exp(-elapsed / 82);
     currentX += (targetX - currentX) * follow;
     currentY += (targetY - currentY) * follow;
-    ring.style.transform = 'translate3d(' + (currentX - 18).toFixed(2) + 'px, ' + (currentY - 18).toFixed(2) + 'px, 0)';
+    ring.style.transform = 'translate3d(' + (currentX - 26).toFixed(2) + 'px, ' + (currentY - 26).toFixed(2) + 'px, 0)';
 
     if (Math.abs(targetX - currentX) > .04 || Math.abs(targetY - currentY) > .04) {
       frame = window.requestAnimationFrame(paint);
@@ -121,8 +185,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.addEventListener('pointermove', function (event) {
     if (event.pointerType && event.pointerType !== 'mouse') return;
-    targetX = event.clientX;
-    targetY = event.clientY;
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    targetX = pointerX;
+    targetY = pointerY;
     if (!started) {
       currentX = targetX;
       currentY = targetY;
@@ -139,6 +205,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.addEventListener('pointerdown', function (event) {
     if (event.pointerType && event.pointerType !== 'mouse') return;
+    syncTargetState(event.target);
     ring.classList.add('is-pressed');
   }, { passive: true });
 
@@ -148,10 +215,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.documentElement.addEventListener('mouseleave', function () {
     ring.classList.remove('is-visible', 'is-pressed');
+    if (activeLogo) activeLogo.classList.remove('is-cursor-morph');
+    activeLogo = null;
   });
 
   window.addEventListener('blur', function () {
     ring.classList.remove('is-visible', 'is-pressed');
+    if (activeLogo) activeLogo.classList.remove('is-cursor-morph');
+    activeLogo = null;
   });
 });
 

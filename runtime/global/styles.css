@@ -556,12 +556,12 @@ a {
   z-index: 2147483646;
   top: 0;
   left: 0;
-  width: 36px;
-  height: 36px;
+  width: 52px;
+  height: 52px;
   opacity: 0;
   pointer-events: none;
   transform: translate3d(-80px, -80px, 0);
-  transition: opacity 240ms ease;
+  transition: opacity 280ms ease;
   will-change: transform;
   contain: layout style size;
   mix-blend-mode: difference;
@@ -574,28 +574,75 @@ a {
   border: 1px solid #fff;
   border-radius: 50%;
   background: transparent;
-  opacity: .88;
+  opacity: .82;
   transform: scale(1);
   transition:
-    opacity 220ms ease,
-    transform 480ms cubic-bezier(.16, 1, .3, 1),
-    border-width 240ms ease;
+    opacity 260ms ease,
+    transform 620ms cubic-bezier(.16, 1, .3, 1),
+    border-width 320ms ease;
   will-change: transform;
+}
+
+.ioulia-cursor-ring__label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  color: #fff;
+  place-items: center;
+  font-family: var(--ioulia-font);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: scale(.72);
+  transition: opacity 240ms ease, transform 520ms cubic-bezier(.16, 1, .3, 1);
 }
 
 .ioulia-cursor-ring.is-visible { opacity: 1; }
 .ioulia-cursor-ring.is-interactive .ioulia-cursor-ring__circle {
   border-width: .75px;
-  opacity: .72;
-  transform: scale(1.42);
+  opacity: .7;
+  transform: scale(1.34);
+}
+.ioulia-cursor-ring.is-control .ioulia-cursor-ring__circle { transform: scale(1.52); }
+.ioulia-cursor-ring.is-context .ioulia-cursor-ring__circle {
+  border-width: .7px;
+  opacity: .9;
+  transform: scale(1.48);
+}
+.ioulia-cursor-ring.is-context .ioulia-cursor-ring__label {
+  opacity: 1;
+  transform: scale(1);
+}
+.ioulia-cursor-ring.is-context-action .ioulia-cursor-ring__circle {
+  transform: scale(1.26);
+}
+.ioulia-cursor-ring.is-logo .ioulia-cursor-ring__circle {
+  border-width: 1px;
+  opacity: 1;
+  transform: scale(var(--ioulia-cursor-logo-scale, 1.9));
 }
 .ioulia-cursor-ring.is-pressed .ioulia-cursor-ring__circle {
   border-width: 1.5px;
   opacity: 1;
-  transform: scale(.76);
+  transform: scale(.82);
   transition-duration: 120ms;
 }
-.ioulia-cursor-ring.is-local-cursor .ioulia-cursor-ring__circle { opacity: 0; }
+.ioulia-cursor-ring.is-context.is-pressed .ioulia-cursor-ring__circle { transform: scale(1.18); }
+.ioulia-cursor-ring.is-logo.is-pressed .ioulia-cursor-ring__circle {
+  transform: scale(calc(var(--ioulia-cursor-logo-scale, 1.9) * .92));
+}
+
+/* The global ring becomes the two labelled homepage cursors. Their markup is
+   retained as a semantic source for the label, but their separate outlines
+   step away so there is one uninterrupted object travelling through the UI. */
+html.ioulia-cursor-enhanced .icph__cursor,
+html.ioulia-cursor-enhanced .mxl-iph__cursor {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
 
 .ioulia-section {
   width: 100%;

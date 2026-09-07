@@ -200,10 +200,17 @@ function ioulia_custom_navbar_shortcode() {
             border: 2px solid var(--ioulia-dark);
             border-radius: 50%;
             background-color: transparent;
-            transition: border-color 0.5s ease, transform 0.4s var(--ioulia-snappy-ease);
+            opacity: 1;
+            transform: scale(1);
+            transition: border-color 0.5s ease, opacity 0.38s ease, transform 0.58s var(--ioulia-smooth-ease);
+            will-change: opacity, transform;
         }
         .ioulia-logo-circle:hover {
             transform: scale(1.08);
+        }
+        .ioulia-logo-circle.is-cursor-morph {
+            opacity: 0;
+            transform: scale(.74);
         }
 
         .ioulia-nav-right {
