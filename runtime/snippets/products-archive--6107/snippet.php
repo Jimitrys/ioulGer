@@ -1279,23 +1279,26 @@ function igpa_render_product_archive( $atts = array() ) {
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact span {
 				min-height: 52px;
 				padding: 11px 42px 11px 18px;
-				border: 0;
-				border-radius: 14px;
-				background: #fff;
-				box-shadow: 0 5px 18px rgba(43, 43, 43, .035);
+				border: 1px solid var(--igpa-line);
+				border-radius: 18px;
+				background: transparent;
+				box-shadow: none;
+				transition: border-color 200ms ease, box-shadow 240ms ease, background-color 200ms ease, transform 240ms cubic-bezier(.16, 1, .3, 1);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact span::after {
-				right: 4px;
-				width: 15px;
-				height: 15px;
+				right: 16px;
+				width: 18px;
+				height: 18px;
+				border-width: 1.5px;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact input:checked + span {
-				background: #fff;
+				border-color: var(--igpa-ink);
+				background: rgba(255, 255, 255, .5);
 				color: var(--igpa-ink);
 				font-weight: 500;
-				box-shadow: 0 7px 22px rgba(43, 43, 43, .065);
+				box-shadow: inset 0 0 0 1px var(--igpa-ink);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact input:checked + span::after {
@@ -1305,8 +1308,9 @@ function igpa_render_product_archive( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option.igpa__filter-option--compact:hover span {
-				transform: translateY(-1px);
-				background: #fff;
+				border-color: var(--igpa-ink);
+				transform: translateY(-2px);
+				background: rgba(255, 255, 255, .36);
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-option {
