@@ -1182,7 +1182,8 @@ function igpa_render_product_archive( $atts = array() ) {
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-body > .igpa__filter-group:first-child {
-				padding-top: 42px;
+				margin-top: 30px;
+				padding-top: 0;
 			}
 
 			#<?php echo esc_attr( $instance_id ); ?> .igpa__filter-group:last-child {
