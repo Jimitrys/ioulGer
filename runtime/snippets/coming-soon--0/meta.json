@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "id": 0,
+    "post_type": "igc_php_snippet",
+    "title": "coming soon",
+    "slug": "coming-soon",
+    "status": "publish",
+    "menu_order": 1,
+    "properties": {
+        "scope": "everywhere",
+        "enabled": true
+    }
+}

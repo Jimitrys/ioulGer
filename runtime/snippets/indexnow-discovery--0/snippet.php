@@ -17,6 +17,13 @@ if ( ! function_exists( 'ioulia_indexnow_key' ) ) {
 
 if ( ! function_exists( 'ioulia_indexnow_queue_post' ) ) {
 	function ioulia_indexnow_queue_post( $post_id, $post, $update ) {
+		/* Nothing is announced while the site is behind the curtain: every URL
+		   answers 503, and pointing a search engine at one is worse than saying
+		   nothing at all. */
+		if ( ! apply_filters( 'ioulia_indexnow_enabled', true ) ) {
+			return;
+		}
+
 		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) || ! $post || 'publish' !== $post->post_status || ! in_array( $post->post_type, array( 'page', 'product' ), true ) ) {
 			return;
 		}
