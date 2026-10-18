@@ -881,20 +881,20 @@ if ( ! function_exists( 'ioulia_workshops_form_assets' ) ) {
 	.iwf__error { margin: 1.2rem 0 0; padding: .9rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-control); background: var(--iwf-slot-bg); color: var(--iwf-slot-ink); font-size: var(--ioulia-small); }
 	.iwf__error[hidden] { display: none; }
 
-	.iwf__people { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding: .8rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); }
+	.iwf__people { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding: .8rem 1rem; border: 1px solid rgba(43, 43, 43, .18); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .68); }
 	.iwf__stepper { display: flex; align-items: center; gap: .55rem; }
 	.iwf__stepper button { width: 44px; height: 44px; border: 1px solid var(--iwf-line); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: var(--ioulia-body); cursor: pointer; transition: border-color .2s ease, background-color .2s ease, transform .24s var(--iwf-spring); }
 	.iwf__stepper button:hover, .iwf__stepper button:focus-visible { border-color: currentColor; background: rgba(43, 43, 43, .05); outline: none; transform: scale(1.04); }
 	.iwf__stepper button:active { transform: scale(.97); }
 	.iwf__stepper output { min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
 
-	.iwf__total { display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); }
+	.iwf__total { display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid rgba(43, 43, 43, .16); border-radius: var(--iwf-card); background: rgba(43, 43, 43, .045); }
 	.iwf__total-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 	.iwf__total-label { color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 600; }
 	.iwf__total-value { font-size: var(--ioulia-body-lg); font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
 	.iwf__total-note { color: var(--iwf-muted); font-size: var(--ioulia-micro); line-height: 1.45; }
 
-	.iwf__fields { display: grid; gap: .8rem; padding: 1rem; border: 1px solid var(--iwf-line); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .42); }
+	.iwf__fields { display: grid; gap: .8rem; padding: 1rem; border: 1px solid rgba(43, 43, 43, .18); border-radius: var(--iwf-card); background: rgba(255, 255, 255, .72); }
 	.iwf__field > span { display: block; margin: 0 0 .4rem .15rem; color: var(--iwf-muted); font-size: var(--ioulia-micro); font-weight: 600; }
 	.iwf__field em { font-style: normal; opacity: .7; }
 	.iwf__field input, .iwf__field textarea {
