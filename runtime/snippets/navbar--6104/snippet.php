@@ -834,19 +834,19 @@ function ioulia_custom_navbar_shortcode() {
             top: 0;
             left: 0;
             width: 100%;
-            height: 70vh;
+            height: 100vh;
             background-color: var(--ioulia-bg-dark);
             z-index: 99998;
             transform: translateY(-100%);
             transition: transform 0.85s var(--ioulia-snappy-ease);
             box-sizing: border-box;
             overflow: hidden;
-            padding: calc(var(--ioulia-header-h, 163px) + 56px) var(--ioulia-page-x) 5vh var(--ioulia-page-x);
+            padding: calc(var(--ioulia-header-h, 163px) + 56px) var(--ioulia-page-x) 3vh var(--ioulia-page-x);
         }
 
         #ioulia-header.scrolled ~ #ioulia-menu-overlay {
             padding-top: calc(var(--ioulia-header-h, 163px) - 32px + 56px);
-            padding-bottom: 5vh;
+            padding-bottom: 3vh;
         }
 
         #ioulia-menu-overlay.active {
@@ -1047,9 +1047,9 @@ function ioulia_custom_navbar_shortcode() {
            touch layouts keep their own sizing in the mobile rules below. */
         @media (min-width: 992px) and (max-height: 820px) {
             #ioulia-menu-overlay {
-                height: calc(70vh + 96px);
+                height: 100vh;
                 padding-top: calc(var(--ioulia-header-h, 163px) + 48px);
-                padding-bottom: clamp(12px, 2vh, 18px);
+                padding-bottom: clamp(10px, 1.5vh, 14px);
             }
 
             #ioulia-header.scrolled ~ #ioulia-menu-overlay {
