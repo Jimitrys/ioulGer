@@ -841,7 +841,7 @@ function ioulia_custom_navbar_shortcode() {
             transition: transform 0.85s var(--ioulia-snappy-ease);
             box-sizing: border-box;
             overflow: hidden;
-            padding: 16vh var(--ioulia-page-x) 5vh var(--ioulia-page-x); 
+            padding: 16vh var(--ioulia-page-x) calc(5vh + 24px) var(--ioulia-page-x);
         }
 
         #ioulia-menu-overlay.active {
@@ -977,7 +977,6 @@ function ioulia_custom_navbar_shortcode() {
             align-items: center;
             border-top: 1px solid rgba(254, 250, 228, 0.1);
             padding-top: 3.5vh;
-            padding-bottom: 14px;
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.8s ease, transform 0.8s var(--ioulia-snappy-ease);
@@ -1044,7 +1043,7 @@ function ioulia_custom_navbar_shortcode() {
         @media (min-width: 992px) and (max-height: 820px) {
             #ioulia-menu-overlay {
                 padding-top: clamp(112px, 14vh, 132px);
-                padding-bottom: clamp(22px, 3.5vh, 30px);
+                padding-bottom: calc(clamp(22px, 3.5vh, 30px) + 24px);
             }
 
             .ioulia-canvas-main {
@@ -1093,7 +1092,7 @@ function ioulia_custom_navbar_shortcode() {
             #ioulia-menu-overlay {
                 height: 100svh;
                 padding-top: var(--ioulia-header-h, 139px);
-                padding-bottom: 4vh;
+                padding-bottom: calc(4vh + 24px);
                 transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
             }
 
