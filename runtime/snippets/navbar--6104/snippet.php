@@ -1037,6 +1037,51 @@ function ioulia_custom_navbar_shortcode() {
             fill: currentColor;
         }
 
+        /* On shorter laptop viewports the full-size editorial menu crowds its
+           two columns and footer. Scale its type and rhythm down together;
+           touch layouts keep their own sizing in the mobile rules below. */
+        @media (min-width: 992px) and (max-height: 820px) {
+            #ioulia-menu-overlay {
+                padding-top: clamp(112px, 14vh, 132px);
+                padding-bottom: clamp(22px, 3.5vh, 30px);
+            }
+
+            .ioulia-canvas-main {
+                margin-top: clamp(10px, 2.5vh, 20px);
+            }
+
+            .ioulia-menu-item {
+                margin-bottom: clamp(0.45rem, 1.2vh, 0.75rem);
+            }
+
+            .ioulia-menu-item-link {
+                font-size: clamp(2.3rem, 3.2vw, 3.4rem);
+                line-height: 1.04;
+            }
+
+            .ioulia-vessel-svg svg {
+                height: 42px;
+            }
+
+            .ioulia-canvas-footer {
+                padding-top: clamp(16px, 2.5vh, 24px);
+            }
+
+            .ioulia-privacy-links a,
+            .ioulia-divider {
+                font-size: clamp(0.82rem, 0.28vw + 0.68rem, 0.98rem);
+            }
+
+            .ioulia-social-links {
+                gap: 1.8rem;
+            }
+
+            .ioulia-social-links svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
         /* --- Mobile --- */
         @media (max-width: 991px) {
             #ioulia-header { padding-top: 2.5em; }
