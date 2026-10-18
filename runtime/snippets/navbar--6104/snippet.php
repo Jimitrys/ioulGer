@@ -841,11 +841,11 @@ function ioulia_custom_navbar_shortcode() {
             transition: transform 0.85s var(--ioulia-snappy-ease);
             box-sizing: border-box;
             overflow: hidden;
-            padding: calc(var(--ioulia-header-h, 163px) + 24px) var(--ioulia-page-x) calc(5vh + 12px) var(--ioulia-page-x);
+            padding: calc(var(--ioulia-header-h, 163px) + 56px) var(--ioulia-page-x) calc(5vh + 12px) var(--ioulia-page-x);
         }
 
         #ioulia-header.scrolled ~ #ioulia-menu-overlay {
-            padding-top: calc(var(--ioulia-header-h, 163px) - 32px + 24px);
+            padding-top: calc(var(--ioulia-header-h, 163px) - 32px + 56px);
         }
 
         #ioulia-menu-overlay.active {
@@ -1048,12 +1048,12 @@ function ioulia_custom_navbar_shortcode() {
            touch layouts keep their own sizing in the mobile rules below. */
         @media (min-width: 992px) and (max-height: 820px) {
             #ioulia-menu-overlay {
-                padding-top: calc(var(--ioulia-header-h, 163px) + 16px);
+                padding-top: calc(var(--ioulia-header-h, 163px) + 48px);
                 padding-bottom: calc(clamp(22px, 3.5vh, 30px) + 12px);
             }
 
             #ioulia-header.scrolled ~ #ioulia-menu-overlay {
-                padding-top: calc(var(--ioulia-header-h, 163px) - 32px + 16px);
+                padding-top: calc(var(--ioulia-header-h, 163px) - 32px + 48px);
             }
 
             .ioulia-canvas-main {
@@ -1101,7 +1101,7 @@ function ioulia_custom_navbar_shortcode() {
                lets the links arrive with the panel rather than a beat after it. */
             #ioulia-menu-overlay {
                 height: 100svh;
-                padding-top: calc(var(--ioulia-header-h, 139px) + 12px);
+                padding-top: calc(var(--ioulia-header-h, 139px) + 24px);
                 padding-bottom: calc(4vh + 12px);
                 transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
             }
@@ -1120,7 +1120,7 @@ function ioulia_custom_navbar_shortcode() {
             }
 
             #ioulia-header.scrolled ~ #ioulia-menu-overlay {
-                padding-top: calc(var(--ioulia-header-h, 139px) - 32px + 12px);
+                padding-top: calc(var(--ioulia-header-h, 139px) - 32px + 24px);
             }
             .ioulia-col-left{ padding-bottom: 0; }
 
