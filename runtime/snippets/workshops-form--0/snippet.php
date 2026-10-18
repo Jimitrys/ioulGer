@@ -280,7 +280,7 @@ if ( ! function_exists( 'ioulia_workshops_shortcode' ) ) {
 
 						<div class="iwf__schedule" data-iwf-schedule data-iwf-reveal></div>
 
-						<p class="iwf__intro" data-iwf-reveal>Μαθήματα πηλοπλαστικής και τροχού για όσους θέλουν να επιβραδύνουν και να δημιουργήσουν κάτι δικό τους. Όλα τα υλικά, τα εργαλεία και τα ψησίματα περιλαμβάνονται.</p>
+						<p class="iwf__intro" data-iwf-reveal>Μαθήματα πηλοπλαστικής και τροχού για όσους θέλουν να δουλέψουν με τον πηλό και να φτιάξουν κάτι δικό τους. Όλα τα υλικά, τα εργαλεία και τα ψησίματα περιλαμβάνονται.</p>
 
 						<button type="button" class="ioulia-btn ioulia-btn--filled iwf__open" data-iwf-open data-iwf-reveal>Κλείσε τη θέση σου</button>
 

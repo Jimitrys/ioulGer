@@ -241,7 +241,7 @@ if ( ! function_exists( 'ioulia_i18n_seed_en' ) ) {
 				'Ζωγραφική σε έτοιμο κεραμικό, με ποτό και κέρασμα. Μία ή δύο Κυριακές τον μήνα.' => 'Painting a finished ceramic, with a drink and something to nibble. One or two Sundays a month.',
 				'περιλαμβάνεται το κεραμικό, χρώματα, υάλωμα, ψήσιμο και κέρασμα' => 'the ceramic, paints, glazing, firing and refreshments are included',
 				/* WORKSHOPS — booking section redesign */
-				'Μαθήματα πηλοπλαστικής και τροχού για όσους θέλουν να επιβραδύνουν και να δημιουργήσουν κάτι δικό τους. Όλα τα υλικά, τα εργαλεία και τα ψησίματα περιλαμβάνονται.' => 'Handbuilding and wheel classes for anyone who wants to slow down and make something of their own. All materials, tools and firings are included.',
+				'Μαθήματα πηλοπλαστικής και τροχού για όσους θέλουν να δουλέψουν με τον πηλό και να φτιάξουν κάτι δικό τους. Όλα τα υλικά, τα εργαλεία και τα ψησίματα περιλαμβάνονται.' => 'Handbuilding and wheel classes for anyone who wants to work with clay and make something of their own. All materials, tools and firings are included.',
 				'Οι κρατήσεις γίνονται τουλάχιστον 3 ημέρες πριν τη συνάντηση. Όλα τα υλικά και τα ψησίματα περιλαμβάνονται.' => 'Bookings are made at least 3 days before the session. All materials and firings are included.',
 				'Κλείσε τη θέση σου' => 'Book your place',
 				'Κλείσιμο' => 'Close',
