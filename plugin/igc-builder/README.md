@@ -47,6 +47,19 @@ and **Pull GitHub to Site**. Push creates a timestamped commit message automatic
 The same actions are available globally under **Site Sync** in the WordPress admin bar;
 Pull requires confirmation before validation, backup and import begin.
 
+### Optional automatic deployment
+
+The plugin can receive signed GitHub `push` webhooks at
+`/wp-json/igc-builder/v1/github-deploy`. Configure a JSON webhook for the configured
+repository and branch, with the `push` event only. Generate a random secret of at least
+32 characters and define the same value in `wp-config.php` as
+`IGC_GITHUB_WEBHOOK_SECRET`. The endpoint verifies GitHub's SHA-256 HMAC, repository
+and branch, then queues the regular validation, backup, runtime import and cache-clear
+workflow through WP-Cron. Keep WP-Cron or a host cron enabled. The Git Workspace page
+shows the endpoint and latest deploy status. This changes the installed plugin, which
+is not included in runtime imports, so deploy this plugin update to the server once
+before enabling the webhook.
+
 ## Global CSS tokens
 
 The visual settings are output as CSS custom properties:

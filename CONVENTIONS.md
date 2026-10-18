@@ -137,9 +137,19 @@ does.
 
 ## Deploying
 
-A Git push changes nothing on its own. An administrator must run
-**Site Sync → Pull GitHub → Site**, and the branch must be the one configured in
-Site Studio (`main` by default; the pull is `--ff-only`).
+A Git push changes nothing on its own unless the optional automatic deployment is
+configured. The default is **Site Sync → Pull GitHub → Site**, and the branch must
+be the one configured in Site Studio (`main` by default; the pull is `--ff-only`).
+
+Automatic deployment is available through the signed GitHub push webhook at
+`/wp-json/igc-builder/v1/github-deploy`. Configure a repository webhook with JSON
+content, the `push` event only, and the configured branch. Define
+`IGC_GITHUB_WEBHOOK_SECRET` in `wp-config.php` with the same randomly generated
+secret; keep WP-Cron or a host cron enabled so the queued import runs. The webhook
+validates the signature, repository and branch, skips pushes without runtime changes,
+then uses the normal validation, backup, import and cache-clear path. Updating the
+Site Studio plugin itself is intentionally outside this runtime import and still
+requires a one-time plugin update on the server.
 
 Never run **Push Site → GitHub** while the repository holds work the database
 does not: it exports the current database over `runtime/` and would revert it.

@@ -16,8 +16,9 @@ and AI coding agents. Read it before changing anything.
    explicitly requires changing them.
 5. Validate every edited JSON, PHP, HTML, CSS, and JavaScript file.
 6. Commit and push the change to the configured branch.
-7. A WordPress administrator must run **Site Sync → Pull GitHub → Site** to deploy
-   runtime changes. A Git push by itself does not change the live site.
+7. Runtime changes deploy through **Site Sync → Pull GitHub → Site** unless the
+   optional signed GitHub webhook has been installed and configured. A Git push by
+   itself does not change the live site until that webhook is active.
 
 Never add secrets, tokens, passwords, customer data, orders, bookings, media
 binaries, database dumps, `.env` files, or WordPress security keys to this repo.

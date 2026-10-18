@@ -25,6 +25,118 @@ final class IGC_Git_Workspace {
 		add_action( 'admin_post_igc_git_quick_action', array( self::class, 'handle_quick_action' ) );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'assets' ) );
 		add_action( 'admin_bar_menu', array( self::class, 'admin_bar' ), 95 );
+		add_action( 'rest_api_init', array( self::class, 'register_webhook_route' ) );
+		add_action( 'igc_github_webhook_deploy', array( self::class, 'process_webhook_deploy' ) );
+	}
+
+	public static function register_webhook_route(): void {
+		register_rest_route(
+			'igc-builder/v1',
+			'/github-deploy',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( self::class, 'receive_webhook' ),
+				'permission_callback' => array( self::class, 'authorize_webhook' ),
+			)
+		);
+	}
+
+	public static function authorize_webhook( WP_REST_Request $request ): bool|WP_Error {
+		$secret = defined( 'IGC_GITHUB_WEBHOOK_SECRET' ) ? trim( (string) IGC_GITHUB_WEBHOOK_SECRET ) : '';
+		$body = $request->get_body();
+		$signature = strtolower( trim( (string) $request->get_header( 'x-hub-signature-256' ) ) );
+
+		if ( strlen( $body ) > 2 * MB_IN_BYTES ) {
+			return new WP_Error( 'igc_webhook_payload_too_large', __( 'Webhook payload is too large.', 'igc-builder' ), array( 'status' => 413 ) );
+		}
+		if ( strlen( $secret ) < 32 || '' === $signature ) {
+			return new WP_Error( 'igc_webhook_unauthorized', __( 'Webhook is not authorised.', 'igc-builder' ), array( 'status' => 401 ) );
+		}
+
+		$expected = 'sha256=' . hash_hmac( 'sha256', $body, $secret );
+		if ( ! hash_equals( $expected, $signature ) || 'push' !== strtolower( (string) $request->get_header( 'x-github-event' ) ) ) {
+			return new WP_Error( 'igc_webhook_unauthorized', __( 'Webhook is not authorised.', 'igc-builder' ), array( 'status' => 401 ) );
+		}
+
+		return true;
+	}
+
+	public static function receive_webhook( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$payload = $request->get_json_params();
+		if ( ! is_array( $payload ) ) {
+			return new WP_Error( 'igc_webhook_invalid_payload', __( 'Webhook payload is invalid.', 'igc-builder' ), array( 'status' => 400 ) );
+		}
+		$settings = self::settings();
+		$repository = strtolower( self::github_repository() );
+		$payload_repository = strtolower( (string) ( $payload['repository']['full_name'] ?? '' ) );
+		$expected_ref = 'refs/heads/' . (string) $settings['branch'];
+
+		if ( ! $repository || $repository !== $payload_repository ) {
+			return new WP_Error( 'igc_webhook_wrong_source', __( 'Webhook source does not match the configured repository.', 'igc-builder' ), array( 'status' => 400 ) );
+		}
+		if ( $expected_ref !== (string) ( $payload['ref'] ?? '' ) || ! empty( $payload['deleted'] ) ) {
+			return new WP_REST_Response( array( 'accepted' => true, 'queued' => false, 'reason' => 'branch_not_deployed' ), 200 );
+		}
+
+		$commits = $payload['commits'] ?? null;
+		if ( is_array( $commits ) && $commits && count( $commits ) < 2048 ) {
+			$runtime_changed = false;
+			foreach ( $commits as $commit ) {
+				foreach ( array( 'added', 'modified', 'removed' ) as $change_type ) {
+					foreach ( (array) ( $commit[ $change_type ] ?? array() ) as $path ) {
+						if ( 'runtime' === $path || str_starts_with( (string) $path, 'runtime/' ) ) {
+							$runtime_changed = true;
+							break 3;
+						}
+					}
+				}
+			}
+			if ( ! $runtime_changed ) {
+				return new WP_REST_Response( array( 'accepted' => true, 'queued' => false, 'reason' => 'no_runtime_changes' ), 200 );
+			}
+		}
+
+		if ( ! wp_next_scheduled( 'igc_github_webhook_deploy' ) && ! wp_schedule_single_event( time() + 5, 'igc_github_webhook_deploy' ) ) {
+			return new WP_Error( 'igc_webhook_queue_failed', __( 'Could not queue the automatic deployment.', 'igc-builder' ), array( 'status' => 503 ) );
+		}
+
+		update_option( 'igc_github_webhook_last_deploy', array( 'status' => 'queued', 'time' => current_time( 'mysql' ) ), false );
+		if ( function_exists( 'spawn_cron' ) ) {
+			spawn_cron();
+		}
+
+		return new WP_REST_Response( array( 'accepted' => true, 'queued' => true ), 202 );
+	}
+
+	public static function process_webhook_deploy(): void {
+		$lock_name = 'igc_github_webhook_deploy_lock';
+		$locked_at = (int) get_option( $lock_name, 0 );
+		if ( $locked_at && time() - $locked_at < 600 ) {
+			return;
+		}
+		if ( $locked_at ) {
+			delete_option( $lock_name );
+		}
+		if ( ! add_option( $lock_name, time(), '', 'no' ) ) {
+			return;
+		}
+
+		try {
+			$count = self::pull_import( false );
+			update_option(
+				'igc_github_webhook_last_deploy',
+				array( 'status' => 'success', 'time' => current_time( 'mysql' ), 'items' => $count ),
+				false
+			);
+		} catch ( Throwable $error ) {
+			update_option(
+				'igc_github_webhook_last_deploy',
+				array( 'status' => 'failed', 'time' => current_time( 'mysql' ), 'message' => sanitize_text_field( $error->getMessage() ) ),
+				false
+			);
+		} finally {
+			delete_option( $lock_name );
+		}
 	}
 
 	public static function admin_bar( WP_Admin_Bar $admin_bar ): void {
@@ -90,6 +202,7 @@ final class IGC_Git_Workspace {
 		$is_connected = $git ? $is_repo : $github_ready;
 		$status = $is_repo && $git ? self::run_git( array( 'status', '--short', '--branch' ), 8 ) : array( 'code' => 1, 'output' => '' );
 		$last_commit = $is_repo && $git ? self::run_git( array( 'log', '-1', '--pretty=format:%h · %s · %cr' ), 8 ) : array( 'code' => 1, 'output' => '' );
+		$webhook_status = get_option( 'igc_github_webhook_last_deploy', array() );
 		if ( $github_ready ) {
 			$status = array( 'code' => 0, 'output' => __( 'GitHub API mode is ready. No server Git binary is required.', 'igc-builder' ) );
 			$last_commit = array( 'code' => 0, 'output' => (string) get_option( 'igc_github_last_commit', '' ) );
@@ -144,6 +257,17 @@ final class IGC_Git_Workspace {
 					<?php endif; ?>
 					<?php submit_button( __( 'Save Git Settings', 'igc-builder' ), 'secondary', 'submit', false ); ?>
 				</form>
+			</section>
+
+			<section class="igc-panel">
+				<h2><?php esc_html_e( 'Automatic GitHub deployment', 'igc-builder' ); ?></h2>
+				<p><?php esc_html_e( 'A signed push event for the configured branch queues a background import when runtime files change. Validation, backup and cache clearing still run as usual.', 'igc-builder' ); ?></p>
+				<dl class="igc-status">
+					<div><dt><?php esc_html_e( 'Webhook endpoint', 'igc-builder' ); ?></dt><dd><code><?php echo esc_html( rest_url( 'igc-builder/v1/github-deploy' ) ); ?></code></dd></div>
+					<div><dt><?php esc_html_e( 'Secret', 'igc-builder' ); ?></dt><dd><?php echo defined( 'IGC_GITHUB_WEBHOOK_SECRET' ) && strlen( (string) IGC_GITHUB_WEBHOOK_SECRET ) >= 32 ? esc_html__( 'Configured in wp-config.php', 'igc-builder' ) : esc_html__( 'Not configured — add IGC_GITHUB_WEBHOOK_SECRET to wp-config.php', 'igc-builder' ); ?></dd></div>
+					<div><dt><?php esc_html_e( 'Last automatic deploy', 'igc-builder' ); ?></dt><dd><?php echo esc_html( (string) ( $webhook_status['time'] ?? '—' ) ); ?><?php if ( ! empty( $webhook_status['status'] ) ) : ?> · <?php echo esc_html( (string) $webhook_status['status'] ); ?><?php endif; ?><?php if ( isset( $webhook_status['items'] ) ) : ?> · <?php echo esc_html( sprintf( __( '%d code items imported', 'igc-builder' ), (int) $webhook_status['items'] ) ); ?><?php endif; ?><?php if ( ! empty( $webhook_status['message'] ) ) : ?> · <?php echo esc_html( (string) $webhook_status['message'] ); ?><?php endif; ?></dd></div>
+				</dl>
+				<p><?php esc_html_e( 'In GitHub, create a repository webhook using this endpoint, Content type application/json, a generated secret of at least 32 characters, and the push event only. Add the same secret to wp-config.php as IGC_GITHUB_WEBHOOK_SECRET. Make sure WordPress Cron or the host cron is enabled.', 'igc-builder' ); ?></p>
 			</section>
 
 			<div class="igc-grid igc-grid--two">
@@ -444,7 +568,7 @@ final class IGC_Git_Workspace {
 		return function_exists( 'mb_substr' ) ? mb_substr( $message, 0, 120 ) : substr( $message, 0, 120 );
 	}
 
-	private static function pull_import(): void {
+	private static function pull_import( bool $show_notice = true ): int {
 		if ( ! self::git_binary() ) {
 			if ( ! self::github_ready() ) {
 				throw new RuntimeException( __( 'GitHub API mode is not configured.', 'igc-builder' ) );
@@ -455,8 +579,10 @@ final class IGC_Git_Workspace {
 			update_option( 'igc_git_last_sync', current_time( 'mysql' ), false );
 			do_action( 'igc_clear_cache' );
 			wp_cache_flush();
-			self::notice( true, sprintf( __( 'Downloaded from GitHub and imported %d code items.', 'igc-builder' ), $count ) );
-			return;
+			if ( $show_notice ) {
+				self::notice( true, sprintf( __( 'Downloaded from GitHub and imported %d code items.', 'igc-builder' ), $count ) );
+			}
+			return $count;
 		}
 		if ( ! is_dir( self::workspace_dir() . '/.git' ) ) {
 			throw new RuntimeException( __( 'Initialize the repository first.', 'igc-builder' ) );
@@ -469,7 +595,10 @@ final class IGC_Git_Workspace {
 		update_option( 'igc_git_last_sync', current_time( 'mysql' ), false );
 		do_action( 'igc_clear_cache' );
 		wp_cache_flush();
-		self::notice( true, sprintf( __( 'Pulled and imported %d code items.', 'igc-builder' ), $count ) );
+		if ( $show_notice ) {
+			self::notice( true, sprintf( __( 'Pulled and imported %d code items.', 'igc-builder' ), $count ) );
+		}
+		return $count;
 	}
 
 	private static function assert_clean_if_repository(): void {
