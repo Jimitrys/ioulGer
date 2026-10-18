@@ -1074,7 +1074,11 @@ function ioulia_custom_navbar_shortcode() {
             }
 
             .ioulia-canvas-footer {
-                padding-top: clamp(16px, 2.5vh, 24px);
+                padding-top: clamp(12px, 2vh, 18px);
+            }
+
+            .ioulia-col-left {
+                padding-bottom: 0;
             }
 
             .ioulia-privacy-links a,
