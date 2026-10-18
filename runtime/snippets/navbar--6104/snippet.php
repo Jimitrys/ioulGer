@@ -841,11 +841,12 @@ function ioulia_custom_navbar_shortcode() {
             transition: transform 0.85s var(--ioulia-snappy-ease);
             box-sizing: border-box;
             overflow: hidden;
-            padding: calc(var(--ioulia-header-h, 163px) + 56px) var(--ioulia-page-x) calc(5vh + 12px) var(--ioulia-page-x);
+            padding: calc(var(--ioulia-header-h, 163px) + 56px) var(--ioulia-page-x) 5vh var(--ioulia-page-x);
         }
 
         #ioulia-header.scrolled ~ #ioulia-menu-overlay {
             padding-top: calc(var(--ioulia-header-h, 163px) - 32px + 56px);
+            padding-bottom: 5vh;
         }
 
         #ioulia-menu-overlay.active {
@@ -980,8 +981,6 @@ function ioulia_custom_navbar_shortcode() {
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid rgba(254, 250, 228, 0.1);
-            position: relative;
-            top: -12px;
             padding-top: 3.5vh;
             opacity: 0;
             transform: translateY(20px);
@@ -1048,8 +1047,9 @@ function ioulia_custom_navbar_shortcode() {
            touch layouts keep their own sizing in the mobile rules below. */
         @media (min-width: 992px) and (max-height: 820px) {
             #ioulia-menu-overlay {
+                height: calc(70vh + 32px);
                 padding-top: calc(var(--ioulia-header-h, 163px) + 48px);
-                padding-bottom: calc(clamp(22px, 3.5vh, 30px) + 12px);
+                padding-bottom: clamp(22px, 3.5vh, 30px);
             }
 
             #ioulia-header.scrolled ~ #ioulia-menu-overlay {
@@ -1102,7 +1102,7 @@ function ioulia_custom_navbar_shortcode() {
             #ioulia-menu-overlay {
                 height: 100svh;
                 padding-top: calc(var(--ioulia-header-h, 139px) + 24px);
-                padding-bottom: calc(4vh + 12px);
+                padding-bottom: 4vh;
                 transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
             }
 
