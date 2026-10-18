@@ -1,36 +1,73 @@
 document.addEventListener('DOMContentLoaded', function () {
-  if (!window.Lenis || window.iouliaLenis) {
-    return;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const memory = Number(navigator.deviceMemory) || 0;
+  const cores = Number(navigator.hardwareConcurrency) || 0;
+  const lowPower = Boolean(
+    (connection && connection.saveData) ||
+    (memory > 0 && memory <= 4) ||
+    (cores > 0 && cores <= 4)
+  );
+
+  /* Native scrolling is cheaper and more predictable on touch devices,
+     reduced-motion setups and lower-powered machines. */
+  if (window.Lenis && !window.iouliaLenis && finePointer && !reduceMotion && !lowPower) {
+    window.iouliaLenis = new Lenis({
+      autoRaf: false,
+      anchors: true,
+      autoToggle: true,
+      smoothWheel: true,
+      syncTouch: false,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.5,
+      infinite: false,
+      respectReducedMotion: true,
+      stopInertiaOnNavigate: true,
+
+      prevent: function (node) {
+        return Boolean(
+          node.closest(
+            '[data-lenis-prevent], ' +
+            '#ioulia-menu-overlay, ' +
+            '.ioulia-mini-cart-panel, ' +
+            '.iwb__dialog, ' +
+            '.dialog-widget-content, ' +
+            '.elementor-popup-modal, ' +
+            '.woocommerce-mini-cart, ' +
+            '.wc-block-components-drawer, ' +
+            '.select2-container'
+          )
+        );
+      }
+    });
+
+  /* Drive Lenis only while an interaction or an active scroll animation is
+     underway instead of keeping a requestAnimationFrame loop alive forever. */
+    let lenisFrame = 0;
+    const scheduleLenisFrame = function () {
+      if (!lenisFrame && !document.hidden) {
+        lenisFrame = window.requestAnimationFrame(function (time) {
+          lenisFrame = 0;
+          window.iouliaLenis.raf(time);
+          if (window.iouliaLenis.isScrolling) scheduleLenisFrame();
+        });
+      }
+    };
+    window.iouliaLenis.on('virtual-scroll', scheduleLenisFrame);
+    window.iouliaLenis.on('scroll', scheduleLenisFrame);
+    document.addEventListener('click', function (event) {
+      if (event.target instanceof Element && event.target.closest('a[href^="#"]')) scheduleLenisFrame();
+    }, true);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden && lenisFrame) {
+        window.cancelAnimationFrame(lenisFrame);
+        lenisFrame = 0;
+      } else if (!document.hidden && window.iouliaLenis.isScrolling) {
+        scheduleLenisFrame();
+      }
+    });
   }
-
-  window.iouliaLenis = new Lenis({
-    autoRaf: true,
-    anchors: true,
-    autoToggle: true,
-    smoothWheel: true,
-    syncTouch: false,
-    wheelMultiplier: 1,
-    touchMultiplier: 1.5,
-    infinite: false,
-    respectReducedMotion: true,
-    stopInertiaOnNavigate: true,
-
-    prevent: function (node) {
-      return Boolean(
-        node.closest(
-          '[data-lenis-prevent], ' +
-          '#ioulia-menu-overlay, ' +
-          '.ioulia-mini-cart-panel, ' +
-          '.iwb__dialog, ' +
-          '.dialog-widget-content, ' +
-          '.elementor-popup-modal, ' +
-          '.woocommerce-mini-cart, ' +
-          '.wc-block-components-drawer, ' +
-          '.select2-container'
-        )
-      );
-    }
-  });
 
   /* Cart and checkout own their vertical scroll in compact app mode. Keep
      wheel/touch input inside that surface even when another global listener
@@ -57,7 +94,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (!finePointer.matches || reduceMotion.matches) return;
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const memory = Number(navigator.deviceMemory) || 0;
+  const cores = Number(navigator.hardwareConcurrency) || 0;
+  const lowPower = Boolean(
+    (connection && connection.saveData) ||
+    (memory > 0 && memory <= 4) ||
+    (cores > 0 && cores <= 4)
+  );
+  if (!finePointer.matches || reduceMotion.matches || lowPower) return;
 
   const ring = document.createElement('div');
   const circle = document.createElement('span');
@@ -245,8 +290,17 @@ document.addEventListener('DOMContentLoaded', function () {
    task avoids a visible first frame followed by the words disappearing. */
 (function () {
   const armGlobalText = () => {
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const memory = Number(navigator.deviceMemory) || 0;
+    const cores = Number(navigator.hardwareConcurrency) || 0;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const lowPower = Boolean(
+      (connection && connection.saveData) ||
+      (memory > 0 && memory <= 4) ||
+      (cores > 0 && cores <= 4)
+    );
     const cataloguePage = document.body.matches('.woocommerce-shop, .single-product, .post-type-archive-product, .tax-product_cat, .tax-product_tag');
-    if (!cataloguePage) {
+    if (!cataloguePage && !lowPower && !reduceMotion) {
       document.querySelectorAll('h1, h2, h3, p').forEach((node) => {
         if (node.closest('header, footer, nav, form, dialog, [role="dialog"], .iwf, .ioulia-mini-cart-panel, .igc-shop, .woocommerce')) return;
         if (node.matches('[data-igw-words], .iwl__experience h2')) return;
@@ -368,7 +422,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const viewport = document.querySelector('[data-ia-gallery]');
   const track = viewport && viewport.querySelector('.ia-gallery__track');
 
-  if (track && !reduceMotion.matches) {
+  const galleryFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const memory = Number(navigator.deviceMemory) || 0;
+  const cores = Number(navigator.hardwareConcurrency) || 0;
+  const galleryLowPower = Boolean(
+    (connection && connection.saveData) ||
+    (memory > 0 && memory <= 4) ||
+    (cores > 0 && cores <= 4)
+  );
+
+  if (track && galleryFinePointer.matches && !reduceMotion.matches && !galleryLowPower) {
     const originals = [...track.children];
     originals.forEach((item) => {
       const copy = item.cloneNode(true);
@@ -406,6 +470,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let dragging = false;
     let lastPointer = 0;
     let ticking = 0;
+    let settleFrame = 0;
 
     const paint = () => {
       ticking = 0;
@@ -426,23 +491,25 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     const requestPaint = () => { if (!ticking) ticking = window.requestAnimationFrame(paint); };
 
-    const idle = () => {
-      if (!dragging) {
-        velocity *= 0.94;
-        /* A slow drift keeps it alive and says it can be moved. */
-        position += velocity + 0.18;
+    const settle = () => {
+      if (settleFrame || dragging || Math.abs(velocity) < 0.08 || document.hidden) return;
+      settleFrame = window.requestAnimationFrame(() => {
+        settleFrame = 0;
+        velocity *= 0.92;
+        position += velocity;
         requestPaint();
-      }
-      window.requestAnimationFrame(idle);
+        settle();
+      });
     };
 
     viewport.classList.add('is-live');
     measure();
     paint();
-    window.requestAnimationFrame(idle);
 
     viewport.addEventListener('pointerdown', (event) => {
       dragging = true;
+      if (settleFrame) window.cancelAnimationFrame(settleFrame);
+      settleFrame = 0;
       velocity = 0;
       lastPointer = event.clientX;
       viewport.classList.add('is-dragging');
@@ -459,11 +526,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const release = () => {
       dragging = false;
       viewport.classList.remove('is-dragging');
+      settle();
     };
     viewport.addEventListener('pointerup', release);
     viewport.addEventListener('pointercancel', release);
     viewport.addEventListener('dragstart', (event) => event.preventDefault());
     window.addEventListener('resize', () => { measure(); requestPaint(); }, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && settleFrame) {
+        window.cancelAnimationFrame(settleFrame);
+        settleFrame = 0;
+      } else if (!document.hidden) {
+        settle();
+      }
+    });
   }
 
   /* Drift: each frame moves a few pixels against the scroll as it crosses the
@@ -497,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function () {
      reaches, turns a gentle parallax into pictures that will not sit still. */
   const roomToDrift = window.matchMedia('(min-width: 701px)');
 
-  if (drifters.length && roomToDrift.matches) {
+  if (drifters.length && roomToDrift.matches && !galleryLowPower) {
     window.addEventListener('scroll', requestDrift, { passive: true });
     window.addEventListener('resize', requestDrift, { passive: true });
     if (typeof reduceMotion.addEventListener === 'function') reduceMotion.addEventListener('change', requestDrift);

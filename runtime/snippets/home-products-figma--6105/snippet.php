@@ -592,6 +592,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 										'decoding'  => 'async',
 										'draggable' => 'false',
 										'fetchpriority' => 0 === $index ? 'high' : 'auto',
+										'sizes'     => '(max-width: 989px) 220px, 260px',
 									)
 								); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							} else {
@@ -636,6 +637,15 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 		var GRID = 3;
 		var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		var coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+		var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+		var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+		var deviceMemory = Number(navigator.deviceMemory) || 0;
+		var hardwareConcurrency = Number(navigator.hardwareConcurrency) || 0;
+		var lowPower = Boolean(
+			(connection && connection.saveData) ||
+			(deviceMemory > 0 && deviceMemory <= 4) ||
+			(hardwareConcurrency > 0 && hardwareConcurrency <= 4)
+		);
 		var lockToX = coarsePointer;
 		var dragThreshold = coarsePointer ? 12 : 8;
 
@@ -679,7 +689,8 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 		var parallaxY = 0;
 		var targetPX = 0;
 		var targetPY = 0;
-		var parallaxStrength = reducedMotion ? 0 : 48;
+		var parallaxFrame = null;
+		var parallaxStrength = reducedMotion || coarsePointer || lowPower ? 0 : 48;
 		var lerp = 0.065;
 		var resizeTimer = null;
 		var layoutViewportWidth = window.innerWidth;
@@ -714,6 +725,23 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			canvas.style.transform = 'translate3d(' +
 				(posX + parallaxX).toFixed(2) + 'px,' +
 				(posY + parallaxY).toFixed(2) + 'px,0)';
+		}
+
+		function requestParallax() {
+			if (!finePointer || parallaxStrength === 0 || parallaxFrame !== null || document.hidden) return;
+
+			parallaxFrame = window.requestAnimationFrame(function () {
+				parallaxFrame = null;
+				var deltaX = targetPX - parallaxX;
+				var deltaY = targetPY - parallaxY;
+				parallaxX = Math.abs(deltaX) < 0.08 ? targetPX : parallaxX + deltaX * lerp;
+				parallaxY = Math.abs(deltaY) < 0.08 ? targetPY : parallaxY + deltaY * lerp;
+
+				if (!momentumFrame && !dragging) applyTransform();
+				if (Math.abs(targetPX - parallaxX) >= 0.08 || Math.abs(targetPY - parallaxY) >= 0.08) {
+					requestParallax();
+				}
+			});
 		}
 
 		function snap() {
@@ -848,6 +876,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			velY = 0;
 			targetPX = 0;
 			targetPY = 0;
+			requestParallax();
 			section.classList.add('is-dragging');
 
 		}
@@ -862,6 +891,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 				if (!coarsePointer) {
 					targetPX = (event.clientX / window.innerWidth - 0.5) * parallaxStrength;
 					targetPY = (event.clientY / Math.max(1, getSectionHeight()) - 0.5) * parallaxStrength;
+					requestParallax();
 				}
 				return;
 			}
@@ -924,6 +954,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 			resetItems();
 			targetPX = 0;
 			targetPY = 0;
+			requestParallax();
 			if (dragging) endDrag();
 		});
 
@@ -959,13 +990,6 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 		viewport.addEventListener('dragstart', function (event) {
 			event.preventDefault();
 		});
-
-		(function parallaxLoop() {
-			parallaxX += (targetPX - parallaxX) * lerp;
-			parallaxY += (targetPY - parallaxY) * lerp;
-			if (!momentumFrame && !dragging) applyTransform();
-			window.requestAnimationFrame(parallaxLoop);
-		})();
 
 		section.classList.add('has-reveal');
 
@@ -1018,7 +1042,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 		}
 
 		function playGuidedDrag() {
-			if (guidedDragActive || dragDemoPlayed || reducedMotion) return;
+			if (guidedDragActive || dragDemoPlayed || reducedMotion || lowPower) return;
 
 			dragDemoPlayed = true;
 			guidedDragActive = true;
@@ -1072,7 +1096,7 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 		}
 
 		function maybePlayDragDemo() {
-			if (dragDemoPlayed || reducedMotion) return;
+			if (dragDemoPlayed || reducedMotion || lowPower) return;
 
 			var rect = section.getBoundingClientRect();
 			var viewportHeight = window.innerHeight || document.documentElement.clientHeight;

@@ -1196,7 +1196,6 @@ html.ia-js figure[data-ia-reveal].is-in img {
   transform: scale(1);
   transition: transform 1.2s cubic-bezier(.16, 1, .3, 1);
 }
-.ioulia-about-page [data-ia-drift] { will-change: transform; }
 
 /* ===========================================================================
    THE DRAG GALLERY

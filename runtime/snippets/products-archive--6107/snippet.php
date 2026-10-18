@@ -1668,7 +1668,7 @@ function igpa_render_product_archive( $atts = array() ) {
 			<div class="igpa__editorial-hero" aria-label="<?php echo esc_attr( $english ? 'Shop stories' : 'Ιστορίες του καταστήματος' ); ?>">
 				<a class="igpa__editorial-panel" href="#<?php echo esc_attr( $instance_id ); ?>-collections">
 					<?php if ( $lead_image ) : ?>
-						<?php echo wp_get_attachment_image( $lead_image, 'full', false, array( 'class' => 'igpa__editorial-image', 'loading' => 'eager', 'decoding' => 'async', 'alt' => $english ? 'Ioulia Geraskli ceramic collections' : 'Συλλογές κεραμικών Ioulia Geraskli' ) ); ?>
+						<?php echo wp_get_attachment_image( $lead_image, 'full', false, array( 'class' => 'igpa__editorial-image', 'loading' => 'eager', 'decoding' => 'async', 'fetchpriority' => 'high', 'sizes' => '(max-width: 700px) 100vw, 50vw', 'alt' => $english ? 'Ioulia Geraskli ceramic collections' : 'Συλλογές κεραμικών Ioulia Geraskli' ) ); ?>
 					<?php endif; ?>
 					<span class="igpa__editorial-copy">
 						<span class="igpa__eyebrow"><?php echo esc_html( $english ? 'discover' : 'ανακάλυψε' ); ?></span>
@@ -1679,7 +1679,7 @@ function igpa_render_product_archive( $atts = array() ) {
 
 				<a class="igpa__editorial-panel" href="<?php echo esc_url( is_wp_error( $one_url ) ? '#shop-objects' : $one_url ); ?>">
 					<?php if ( $one_image ) : ?>
-						<?php echo wp_get_attachment_image( $one_image, 'full', false, array( 'class' => 'igpa__editorial-image', 'loading' => 'eager', 'decoding' => 'async', 'alt' => $english ? 'One and Only handmade ceramic' : 'Μοναδικό χειροποίητο κεραμικό' ) ); ?>
+						<?php echo wp_get_attachment_image( $one_image, 'full', false, array( 'class' => 'igpa__editorial-image', 'loading' => 'eager', 'decoding' => 'async', 'sizes' => '(max-width: 700px) 100vw, 50vw', 'alt' => $english ? 'One and Only handmade ceramic' : 'Μοναδικό χειροποίητο κεραμικό' ) ); ?>
 					<?php endif; ?>
 					<span class="igpa__editorial-copy">
 						<span class="igpa__eyebrow"><?php echo esc_html( $english ? 'one piece only' : 'ένα μόνο κομμάτι' ); ?></span>
@@ -1727,7 +1727,7 @@ function igpa_render_product_archive( $atts = array() ) {
 			<header class="igpa__term-hero">
 				<div class="igpa__term-visual">
 					<?php if ( isset( $archive_images[0] ) ) : ?>
-						<?php echo wp_get_attachment_image( $archive_images[0], 'full', false, array( 'class' => 'igpa__term-image', 'loading' => 'eager', 'decoding' => 'async', 'alt' => $archive_term->name ) ); ?>
+						<?php echo wp_get_attachment_image( $archive_images[0], 'full', false, array( 'class' => 'igpa__term-image', 'loading' => 'eager', 'decoding' => 'async', 'fetchpriority' => 'high', 'sizes' => '(max-width: 700px) 100vw, 33vw', 'alt' => $archive_term->name ) ); ?>
 					<?php endif; ?>
 				</div>
 				<div class="igpa__term-copy">
@@ -1739,7 +1739,7 @@ function igpa_render_product_archive( $atts = array() ) {
 				</div>
 				<div class="igpa__term-visual">
 					<?php if ( isset( $archive_images[1] ) ) : ?>
-						<?php echo wp_get_attachment_image( $archive_images[1], 'full', false, array( 'class' => 'igpa__term-image', 'loading' => 'eager', 'decoding' => 'async', 'alt' => '' ) ); ?>
+						<?php echo wp_get_attachment_image( $archive_images[1], 'full', false, array( 'class' => 'igpa__term-image', 'loading' => 'lazy', 'decoding' => 'async', 'sizes' => '(max-width: 700px) 1px, 33vw', 'alt' => '' ) ); ?>
 					<?php endif; ?>
 				</div>
 			</header>
