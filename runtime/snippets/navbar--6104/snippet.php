@@ -841,7 +841,11 @@ function ioulia_custom_navbar_shortcode() {
             transition: transform 0.85s var(--ioulia-snappy-ease);
             box-sizing: border-box;
             overflow: hidden;
-            padding: 16vh var(--ioulia-page-x) calc(5vh + 24px) var(--ioulia-page-x);
+            padding: calc(var(--ioulia-header-h, 163px) + 24px) var(--ioulia-page-x) calc(5vh + 12px) var(--ioulia-page-x);
+        }
+
+        #ioulia-header.scrolled ~ #ioulia-menu-overlay {
+            padding-top: calc(var(--ioulia-header-h, 163px) - 32px + 24px);
         }
 
         #ioulia-menu-overlay.active {
@@ -863,7 +867,7 @@ function ioulia_custom_navbar_shortcode() {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-top: 5vh;
+            margin-top: 0;
         }
 
         /* Δεξιά Στήλη */
@@ -977,7 +981,7 @@ function ioulia_custom_navbar_shortcode() {
             align-items: center;
             border-top: 1px solid rgba(254, 250, 228, 0.1);
             position: relative;
-            top: -24px;
+            top: -12px;
             padding-top: 3.5vh;
             opacity: 0;
             transform: translateY(20px);
@@ -1044,8 +1048,12 @@ function ioulia_custom_navbar_shortcode() {
            touch layouts keep their own sizing in the mobile rules below. */
         @media (min-width: 992px) and (max-height: 820px) {
             #ioulia-menu-overlay {
-                padding-top: clamp(112px, 14vh, 132px);
-                padding-bottom: calc(clamp(22px, 3.5vh, 30px) + 24px);
+                padding-top: calc(var(--ioulia-header-h, 163px) + 16px);
+                padding-bottom: calc(clamp(22px, 3.5vh, 30px) + 12px);
+            }
+
+            #ioulia-header.scrolled ~ #ioulia-menu-overlay {
+                padding-top: calc(var(--ioulia-header-h, 163px) - 32px + 16px);
             }
 
             .ioulia-canvas-main {
@@ -1093,8 +1101,8 @@ function ioulia_custom_navbar_shortcode() {
                lets the links arrive with the panel rather than a beat after it. */
             #ioulia-menu-overlay {
                 height: 100svh;
-                padding-top: var(--ioulia-header-h, 139px);
-                padding-bottom: calc(4vh + 24px);
+                padding-top: calc(var(--ioulia-header-h, 139px) + 12px);
+                padding-bottom: calc(4vh + 12px);
                 transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
             }
 
@@ -1109,6 +1117,10 @@ function ioulia_custom_navbar_shortcode() {
                 align-items: stretch;
                 gap: 0;
                 margin-top: 0;
+            }
+
+            #ioulia-header.scrolled ~ #ioulia-menu-overlay {
+                padding-top: calc(var(--ioulia-header-h, 139px) - 32px + 12px);
             }
             .ioulia-col-left{ padding-bottom: 0; }
 
