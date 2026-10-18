@@ -1047,7 +1047,7 @@ function ioulia_custom_navbar_shortcode() {
            touch layouts keep their own sizing in the mobile rules below. */
         @media (min-width: 992px) and (max-height: 820px) {
             #ioulia-menu-overlay {
-                height: calc(70vh + 32px);
+                height: calc(70vh + 56px);
                 padding-top: calc(var(--ioulia-header-h, 163px) + 48px);
                 padding-bottom: clamp(22px, 3.5vh, 30px);
             }
