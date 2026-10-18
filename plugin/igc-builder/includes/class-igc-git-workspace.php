@@ -54,7 +54,8 @@ final class IGC_Git_Workspace {
 		}
 
 		$expected = 'sha256=' . hash_hmac( 'sha256', $body, $secret );
-		if ( ! hash_equals( $expected, $signature ) || 'push' !== strtolower( (string) $request->get_header( 'x-github-event' ) ) ) {
+		$event = strtolower( (string) $request->get_header( 'x-github-event' ) );
+		if ( ! hash_equals( $expected, $signature ) || ! in_array( $event, array( 'ping', 'push' ), true ) ) {
 			return new WP_Error( 'igc_webhook_unauthorized', __( 'Webhook is not authorised.', 'igc-builder' ), array( 'status' => 401 ) );
 		}
 
@@ -65,6 +66,9 @@ final class IGC_Git_Workspace {
 		$payload = $request->get_json_params();
 		if ( ! is_array( $payload ) ) {
 			return new WP_Error( 'igc_webhook_invalid_payload', __( 'Webhook payload is invalid.', 'igc-builder' ), array( 'status' => 400 ) );
+		}
+		if ( 'ping' === strtolower( (string) $request->get_header( 'x-github-event' ) ) ) {
+			return new WP_REST_Response( array( 'accepted' => true, 'queued' => false, 'reason' => 'webhook_verified' ), 200 );
 		}
 		$settings = self::settings();
 		$repository = strtolower( self::github_repository() );
