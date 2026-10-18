@@ -121,6 +121,14 @@ body, .igw-page, .igw-page * {
   :root { --ioulia-header-h: 139px; }
 }
 
+/* Laptop canvas scale: 14-inch MacBook and similar 13–16-inch displays often
+   expose about 1200–1800 CSS pixels. A small layout zoom keeps the site's
+   oversized editorial type, navigation, cards and controls in proportion
+   without changing tablet/mobile sizing or the larger desktop composition. */
+@media (min-width: 1200px) and (max-width: 1800px) and (max-height: 1100px) {
+  html { zoom: .92; }
+}
+
 /* FOUNDATION */
 html {
   overflow-x: clip;
