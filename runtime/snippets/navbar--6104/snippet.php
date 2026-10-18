@@ -976,6 +976,7 @@ function ioulia_custom_navbar_shortcode() {
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid rgba(254, 250, 228, 0.1);
+            margin-bottom: 24px;
             padding-top: 3.5vh;
             opacity: 0;
             transform: translateY(20px);
