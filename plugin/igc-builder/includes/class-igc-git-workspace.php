@@ -993,6 +993,10 @@ final class IGC_Git_Workspace {
 	}
 
 	private static function github_pull(): void {
+		/* wp_tempnam() is defined by this admin include. A GitHub webhook runs
+		 * through WP-Cron, where WordPress has not loaded it automatically. */
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
 		$repository = self::github_repository();
 		$branch = (string) self::settings()['branch'];
 		$zip = wp_tempnam( 'site-studio-github.zip' );
