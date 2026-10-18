@@ -883,8 +883,9 @@ function mxl_infinite_products_hero_v161_shortcode( $atts = array() ) {
 
 		function moveDrag(event) {
 			if (cursorEl && event.pointerType !== 'touch') {
-				cursorEl.style.left = event.clientX + 'px';
-				cursorEl.style.top = event.clientY + 'px';
+				var pageZoom = parseFloat(window.getComputedStyle(document.documentElement).zoom) || 1;
+				cursorEl.style.left = (event.clientX / pageZoom) + 'px';
+				cursorEl.style.top = (event.clientY / pageZoom) + 'px';
 			}
 
 			if (!dragging || event.pointerId !== pointerId) {

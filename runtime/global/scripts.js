@@ -141,6 +141,16 @@ document.addEventListener('DOMContentLoaded', function () {
   let started = false;
   let activeLogo = null;
 
+  /* CSS zoom scales fixed descendants, but pointer events and element rects
+     remain in viewport coordinates. Convert to the zoomed layout space. */
+  const layoutZoom = function () {
+    const value = parseFloat(window.getComputedStyle(document.documentElement).zoom);
+    return Number.isFinite(value) && value > 0 ? value : 1;
+  };
+  const toLayoutCoordinate = function (value) {
+    return value / layoutZoom();
+  };
+
   const syncTargetState = function (target) {
     if (!(target instanceof Element)) {
       ring.classList.remove('is-interactive', 'is-control', 'is-context', 'is-context-action', 'is-logo');
@@ -185,9 +195,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (logo) {
       const logoRect = logo.getBoundingClientRect();
-      targetX = logoRect.left + logoRect.width / 2;
-      targetY = logoRect.top + logoRect.height / 2;
-      ring.style.setProperty('--ioulia-cursor-logo-scale', String(Math.max(logoRect.width, logoRect.height) / 52));
+      targetX = toLayoutCoordinate(logoRect.left + logoRect.width / 2);
+      targetY = toLayoutCoordinate(logoRect.top + logoRect.height / 2);
+      const zoomedDiameter = 52 * layoutZoom();
+      ring.style.setProperty('--ioulia-cursor-logo-scale', String(Math.max(logoRect.width, logoRect.height) / zoomedDiameter));
     } else {
       ring.style.removeProperty('--ioulia-cursor-logo-scale');
 
@@ -197,8 +208,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (control) {
         const controlRect = control.getBoundingClientRect();
         if (controlRect.width <= 260 && controlRect.height <= 110) {
-          const centreX = controlRect.left + controlRect.width / 2;
-          const centreY = controlRect.top + controlRect.height / 2;
+          const centreX = toLayoutCoordinate(controlRect.left + controlRect.width / 2);
+          const centreY = toLayoutCoordinate(controlRect.top + controlRect.height / 2);
           targetX += (centreX - pointerX) * .16;
           targetY += (centreY - pointerY) * .16;
         }
@@ -230,8 +241,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.addEventListener('pointermove', function (event) {
     if (event.pointerType && event.pointerType !== 'mouse') return;
-    pointerX = event.clientX;
-    pointerY = event.clientY;
+    pointerX = toLayoutCoordinate(event.clientX);
+    pointerY = toLayoutCoordinate(event.clientY);
     targetX = pointerX;
     targetY = pointerY;
     if (!started) {

@@ -921,8 +921,9 @@ if (!function_exists('ioulia_cursor_products_hero_shortcode')) {
                 "translate3d(" + card.x.toFixed(2) + "px," + card.y.toFixed(2) + "px,0) " +
                 "translate(-50%,-50%) rotate(" + rotation.toFixed(2) + "deg)";
 
-            cursor.style.left = mouse.x + "px";
-            cursor.style.top = mouse.y + "px";
+            var pageZoom = parseFloat(window.getComputedStyle(document.documentElement).zoom) || 1;
+            cursor.style.left = (mouse.x / pageZoom) + "px";
+            cursor.style.top = (mouse.y / pageZoom) + "px";
         }
 
         if (

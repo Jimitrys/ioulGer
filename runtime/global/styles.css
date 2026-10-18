@@ -127,6 +127,20 @@ body, .igw-page, .igw-page * {
    without changing tablet/mobile sizing or the larger desktop composition. */
 @media (min-width: 1200px) and (max-width: 1800px) and (max-height: 1100px) {
   html { zoom: .8; }
+
+  /* CSS zoom also scales viewport-sized sections. Restore their intended
+     on-screen height so a 100svh canvas still fills the visible viewport. */
+  .icph { height: 125svh !important; min-height: 775px !important; }
+  .mxl-iph { height: 140dvh !important; min-height: 775px !important; }
+  .igpa__editorial-hero { min-height: 125svh !important; }
+  .igc-shop { min-height: 125svh !important; height: 125dvh !important; }
+  body.admin-bar .igc-shop { height: calc(125dvh - 40px) !important; }
+  .igsp__gallery,
+  .igsp__gallery-stage,
+  .igsp__product-panel { height: 125vh !important; }
+  .igsp__media-item {
+    height: calc(125vh - var(--igsp-gallery-pad) - var(--igsp-gallery-pad)) !important;
+  }
 }
 
 /* FOUNDATION */
